@@ -17,20 +17,18 @@ Please follow the following instructions:
 ```
 cd frontend
 pnpm build
-scp -r dist/* [user]@recette-ode1-web1.ipa.ode.tools:/tmp
-scp -r dist/* [user]@recette-ode1-web2.ipa.ode.tools:/tmp
+scp -r dist/* recette-ode1-web1.ipa.ode.tools:/tmp
+scp -r dist/* recette-ode1-web2.ipa.ode.tools:/tmp
 ```
-
-(replace [user] by user quadrigram)
 
 ```
 ssh recette-ode1-web1.ipa.ode.tools
-sudo mv /tmp/index.html /var/www/web-education/static/tiptap/
-sudo mv /tmp/public/ /var/www/web-education/static/tiptap/
+sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
+sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
 ```
 
 ```
 ssh recette-ode1-web2.ipa.ode.tools
-sudo mv /tmp/index.html /var/www/web-education/static/tiptap/
-sudo mv /tmp/public/ /var/www/web-education/static/tiptap/
+sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
+sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
 ```
