@@ -1,11 +1,5 @@
-import {
-  LoadingScreen,
-  Layout,
-  EmptyScreen,
-  useOdeClient,
-} from "@edifice-ui/react";
+import { LoadingScreen, Layout, useOdeClient } from "@edifice-ui/react";
 
-import starterImage from "../../assets/starter.png";
 import Tiptap from "~/components/Tiptap";
 
 function Root() {
