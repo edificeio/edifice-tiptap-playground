@@ -6,6 +6,7 @@ import {
 } from "@edifice-ui/react";
 
 import starterImage from "../../assets/starter.png";
+import Tiptap from "~/components/Tiptap";
 
 function Root() {
   const { init } = useOdeClient();
@@ -14,12 +15,7 @@ function Root() {
 
   return init ? (
     <Layout>
-      <EmptyScreen
-        imageSrc={starterImage}
-        imageAlt=""
-        title="Start your new application!"
-        text="Create a new file in src/app folder with the name of your app (e.g: Blog) and replace the content inside <Layout> with your own component."
-      />
+      <Tiptap />
     </Layout>
   ) : null;
 }
