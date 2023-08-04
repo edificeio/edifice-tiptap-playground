@@ -1,6 +1,6 @@
 import { LoadingScreen, Layout, useOdeClient } from "@edifice-ui/react";
 
-import Tiptap from "~/components/Tiptap";
+import Tiptap from "~/components/Tiptap/Tiptap";
 
 function Root() {
   const { init } = useOdeClient();

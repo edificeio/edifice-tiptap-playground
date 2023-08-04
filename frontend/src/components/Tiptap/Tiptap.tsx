@@ -4,7 +4,7 @@ import TextStyle from "@tiptap/extension-text-style";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-import Toolbar from "./Toolbar";
+import Toolbar from "../Toolbar/Toolbar";
 import "~/styles/index.scss";
 
 const Tiptap = () => {
