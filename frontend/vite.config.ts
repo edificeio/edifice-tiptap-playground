@@ -47,7 +47,7 @@ export default ({ mode }: { mode: string }) => {
     "/mindmap": proxyObj,
   };
 
-  const base = mode === "production" ? "/" : "";
+  const base = mode === "production" ? "/tiptap" : "";
 
   const build = {
     assetsDir: "public",
