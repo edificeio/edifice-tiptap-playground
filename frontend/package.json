@@ -44,7 +44,7 @@
     ]
   },
   "dependencies": {
-    "@edifice-ui/icons": "1.0.0-develop-b2school.5",
+    "@edifice-ui/icons": "develop-b2school",
     "@edifice-ui/react": "develop-b2school",
     "@react-spring/web": "9.7.3",
     "@tanstack/react-query": "4.32.6",
