@@ -10,6 +10,8 @@ import {
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
 
+import "./i18n";
+
 import Root from "~/app/root";
 
 const rootElement = document.getElementById("root");

@@ -1,26 +1,36 @@
-import { Color } from "@tiptap/extension-color";
-import ListItem from "@tiptap/extension-list-item";
+import { TiptapWrapper, Toolbar } from "@edifice-ui/react";
+import Color from "@tiptap/extension-color";
+import Highlight from "@tiptap/extension-highlight";
+import Table from "@tiptap/extension-table";
+import TableCell from "@tiptap/extension-table-cell";
+import TableHeader from "@tiptap/extension-table-header";
+import TableRow from "@tiptap/extension-table-row";
+import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
+import Underline from "@tiptap/extension-underline";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
-import Toolbar from "../Toolbar/Toolbar";
+import { useActionOptions } from "~/hooks/useActionOptions";
+import { useToolbarItems } from "~/hooks/useToolbarItems";
+
 import "~/styles/index.scss";
+import "~/styles/table.scss";
 
 const Tiptap = () => {
   const editor = useEditor({
     extensions: [
-      Color.configure({ types: [TextStyle.name, ListItem.name] }),
+      StarterKit,
+      Highlight,
+      Underline,
       TextStyle,
-      StarterKit.configure({
-        bulletList: {
-          keepMarks: true,
-          keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-        },
-        orderedList: {
-          keepMarks: true,
-          keepAttributes: false, // TODO : Making this as `false` becase marks are not preserved when I try to preserve attrs, awaiting a bit of help
-        },
+      Color,
+      Table,
+      TableRow,
+      TableHeader,
+      TableCell,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
       }),
     ],
     content: `
@@ -56,14 +66,46 @@ const Tiptap = () => {
         <br />
         — Mom
       </blockquote>
+      <table>
+          <tbody>
+            <tr>
+              <th>Name</th>
+              <th colspan="3">Description</th>
+            </tr>
+            <tr>
+              <td>Cyndi Lauper</td>
+              <td>singer</td>
+              <td>songwriter</td>
+              <td>actress</td>
+            </tr>
+          </tbody>
+        </table>
       `,
   });
 
+  /* A bouger ailleurs, à externaliser ? */
+  const [options, listOptions, alignmentOptions] = useActionOptions(editor);
+
+  /* A bouger ailleurs, à externaliser ? */
+  const { toolbarItems } = useToolbarItems(
+    editor,
+    listOptions,
+    alignmentOptions,
+  );
+
+  console.log(editor?.extensionManager.extensions);
+
   return (
-    <div className="p-24">
-      <Toolbar editor={editor} />
-      <EditorContent editor={editor} />
-    </div>
+    <TiptapWrapper>
+      <Toolbar
+        data={toolbarItems}
+        options={options}
+        variant="no-shadow"
+        isBlock
+        align="left"
+      />
+      <EditorContent editor={editor} className="py-12 px-16" />
+    </TiptapWrapper>
   );
 };
 

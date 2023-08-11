@@ -52,11 +52,10 @@ export default ({ mode }: { mode: string }) => {
   const build = {
     assetsDir: "public",
     rollupOptions: {
-      external: ["ode-ts-client" /* "ode-explorer" */],
+      external: ["edifice-ts-client"],
       output: {
         paths: {
-          "ode-ts-client": "/assets/js/ode-ts-client/ode-ts-client.esm.js",
-          // "ode-explorer": "/assets/js/ode-explorer/index.js",
+          "edifice-ts-client": "/assets/js/edifice-ts-client/index.js",
         },
       },
     },
@@ -69,7 +68,7 @@ export default ({ mode }: { mode: string }) => {
     host: "0.0.0.0",
     port: 3000,
     headers: resHeaders,
-    open: false,
+    open: true,
   };
 
   return defineConfig({

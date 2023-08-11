@@ -1,5 +1,5 @@
 /* Basic editor styles */
-button,
+/* button,
 input,
 select {
   font-size: inherit;
@@ -11,9 +11,9 @@ select {
   padding: 0.1rem 0.4rem;
   background: white;
   accent-color: black;
-}
+} */
 
-.ProseMirror {
+/* .ProseMirror {
   > * + * {
     margin-top: 0.75em;
   }
@@ -67,4 +67,8 @@ select {
     border-top: 2px solid rgba(#0d0d0d, 0.1);
     margin: 2rem 0;
   }
-}
+
+  &-focused {
+    outline: none;
+  }
+} */
