@@ -41,7 +41,7 @@ export const useActionOptions = (editor: Editor | null) => {
     {
       icon: <Superscript />,
       label: "Exposant",
-      action: () => console.log("click"),
+      action: () => editor?.chain().focus().toggleSuperscript().run(),
     },
     {
       icon: <Subscript />,

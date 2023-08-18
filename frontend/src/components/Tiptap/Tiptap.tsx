@@ -1,6 +1,7 @@
 import { TiptapWrapper, Toolbar } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
+import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
 import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
@@ -25,6 +26,7 @@ const Tiptap = () => {
       Underline,
       TextStyle,
       Color,
+      Superscript,
       Table,
       TableRow,
       TableHeader,
