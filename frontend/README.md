@@ -37,7 +37,7 @@ Install all dependencies.
 or
 
 ```bash
-node scripts/package.js && pnpm install
+node scripts/package.cjs && pnpm install
 ```
 
 ## Dev
