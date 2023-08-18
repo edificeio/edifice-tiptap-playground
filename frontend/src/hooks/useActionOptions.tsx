@@ -46,7 +46,7 @@ export const useActionOptions = (editor: Editor | null) => {
     {
       icon: <Subscript />,
       label: "Indice",
-      action: () => console.log("click"),
+      action: () => editor?.chain().focus().toggleSubscript().run(),
     },
     {
       icon: <SquareRoot />,
