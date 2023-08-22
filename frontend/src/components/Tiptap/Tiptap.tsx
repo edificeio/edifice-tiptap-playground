@@ -23,7 +23,9 @@ const Tiptap = () => {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Highlight,
+      Highlight.configure({
+        multicolor: true,
+      }),
       Underline,
       TextStyle,
       Color,

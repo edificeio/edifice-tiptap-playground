@@ -18,8 +18,11 @@ import {
   TextUnderline,
 } from "@edifice-ui/icons";
 import {
+  AccessiblePalette,
   ActionMenu,
   ActionMenuOptions,
+  ColorPicker,
+  DefaultPalette,
   ToolbarOptions,
   useHasWorkflow,
 } from "@edifice-ui/react";
@@ -96,7 +99,7 @@ export const useToolbarItems = (
     {
       name: "color",
       icon: <TextColor />,
-      label: "Choix de la couleur",
+      label: "Couleur de texte",
       action: () => editor?.chain().focus().setColor("#FF00FF").run(),
       isActive: editor?.isActive("color"),
       isEnable: !!editor?.extensionManager.extensions.find(
@@ -106,11 +109,26 @@ export const useToolbarItems = (
       ),
     },
     {
+      action: () => console.log("on click"),
       name: "highlight",
       icon: <TextHighlight />,
-      label: "Choix de la couleur",
-      action: () => editor?.chain().focus().toggleHighlight().run(),
-      isActive: editor?.isActive("highlight"),
+      label: "Couleur de fond",
+      isActive: editor?.isActive("highlight", {
+        color: /^#([0-9a-f]{3}){1,2}$/i,
+      }),
+      hasDropdown: true,
+      content: () => (
+        <ColorPicker
+          model={editor?.getAttributes("highlight")["color"] ?? "#4A4A4A"}
+          palettes={[
+            { ...DefaultPalette, label: "Couleur de fond" },
+            { ...AccessiblePalette, label: "Accessible palette" },
+          ]}
+          onChange={(color: string) => {
+            editor?.chain().focus().toggleHighlight({ color: color }).run();
+          }}
+        />
+      ),
       isEnable:
         !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
