@@ -101,7 +101,9 @@ export const useToolbarItems = (
       name: "color",
       icon: <TextColor />,
       label: "Couleur de texte",
-      isActive: editor?.isActive("color"),
+      isActive: editor?.isActive("textStyle", {
+        color: /^#([0-9a-f]{3}){1,2}$/i,
+      }),
       hasDropdown: true,
       content: () => (
         <ColorPicker
@@ -111,7 +113,12 @@ export const useToolbarItems = (
             { ...AccessiblePalette, label: "Accessible palette" },
           ]}
           onChange={(color) => {
-            editor?.chain().focus().setColor(color).run();
+            // If the same color is picked, remove it (=toggle mode).
+            if (color === editor?.getAttributes("textStyle").color) {
+              editor?.chain().focus().unsetColor().run();
+            } else {
+              editor?.chain().focus().setColor(color).run();
+            }
           }}
         />
       ),
