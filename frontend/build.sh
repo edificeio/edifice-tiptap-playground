@@ -9,6 +9,10 @@ case $i in
   NO_DOCKER="true"
   shift
   ;;
+  --target=*)
+  DEPLOY_TARGET="${i#*=}"
+  shift
+  ;;
   *)
   ;;
 esac
@@ -139,6 +143,40 @@ publishMavenLocal (){
     -Dfile=${MVN_MOD_NAME}.tar.gz
 }
 
+deploy() {
+  echo "Starting deployment to $DEPLOY_TARGET..."
+  echo
+  echo "Building app..."
+
+  pnpm build
+
+  echo
+  echo "Copying dist files to $DEPLOY_TARGET-web1.ipa.ode.tools..."
+  scp -r dist/* $DEPLOY_TARGET-web1.ipa.ode.tools:/tmp
+
+  ssh -t -o LogLevel=error $DEPLOY_TARGET-web1.ipa.ode.tools <<'EOL'
+    sudo rm -rf /var/www/web-education/static/tiptap/*
+    sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
+    sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
+    rm /tmp/index.html
+    rm -rf /tmp/public
+EOL
+
+  echo
+  echo "Copying dist files to $DEPLOY_TARGET-web2.ipa.ode.tools..."
+  scp -r dist/* $DEPLOY_TARGET-web2.ipa.ode.tools:/tmp
+
+  ssh -t -o LogLevel=error $DEPLOY_TARGET-web2.ipa.ode.tools <<'EOL'
+    sudo rm -rf /var/www/web-education/static/tiptap/*
+    sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
+    sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
+    rm /tmp/index.html
+    rm -rf /tmp/public
+EOL
+  echo
+  echo -e "Deployment done!"
+}
+
 for param in "$@"
 do
   case $param in
@@ -168,6 +206,9 @@ do
       ;;
     publishNPM)
       publishNPM
+      ;;
+    deploy)
+      deploy
       ;;
     *)
       echo "Invalid argument : $param"
