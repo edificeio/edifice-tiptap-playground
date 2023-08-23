@@ -25,10 +25,14 @@ scp -r dist/* recette-ode1-web2.ipa.ode.tools:/tmp
 ssh recette-ode1-web1.ipa.ode.tools
 sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
 sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
+rm /tmp/index.html
+rm -rf /tmp/public
 ```
 
 ```
 ssh recette-ode1-web2.ipa.ode.tools
 sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
 sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
+rm /tmp/index.html
+rm -rf /tmp/public
 ```
