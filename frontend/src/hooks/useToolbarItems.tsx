@@ -97,11 +97,24 @@ export const useToolbarItems = (
       isEnable: true,
     },
     {
+      action: () => console.log("on click"),
       name: "color",
       icon: <TextColor />,
       label: "Couleur de texte",
-      action: () => editor?.chain().focus().setColor("#FF00FF").run(),
       isActive: editor?.isActive("color"),
+      hasDropdown: true,
+      content: () => (
+        <ColorPicker
+          model={editor?.getAttributes("textStyle").color ?? "#4A4A4A"}
+          palettes={[
+            { ...DefaultPalette, label: "Couleur de texte" },
+            { ...AccessiblePalette, label: "Accessible palette" },
+          ]}
+          onChange={(color) => {
+            editor?.chain().focus().setColor(color).run();
+          }}
+        />
+      ),
       isEnable: !!editor?.extensionManager.extensions.find(
         (item) =>
           item.name === "color" &&
@@ -119,12 +132,12 @@ export const useToolbarItems = (
       hasDropdown: true,
       content: () => (
         <ColorPicker
-          model={editor?.getAttributes("highlight")["color"] ?? "#4A4A4A"}
+          model={editor?.getAttributes("highlight").color ?? "#FFFFFF"}
           palettes={[
             { ...DefaultPalette, label: "Couleur de fond" },
             { ...AccessiblePalette, label: "Accessible palette" },
           ]}
-          onChange={(color: string) => {
+          onChange={(color) => {
             editor?.chain().focus().toggleHighlight({ color: color }).run();
           }}
         />
