@@ -27,6 +27,7 @@ import {
   useHasWorkflow,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
+import EmojiPicker from "emoji-picker-react";
 
 export const useToolbarItems = (
   editor: Editor | null,
@@ -186,10 +187,21 @@ export const useToolbarItems = (
     {
       name: "emoji",
       icon: <Smiley />,
-      label: "Choix de la taille de typographie",
-      isActive: editor?.isActive("emoji"),
+      label: "Emojis",
+      isActive: false,
       isEnable: true,
       action: () => console.log("click"),
+      hasDropdown: true,
+      content: () => (
+        <EmojiPicker
+          onEmojiClick={(emoji) =>
+            editor?.commands.insertContentAt(
+              editor.view.state.selection,
+              emoji.emoji,
+            )
+          }
+        />
+      ),
     },
     {
       name: "linker",
