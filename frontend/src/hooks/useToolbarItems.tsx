@@ -28,6 +28,7 @@ import {
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import EmojiPicker from "emoji-picker-react";
+import { useTranslation } from "react-i18next";
 
 import TextColorExtension from "~/components/TextColorExtension.tsx/TextColorExtension";
 
@@ -38,6 +39,8 @@ export const useToolbarItems = (
 ) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [highlightColor, setHighlightColor] = useState<string>("");
+
+  const { t } = useTranslation();
 
   const canRecord = useHasWorkflow(
     "com.opendigitaleducation.video.controllers.VideoController|view",
@@ -129,8 +132,8 @@ export const useToolbarItems = (
         <ColorPicker
           model={highlightColor}
           palettes={[
-            { ...DefaultPalette, label: "Couleur de fond" },
-            { ...AccessiblePalette, label: "Accessible palette" },
+            { ...DefaultPalette, label: t("Couleur de fond") },
+            { ...AccessiblePalette, label: t("Accessible palette") },
           ]}
           onChange={(color) => {
             if (color === highlightColor) {
