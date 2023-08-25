@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   AlignLeft,
@@ -21,6 +21,7 @@ import {
   AccessiblePalette,
   ActionMenu,
   ActionMenuOptions,
+  ColorPalette,
   ColorPicker,
   DefaultPalette,
   ToolbarOptions,
@@ -28,13 +29,36 @@ import {
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import EmojiPicker from "emoji-picker-react";
+import { useTranslation } from "react-i18next";
 
 export const useToolbarItems = (
   editor: Editor | null,
   listOptions: ActionMenuOptions[],
   alignmentOptions: ActionMenuOptions[],
 ) => {
+  const { t } = useTranslation();
+
   const [isOpen, setIsOpen] = useState<boolean>(false);
+
+  // Manage text and background colors.
+  const sharedAccessiblePalette: ColorPalette = {
+    ...AccessiblePalette,
+    label: t("Accessible palette"),
+    tooltip: {
+      message: t(
+        "Cette palette assure un contraste qui permet aux personnes atteintes de daltonisme de distinguer les différentes nuances de couleurs.",
+      ),
+      placement: "right",
+    },
+  };
+  const [textColor, setTextColor] = useState<string>("#4A4A4A");
+  const [highlightColor, setHighlightColor] = useState<string>("");
+
+  useEffect(() => {
+    // When cursor moves in editor, update the text and background colors.
+    setTextColor(editor?.getAttributes("textStyle").color ?? "#4A4A4A");
+    setHighlightColor(editor?.getAttributes("highlight").color ?? "");
+  }, [editor, editor?.state]);
 
   const canRecord = useHasWorkflow(
     "com.opendigitaleducation.video.controllers.VideoController|view",
@@ -108,16 +132,18 @@ export const useToolbarItems = (
       hasDropdown: true,
       content: () => (
         <ColorPicker
-          model={editor?.getAttributes("textStyle").color ?? "#4A4A4A"}
+          model={textColor}
           palettes={[
-            { ...DefaultPalette, label: "Couleur de texte" },
-            { ...AccessiblePalette, label: "Accessible palette" },
+            { ...DefaultPalette, label: t("Couleur de texte") },
+            sharedAccessiblePalette,
           ]}
           onChange={(color) => {
             // If the same color is picked, remove it (=toggle mode).
-            if (color === editor?.getAttributes("textStyle").color) {
+            if (color === textColor) {
+              setTextColor("");
               editor?.chain().focus().unsetColor().run();
             } else {
+              setTextColor(color);
               editor?.chain().focus().setColor(color).run();
             }
           }}
@@ -140,13 +166,20 @@ export const useToolbarItems = (
       hasDropdown: true,
       content: () => (
         <ColorPicker
-          model={editor?.getAttributes("highlight").color ?? "#FFFFFF"}
+          model={highlightColor}
           palettes={[
-            { ...DefaultPalette, label: "Couleur de fond" },
-            { ...AccessiblePalette, label: "Accessible palette" },
+            { ...DefaultPalette, label: t("Couleur de fond") },
+            sharedAccessiblePalette,
           ]}
           onChange={(color) => {
-            editor?.chain().focus().toggleHighlight({ color: color }).run();
+            // If the same color is picked, remove it (=toggle mode).
+            if (color === highlightColor) {
+              setHighlightColor("");
+              editor?.chain().focus().unsetHighlight().run();
+            } else {
+              setHighlightColor(color);
+              editor?.chain().focus().setHighlight({ color: color }).run();
+            }
           }}
         />
       ),
