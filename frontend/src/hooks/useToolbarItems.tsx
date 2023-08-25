@@ -18,16 +18,16 @@ import {
   TextUnderline,
 } from "@edifice-ui/icons";
 import {
-  AccessiblePalette,
   ActionMenu,
   ActionMenuOptions,
-  ColorPicker,
-  DefaultPalette,
   ToolbarOptions,
   useHasWorkflow,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import EmojiPicker from "emoji-picker-react";
+
+import TextColorExtension from "~/components/TextColorExtension.tsx/TextColorExtension";
+import TextHighlightExtension from "~/components/TextHighlightExtension.tsx/TextHighlightExtension";
 
 export const useToolbarItems = (
   editor: Editor | null,
@@ -106,23 +106,7 @@ export const useToolbarItems = (
         color: /^#([0-9a-f]{3}){1,2}$/i,
       }),
       hasDropdown: true,
-      content: () => (
-        <ColorPicker
-          model={editor?.getAttributes("textStyle").color ?? "#4A4A4A"}
-          palettes={[
-            { ...DefaultPalette, label: "Couleur de texte" },
-            { ...AccessiblePalette, label: "Accessible palette" },
-          ]}
-          onChange={(color) => {
-            // If the same color is picked, remove it (=toggle mode).
-            if (color === editor?.getAttributes("textStyle").color) {
-              editor?.chain().focus().unsetColor().run();
-            } else {
-              editor?.chain().focus().setColor(color).run();
-            }
-          }}
-        />
-      ),
+      content: () => <TextColorExtension editor={editor} />,
       isEnable: !!editor?.extensionManager.extensions.find(
         (item) =>
           item.name === "color" &&
@@ -138,18 +122,7 @@ export const useToolbarItems = (
         color: /^#([0-9a-f]{3}){1,2}$/i,
       }),
       hasDropdown: true,
-      content: () => (
-        <ColorPicker
-          model={editor?.getAttributes("highlight").color ?? "#FFFFFF"}
-          palettes={[
-            { ...DefaultPalette, label: "Couleur de fond" },
-            { ...AccessiblePalette, label: "Accessible palette" },
-          ]}
-          onChange={(color) => {
-            editor?.chain().focus().toggleHighlight({ color: color }).run();
-          }}
-        />
-      ),
+      content: () => <TextHighlightExtension editor={editor} />,
       isEnable:
         !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
