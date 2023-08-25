@@ -18,8 +18,11 @@ import {
   TextUnderline,
 } from "@edifice-ui/icons";
 import {
+  AccessiblePalette,
   ActionMenu,
   ActionMenuOptions,
+  ColorPicker,
+  DefaultPalette,
   ToolbarOptions,
   useHasWorkflow,
 } from "@edifice-ui/react";
@@ -27,7 +30,6 @@ import { Editor } from "@tiptap/react";
 import EmojiPicker from "emoji-picker-react";
 
 import TextColorExtension from "~/components/TextColorExtension.tsx/TextColorExtension";
-import TextHighlightExtension from "~/components/TextHighlightExtension.tsx/TextHighlightExtension";
 
 export const useToolbarItems = (
   editor: Editor | null,
@@ -35,6 +37,7 @@ export const useToolbarItems = (
   alignmentOptions: ActionMenuOptions[],
 ) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [highlightColor, setHighlightColor] = useState<string>("");
 
   const canRecord = useHasWorkflow(
     "com.opendigitaleducation.video.controllers.VideoController|view",
@@ -122,7 +125,23 @@ export const useToolbarItems = (
         color: /^#([0-9a-f]{3}){1,2}$/i,
       }),
       hasDropdown: true,
-      content: () => <TextHighlightExtension editor={editor} />,
+      content: () => (
+        <ColorPicker
+          model={highlightColor}
+          palettes={[
+            { ...DefaultPalette, label: "Couleur de fond" },
+            { ...AccessiblePalette, label: "Accessible palette" },
+          ]}
+          onChange={(color) => {
+            if (color === highlightColor) {
+              setHighlightColor("");
+            } else {
+              setHighlightColor(color);
+            }
+            editor?.chain().focus().toggleHighlight({ color: color }).run();
+          }}
+        />
+      ),
       isEnable:
         !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
