@@ -11,5 +11,6 @@ Please see [frontend/README.md](./frontend/README.md) for frontend development i
 Execute the following command to deploy the app:
 
 ```sh
+cd frontend
 ./build.sh --target=recette-ode1 deploy
 ```
