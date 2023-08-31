@@ -1,3 +1,4 @@
+import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { TiptapWrapper, Toolbar } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
@@ -40,6 +41,7 @@ const Tiptap = () => {
         types: ["heading", "paragraph"],
       }),
       Typography,
+      TypoSize,
     ],
     content: `
       <h2>

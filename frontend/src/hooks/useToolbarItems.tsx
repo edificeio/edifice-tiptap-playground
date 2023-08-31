@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
   AlignLeft,
   Attachment,
@@ -24,6 +25,7 @@ import {
   ColorPalette,
   ColorPicker,
   DefaultPalette,
+  SelectList,
   ToolbarOptions,
   useHasWorkflow,
 } from "@edifice-ui/react";
@@ -108,7 +110,7 @@ export const useToolbarItems = (
       /* content: (index: any, props: any) => (
             <SizeDropdown key={index} {...props} />
           ), */
-      action: () => editor?.commands.setHeading({ level: 1 }),
+      action: () => editor?.chain().focus().setHeading({ level: 1 }),
       isActive: editor?.isActive("heading", { level: 1 }),
       isEnable: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "starterKit",
@@ -118,8 +120,50 @@ export const useToolbarItems = (
       name: "text_size",
       icon: <TextSize />,
       label: "Choix de la taille de typographie",
+      hasDropdown: true,
+      content: () => (
+        <SelectList
+          onChange={([value]) => {
+            editor
+              ?.chain()
+              .focus()
+              .toggleTypoSize({ level: value as TypoSizeLevel })
+              .run();
+          }}
+          isMonoSelection
+          hideCheckbox
+          options={[
+            {
+              value: 2,
+              label: t("Titre 1"),
+              className: "fs-2 fw-bold",
+            },
+            {
+              value: 3,
+              label: t("Titre 2"),
+              className: "fs-3 fw-bold",
+            },
+            {
+              value: 4,
+              label: t("Texte grand"),
+              className: "fs-4",
+            },
+            {
+              value: 5,
+              label: t("Texte normal"),
+            },
+            {
+              value: 6,
+              label: t("Texte petit"),
+              className: "fs-6",
+            },
+          ]}
+        />
+      ),
       action: () => console.log("click"),
-      isEnable: true,
+      isEnable: !!editor?.extensionManager.extensions.find(
+        (item) => item.name === "typoSize",
+      ),
     },
     {
       action: () => console.log("on click"),
