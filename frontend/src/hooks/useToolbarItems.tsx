@@ -26,6 +26,7 @@ import {
   DefaultPalette,
   ToolbarOptions,
   useHasWorkflow,
+  NOOP,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import EmojiPicker, { Categories } from "emoji-picker-react";
@@ -223,7 +224,7 @@ export const useToolbarItems = (
       label: "Emojis",
       isActive: false,
       isEnable: true,
-      action: () => {},
+      action: NOOP,
       hasDropdown: true,
       content: () => (
         <EmojiPicker
