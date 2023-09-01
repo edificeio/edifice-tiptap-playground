@@ -28,9 +28,10 @@ import {
   SelectList,
   ToolbarOptions,
   useHasWorkflow,
+  NOOP,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { Categories } from "emoji-picker-react";
 import { useTranslation } from "react-i18next";
 
 export const useToolbarItems = (
@@ -267,16 +268,58 @@ export const useToolbarItems = (
       label: "Emojis",
       isActive: false,
       isEnable: true,
-      action: () => console.log("click"),
+      action: NOOP,
       hasDropdown: true,
       content: () => (
         <EmojiPicker
+          height={400}
+          width={316}
           onEmojiClick={(emoji) =>
             editor?.commands.insertContentAt(
               editor.view.state.selection,
               emoji.emoji,
             )
           }
+          previewConfig={{ showPreview: false }}
+          searchPlaceHolder={t("Recherche")}
+          categories={[
+            {
+              category: Categories.SUGGESTED,
+              name: `${t("Utilisés récemment")}`,
+            },
+            {
+              category: Categories.SMILEYS_PEOPLE,
+              name: `${t("Personnes")}`,
+            },
+            {
+              category: Categories.ANIMALS_NATURE,
+              name: `${t("Animaux et nature")}`,
+            },
+            {
+              category: Categories.FOOD_DRINK,
+              name: `${t("Aliments et boissons")}`,
+            },
+            {
+              category: Categories.TRAVEL_PLACES,
+              name: `${t("Voyages et lieux")}`,
+            },
+            {
+              category: Categories.ACTIVITIES,
+              name: `${t("Activités")}`,
+            },
+            {
+              category: Categories.OBJECTS,
+              name: `${t("Objets")}`,
+            },
+            {
+              category: Categories.SYMBOLS,
+              name: `${t("Symbôles")}`,
+            },
+            {
+              category: Categories.FLAGS,
+              name: `${t("Drapeaux")}`,
+            },
+          ]}
         />
       ),
     },
