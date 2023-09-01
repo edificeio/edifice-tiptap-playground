@@ -15,24 +15,24 @@ export default ({ mode }: { mode: string }) => {
   };
   const resHeaders = hasEnvFile
     ? {
-      "set-cookie": [
-        `oneSessionId=${envs.VITE_ONE_SESSION_ID}`,
-        `XSRF-TOKEN=${envs.VITE_XSRF_TOKEN}`,
-      ],
-      "Cache-Control": "public, max-age=300",
-    }
+        "set-cookie": [
+          `oneSessionId=${envs.VITE_ONE_SESSION_ID}`,
+          `XSRF-TOKEN=${envs.VITE_XSRF_TOKEN}`,
+        ],
+        "Cache-Control": "public, max-age=300",
+      }
     : {};
 
   const proxyObj = hasEnvFile
     ? {
-      target: envs.VITE_RECETTE,
-      changeOrigin: true,
-      headers,
-    }
+        target: envs.VITE_RECETTE,
+        changeOrigin: true,
+        headers,
+      }
     : {
-      target: envs.VITE_LOCALHOST || "http://localhost:8090",
-      changeOrigin: false,
-    };
+        target: envs.VITE_LOCALHOST || "http://localhost:8090",
+        changeOrigin: false,
+      };
 
   const proxy = {
     "/applications-list": proxyObj,
@@ -53,10 +53,11 @@ export default ({ mode }: { mode: string }) => {
   const build = {
     assetsDir: "public",
     rollupOptions: {
-      external: ["edifice-ts-client"],
+      external: ["edifice-ts-client", "katex", /katex\/dist\/katex.min.css/],
       output: {
         paths: {
           "edifice-ts-client": "/assets/js/edifice-ts-client/index.js",
+          katex: "https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css",
         },
       },
     },

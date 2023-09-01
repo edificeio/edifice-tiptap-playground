@@ -21,10 +21,12 @@ import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
+import "katex/dist/katex.min.css";
 import "~/styles/index.scss";
 import "~/styles/table.scss";
 
@@ -57,6 +59,7 @@ const Tiptap = () => {
       Image,
       Link,
       FontFamily,
+      Mathematics,
     ],
     content: `
       <h2>
