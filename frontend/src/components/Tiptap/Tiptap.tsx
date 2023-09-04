@@ -1,7 +1,13 @@
+import { useEffect } from "react";
+
+import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
+import { Video } from "@edifice-tiptap-extensions/extension-video";
 import { TiptapWrapper, Toolbar } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import Highlight from "@tiptap/extension-highlight";
+import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
@@ -22,6 +28,9 @@ import "~/styles/index.scss";
 import "~/styles/table.scss";
 
 const Tiptap = () => {
+  const queryParameters = new URLSearchParams(window.location.search);
+  const fileId = queryParameters.get("file");
+  const docId = queryParameters.get("doc");
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -42,6 +51,10 @@ const Tiptap = () => {
       }),
       Typography,
       TypoSize,
+      Video,
+      IFrame,
+      Image,
+      Link,
     ],
     content: `
       <h2>
@@ -102,6 +115,28 @@ const Tiptap = () => {
     listOptions,
     alignmentOptions,
   );
+
+  useEffect(() => {
+    if (editor) {
+      if (fileId) {
+        fetch(`/pocediteur/files/${fileId}`).then((response) => {
+          if (response.ok) {
+            response.text().then((data) => {
+              editor.commands.setContent(data);
+            });
+          }
+        });
+      } else if (docId) {
+        fetch(`/pocediteur/docs/${docId}`).then((response) => {
+          if (response.ok) {
+            response.json().then((data) => {
+              editor.commands.setContent(data.content);
+            });
+          }
+        });
+      }
+    }
+  }, [fileId, docId, editor]);
 
   console.log(editor?.extensionManager.extensions);
 

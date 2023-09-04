@@ -22,7 +22,7 @@
     "clean:package": "rm -f pnpm-lock.yaml",
     "dev": "vite",
     "fix": "eslint --fix .",
-    "format": "pnpm format:check && pnpm format:write",
+    "format": "pnpm format:write && pnpm format:check",
     "format:check": "npx prettier --check .",
     "format:write": "npx prettier --write .",
     "preinstall": "npx only-allow pnpm",
@@ -44,7 +44,9 @@
     ]
   },
   "dependencies": {
+    "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
     "@edifice-tiptap-extensions/extension-typosize": "develop-b2school",
+    "@edifice-tiptap-extensions/extension-video": "develop-b2school",
     "@edifice-ui/icons": "develop-b2school",
     "@edifice-ui/react": "develop-b2school",
     "@react-spring/web": "9.7.3",
@@ -54,6 +56,8 @@
     "@tiptap/extension-font-family": "2.0.3",
     "@tiptap/extension-heading": "2.0.3",
     "@tiptap/extension-highlight": "2.0.3",
+    "@tiptap/extension-image": "2.0.3",
+    "@tiptap/extension-link": "2.0.3",
     "@tiptap/extension-list-item": "2.0.3",
     "@tiptap/extension-subscript": "2.0.3",
     "@tiptap/extension-superscript": "2.0.3",
