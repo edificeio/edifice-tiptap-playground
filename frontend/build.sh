@@ -49,6 +49,7 @@ case $i in
 esac
 done
 
+
 clean () {
   rm -rf node_modules 
   rm -rf dist 
@@ -144,6 +145,19 @@ publishMavenLocal (){
 }
 
 deploy() {
+  if [ -z "$DEPLOY_TARGET" ]
+  then
+    echo "No target was specified"
+    echo " "
+    echo "./build.sh --target=[QUADRIGRAMME]@[RECETTE] deploy"
+    echo "   QUADRIGRAMME: your own quadrigramme"
+    echo "   RECETTE: one of recette-ode1, recette-ode2, recette-ha, recette-release"
+    echo " "
+    echo "Example :"
+    echo "----------"
+    echo "./build.sh --target=dcau@recette-ode1 deploy"
+    exit -1
+  fi
   echo "Starting deployment to $DEPLOY_TARGET..."
   echo
   echo "Building app..."
@@ -151,7 +165,7 @@ deploy() {
   pnpm build
 
   echo
-  echo "Copying dist files to $DEPLOY_TARGET-web1.ipa.ode.tools..."
+  echo "Copying dist files to $DEPLOY_TARGET-web*.ipa.ode.tools..."
   scp -r dist/* $DEPLOY_TARGET-web1.ipa.ode.tools:/tmp
 
   ssh -t -o LogLevel=error $DEPLOY_TARGET-web1.ipa.ode.tools <<'EOL'
