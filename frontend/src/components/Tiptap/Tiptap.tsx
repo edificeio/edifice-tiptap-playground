@@ -5,6 +5,7 @@ import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import { TiptapWrapper, Toolbar } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
+import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -55,6 +56,7 @@ const Tiptap = () => {
       IFrame,
       Image,
       Link,
+      FontFamily,
     ],
     content: `
       <h2>

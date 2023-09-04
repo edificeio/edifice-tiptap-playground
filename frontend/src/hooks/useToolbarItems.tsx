@@ -107,14 +107,49 @@ export const useToolbarItems = (
       name: "text_typo",
       icon: <TextTypo />,
       label: "Choix de la famille de typographie",
-      hasDropdown: false,
-      /* content: (index: any, props: any) => (
-            <SizeDropdown key={index} {...props} />
-          ), */
-      action: () => editor?.chain().focus().setHeading({ level: 1 }),
-      isActive: editor?.isActive("heading", { level: 1 }),
+      hasDropdown: true,
+      content: () => (
+        <SelectList
+          onChange={([fontFamily]) => {
+            if (typeof fontFamily == "string") {
+              editor?.chain().focus().setFontFamily(fontFamily).run();
+            } else {
+              editor?.chain().focus().unsetFontFamily().run();
+            }
+          }}
+          isMonoSelection
+          hideCheckbox
+          options={[
+            {
+              value: "",
+              label: t("Sans-serif"),
+            },
+            {
+              value: "Lora",
+              label: t("Serif"),
+              className: "ff-serif",
+            },
+            {
+              value: "IBM Plex Mono",
+              label: t("Monoscript"),
+              className: "ff-script",
+            },
+            {
+              value: "Ecriture A",
+              label: t("Cursive"),
+              className: "ff-cursive",
+            },
+            {
+              value: "OpenDyslexic",
+              label: t("OpenDyslexic"),
+              className: "ff-dyslexic",
+            },
+          ]}
+        />
+      ),
+      action: () => console.log("click"),
       isEnable: !!editor?.extensionManager.extensions.find(
-        (item) => item.name === "starterKit",
+        (item) => item.name === "fontFamily",
       ),
     },
     {
