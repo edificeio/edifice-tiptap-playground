@@ -15,7 +15,10 @@ import {
 import { ActionMenuOptions } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 
-export const useActionOptions = (editor: Editor | null) => {
+export const useActionOptions = (
+  editor: Editor | null,
+  toggleMathsModal: Function,
+) => {
   const options: ActionMenuOptions[] = [
     {
       icon: <TextVanilla />,
@@ -51,7 +54,9 @@ export const useActionOptions = (editor: Editor | null) => {
     {
       icon: <SquareRoot />,
       label: "Formule mathématique",
-      action: () => console.log("click"),
+      action: () => {
+        toggleMathsModal();
+      },
     },
     {
       type: "divider",
