@@ -111,7 +111,7 @@ export const useToolbarItems = (
       content: () => (
         <SelectList
           onChange={([fontFamily]) => {
-            if (typeof fontFamily == "string") {
+            if (typeof fontFamily === "string" && fontFamily.length > 0) {
               editor?.chain().focus().setFontFamily(fontFamily).run();
             } else {
               editor?.chain().focus().unsetFontFamily().run();
