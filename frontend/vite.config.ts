@@ -53,11 +53,10 @@ export default ({ mode }: { mode: string }) => {
   const build = {
     assetsDir: "public",
     rollupOptions: {
-      external: ["edifice-ts-client", "katex", /katex\/dist\/katex.min.css/],
+      external: ["edifice-ts-client"],
       output: {
         paths: {
           "edifice-ts-client": "/assets/js/edifice-ts-client/index.js",
-          katex: "https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css",
         },
       },
     },
