@@ -1,9 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, Suspense, lazy } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
-import { TiptapWrapper, Toolbar } from "@edifice-ui/react";
+import {
+  LoadingScreen,
+  TiptapWrapper,
+  Toolbar,
+  useToggle,
+} from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
@@ -21,12 +26,16 @@ import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
+import "katex/dist/katex.min.css";
 import "~/styles/index.scss";
 import "~/styles/table.scss";
+
+const MathsModal = lazy(async () => await import("./MathsModal"));
 
 const Tiptap = () => {
   const queryParameters = new URLSearchParams(window.location.search);
@@ -57,6 +66,7 @@ const Tiptap = () => {
       Image,
       Link,
       FontFamily,
+      Mathematics,
     ],
     content: `
       <h2>
@@ -108,8 +118,13 @@ const Tiptap = () => {
       `,
   });
 
+  const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
+
   /* A bouger ailleurs, à externaliser ? */
-  const [options, listOptions, alignmentOptions] = useActionOptions(editor);
+  const [options, listOptions, alignmentOptions] = useActionOptions(
+    editor,
+    toggleMathsModal,
+  );
 
   /* A bouger ailleurs, à externaliser ? */
   const { toolbarItems } = useToolbarItems(
@@ -142,17 +157,41 @@ const Tiptap = () => {
 
   console.log(editor?.extensionManager.extensions);
 
+  const onMathsModalCancel = () => {
+    toggleMathsModal();
+  };
+
+  const onMathsModalSuccess = (formulaEditor: string) => {
+    editor?.commands.insertContentAt(
+      editor.view.state.selection,
+      formulaEditor,
+    );
+    editor?.commands.enter();
+    toggleMathsModal();
+  };
+
   return (
-    <TiptapWrapper>
-      <Toolbar
-        data={toolbarItems}
-        options={options}
-        variant="no-shadow"
-        isBlock
-        align="left"
-      />
-      <EditorContent editor={editor} className="py-12 px-16" />
-    </TiptapWrapper>
+    <>
+      <TiptapWrapper>
+        <Toolbar
+          data={toolbarItems}
+          options={options}
+          variant="no-shadow"
+          isBlock
+          align="left"
+        />
+        <EditorContent editor={editor} className="py-12 px-16" />
+      </TiptapWrapper>
+      <Suspense fallback={<LoadingScreen />}>
+        {isMathsModalOpen && (
+          <MathsModal
+            isOpen={isMathsModalOpen}
+            onCancel={onMathsModalCancel}
+            onSuccess={onMathsModalSuccess}
+          />
+        )}
+      </Suspense>
+    </>
   );
 };
 
