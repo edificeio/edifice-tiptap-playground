@@ -179,8 +179,13 @@ const Tiptap = () => {
           variant="no-shadow"
           isBlock
           align="left"
+          ariaControls="editorContent"
         />
-        <EditorContent editor={editor} className="py-12 px-16" />
+        <EditorContent
+          editor={editor}
+          id="editorContent"
+          className="py-12 px-16"
+        />
       </TiptapWrapper>
       <Suspense fallback={<LoadingScreen />}>
         {isMathsModalOpen && (
