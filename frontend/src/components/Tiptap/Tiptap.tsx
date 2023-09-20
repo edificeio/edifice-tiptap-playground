@@ -1,10 +1,12 @@
-import { useEffect, Suspense, lazy } from "react";
+import { useEffect, Suspense, lazy, useState } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import {
   LoadingScreen,
+  MediaLibrary,
+  MediaLibraryType,
   TiptapWrapper,
   Toolbar,
   useToggle,
@@ -118,6 +120,9 @@ const Tiptap = () => {
       `,
   });
 
+  const [mediaLibraryType, setMediaLibraryType] =
+    useState<MediaLibraryType | null>(null);
+
   const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
 
   /* A bouger ailleurs, à externaliser ? */
@@ -129,6 +134,7 @@ const Tiptap = () => {
   /* A bouger ailleurs, à externaliser ? */
   const { toolbarItems } = useToolbarItems(
     editor,
+    (type: MediaLibraryType | null) => setMediaLibraryType(type),
     listOptions,
     alignmentOptions,
   );
@@ -156,6 +162,12 @@ const Tiptap = () => {
   }, [fileId, docId, editor]);
 
   console.log(editor?.extensionManager.extensions);
+
+  const onMediaLibrarySuccess = (richContent: string) => {
+    editor?.commands.insertContentAt(editor.view.state.selection, richContent);
+    editor?.commands.enter();
+    setMediaLibraryType(null);
+  };
 
   const onMathsModalCancel = () => {
     toggleMathsModal();
@@ -187,6 +199,13 @@ const Tiptap = () => {
           className="py-12 px-16"
         />
       </TiptapWrapper>
+
+      <MediaLibrary
+        type={mediaLibraryType}
+        onCancel={() => setMediaLibraryType(null)}
+        onSuccess={onMediaLibrarySuccess}
+      />
+
       <Suspense fallback={<LoadingScreen />}>
         {isMathsModalOpen && (
           <MathsModal

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
   AlignLeft,
-  Attachment,
+  Paperclip,
   BulletList,
   Landscape,
   Link,
@@ -29,6 +29,7 @@ import {
   ToolbarOptions,
   useHasWorkflow,
   NOOP,
+  MediaLibraryType,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import EmojiPicker, { Categories } from "emoji-picker-react";
@@ -36,6 +37,7 @@ import { useTranslation } from "react-i18next";
 
 export const useToolbarItems = (
   editor: Editor | null,
+  showMediaLibraryForType: (type: MediaLibraryType | null) => void,
   listOptions: ActionMenuOptions[],
   alignmentOptions: ActionMenuOptions[],
 ) => {
@@ -69,7 +71,7 @@ export const useToolbarItems = (
 
   const toolbarItems: ToolbarOptions[] = [
     {
-      action: () => console.log("on click"),
+      action: () => showMediaLibraryForType("image"),
       icon: <Landscape />,
       label: "image",
       name: "image",
@@ -77,7 +79,7 @@ export const useToolbarItems = (
       isEnable: true,
     },
     {
-      action: () => console.log("on click"),
+      action: () => () => showMediaLibraryForType("video"),
       icon: <RecordVideo />,
       label: "video",
       name: "video",
@@ -85,7 +87,7 @@ export const useToolbarItems = (
       isEnable: !!canRecord,
     },
     {
-      action: () => console.log("on click"),
+      action: () => showMediaLibraryForType("audio"),
       icon: <Mic />,
       label: "audio",
       name: "audio",
@@ -93,8 +95,8 @@ export const useToolbarItems = (
       isEnable: true,
     },
     {
-      action: () => console.log("on click"),
-      icon: <Attachment />,
+      action: () => showMediaLibraryForType("attachment"),
+      icon: <Paperclip />,
       label: "attachment",
       name: "attachment",
       className: "widget-attachment",
