@@ -1,5 +1,6 @@
 import { useEffect, Suspense, lazy } from "react";
 
+import { Attachment } from "@edifice-tiptap-extensions/extension-attachment";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
@@ -41,6 +42,7 @@ const Tiptap = () => {
   const queryParameters = new URLSearchParams(window.location.search);
   const fileId = queryParameters.get("file");
   const docId = queryParameters.get("doc");
+  const source = queryParameters.get("source");
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -63,6 +65,7 @@ const Tiptap = () => {
       TypoSize,
       Video,
       IFrame,
+      Attachment,
       Image,
       Link,
       FontFamily,
@@ -144,13 +147,15 @@ const Tiptap = () => {
           }
         });
       } else if (docId) {
-        fetch(`/pocediteur/docs/${docId}`).then((response) => {
-          if (response.ok) {
-            response.json().then((data) => {
-              editor.commands.setContent(data.content);
-            });
-          }
-        });
+        fetch(`/pocediteur/${source}/docs/${docId}?cleanHtml=true`).then(
+          (response) => {
+            if (response.ok) {
+              response.json().then((data) => {
+                editor.commands.setContent(data.content);
+              });
+            }
+          },
+        );
       }
     }
   }, [fileId, docId, editor]);

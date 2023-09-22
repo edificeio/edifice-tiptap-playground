@@ -44,6 +44,7 @@
     ]
   },
   "dependencies": {
+    "@edifice-tiptap-extensions/extension-attachment": "develop-b2school",
     "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
     "@edifice-tiptap-extensions/extension-typosize": "develop-b2school",
     "@edifice-tiptap-extensions/extension-video": "develop-b2school",

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
   AlignLeft,
-  Attachment,
+  Paperclip,
   BulletList,
   Landscape,
   Link,
@@ -94,7 +94,7 @@ export const useToolbarItems = (
     },
     {
       action: () => console.log("on click"),
-      icon: <Attachment />,
+      icon: <Paperclip />,
       label: "attachment",
       name: "attachment",
       className: "widget-attachment",
