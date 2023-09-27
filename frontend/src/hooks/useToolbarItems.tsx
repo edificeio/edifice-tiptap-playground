@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
@@ -29,9 +29,11 @@ import {
   ToolbarOptions,
   useHasWorkflow,
   NOOP,
+  MediaLibraryResult,
   MediaLibraryType,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
+import { WorkspaceElement } from "edifice-ts-client";
 import EmojiPicker, { Categories } from "emoji-picker-react";
 import { useTranslation } from "react-i18next";
 
@@ -399,5 +401,97 @@ export const useToolbarItems = (
       type: "divider",
     },
   ];
-  return { toolbarItems, isOpen, setIsOpen };
+
+  /**
+   * Convert the result of a successful action in MediaLibrary
+   * - to a call to the editor's dedicated command,
+   * or
+   * - to an HTML fragment of rich content + insert it.
+   *
+   * The inital result  depends on the MediaLibrary type.
+   */
+  const appendAsRichContent = useCallback(
+    (type: MediaLibraryType, result: MediaLibraryResult) => {
+      if (!type || !editor) return;
+
+      switch (type) {
+        // Image type => result is of type WorkspaceElement[]
+        case "image": {
+          const imgs = result as WorkspaceElement[];
+          imgs.forEach((img) => {
+            editor
+              ?.chain()
+              .focus()
+              .setImage({
+                src: `/workspace/document/${img._id}`,
+                alt: img.alt,
+                title: img.title,
+              })
+              .run();
+          });
+          break;
+        }
+
+        // Audio type => result is of type WorkspaceElement[]
+        case "audio": {
+          const sounds = result as WorkspaceElement[];
+          sounds.forEach((snd) => {
+            // TODO finaliser, voir WB-1992
+            const richContent = `<audio src="/workspace/document/${snd._id}" controls preload="none"/></audio>`;
+            editor?.commands.insertContentAt(
+              editor.view.state.selection,
+              richContent,
+            );
+            editor?.commands.enter();
+          });
+          break;
+        }
+
+        case "video": {
+          const richContent = `[useToolbarItems/toRichContent] TODO support video tags`;
+          editor?.commands.insertContentAt(
+            editor.view.state.selection,
+            richContent,
+          );
+          editor?.commands.enter();
+          break;
+        }
+
+        case "attachment": {
+          const richContent = `[useToolbarItems/toRichContent] TODO support attachments`;
+          editor?.commands.insertContentAt(
+            editor.view.state.selection,
+            richContent,
+          );
+          editor?.commands.enter();
+          break;
+        }
+
+        case "hyperlink": {
+          const richContent = `[useToolbarItems/toRichContent] TODO support hyperlinks`;
+          editor?.commands.insertContentAt(
+            editor.view.state.selection,
+            richContent,
+          );
+          editor?.commands.enter();
+          break;
+        }
+
+        case "embedder": {
+          const richContent = `[useToolbarItems/toRichContent] TODO support embedded content`;
+          editor?.commands.insertContentAt(
+            editor.view.state.selection,
+            richContent,
+          );
+          editor?.commands.enter();
+          break;
+        }
+
+        default:
+          return `<div>[useToolbarItems/toRichContent] Le contenu de type "${type}" n'est pas convertissable pour l'instant !</div>`;
+      }
+    },
+    [editor],
+  );
+  return { toolbarItems, isOpen, setIsOpen, appendAsRichContent };
 };

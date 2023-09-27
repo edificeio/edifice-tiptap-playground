@@ -1,4 +1,4 @@
-import { useEffect, Suspense, lazy, useState } from "react";
+import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
@@ -6,6 +6,7 @@ import { Video } from "@edifice-tiptap-extensions/extension-video";
 import {
   LoadingScreen,
   MediaLibrary,
+  MediaLibraryResult,
   MediaLibraryType,
   TiptapWrapper,
   Toolbar,
@@ -132,7 +133,7 @@ const Tiptap = () => {
   );
 
   /* A bouger ailleurs, à externaliser ? */
-  const { toolbarItems } = useToolbarItems(
+  const { toolbarItems, appendAsRichContent } = useToolbarItems(
     editor,
     (type: MediaLibraryType | null) => setMediaLibraryType(type),
     listOptions,
@@ -163,11 +164,18 @@ const Tiptap = () => {
 
   console.log(editor?.extensionManager.extensions);
 
-  const onMediaLibrarySuccess = (richContent: string) => {
-    editor?.commands.insertContentAt(editor.view.state.selection, richContent);
-    editor?.commands.enter();
-    setMediaLibraryType(null);
-  };
+  const onMediaLibrarySuccess = useCallback(
+    (result: MediaLibraryResult) => {
+      if (mediaLibraryType) {
+        // Inject the MediaLibrary result into the editor.
+        appendAsRichContent(mediaLibraryType, result);
+
+        // Close the MediaLibrary
+        setMediaLibraryType(null);
+      }
+    },
+    [appendAsRichContent, mediaLibraryType],
+  );
 
   const onMathsModalCancel = () => {
     toggleMathsModal();
