@@ -54,7 +54,9 @@ const Tiptap = () => {
       Color,
       Subscript,
       Superscript,
-      Table,
+      Table.configure({
+        resizable: true,
+      }),
       TableRow,
       TableHeader,
       TableCell,
