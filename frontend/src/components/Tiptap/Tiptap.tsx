@@ -1,4 +1,4 @@
-import { useEffect, Suspense, lazy } from "react";
+import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { Attachment } from "@edifice-tiptap-extensions/extension-attachment";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
@@ -6,6 +6,9 @@ import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import {
   LoadingScreen,
+  MediaLibrary,
+  MediaLibraryResult,
+  MediaLibraryType,
   TiptapWrapper,
   Toolbar,
   useToggle,
@@ -123,6 +126,9 @@ const Tiptap = () => {
       `,
   });
 
+  const [mediaLibraryType, setMediaLibraryType] =
+    useState<MediaLibraryType | null>(null);
+
   const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
 
   /* A bouger ailleurs, à externaliser ? */
@@ -132,8 +138,9 @@ const Tiptap = () => {
   );
 
   /* A bouger ailleurs, à externaliser ? */
-  const { toolbarItems } = useToolbarItems(
+  const { toolbarItems, appendAsRichContent } = useToolbarItems(
     editor,
+    (type: MediaLibraryType | null) => setMediaLibraryType(type),
     listOptions,
     alignmentOptions,
   );
@@ -163,6 +170,19 @@ const Tiptap = () => {
   }, [fileId, docId, editor]);
 
   console.log(editor?.extensionManager.extensions);
+
+  const onMediaLibrarySuccess = useCallback(
+    (result: MediaLibraryResult) => {
+      if (mediaLibraryType) {
+        // Inject the MediaLibrary result into the editor.
+        appendAsRichContent(mediaLibraryType, result);
+
+        // Close the MediaLibrary
+        setMediaLibraryType(null);
+      }
+    },
+    [appendAsRichContent, mediaLibraryType],
+  );
 
   const onMathsModalCancel = () => {
     toggleMathsModal();
@@ -194,6 +214,13 @@ const Tiptap = () => {
           className="py-12 px-16"
         />
       </TiptapWrapper>
+
+      <MediaLibrary
+        type={mediaLibraryType}
+        onCancel={() => setMediaLibraryType(null)}
+        onSuccess={onMediaLibrarySuccess}
+      />
+
       <Suspense fallback={<LoadingScreen />}>
         {isMathsModalOpen && (
           <MathsModal
