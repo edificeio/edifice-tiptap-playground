@@ -221,14 +221,14 @@ export const useToolbarItems = (
             { ...DefaultPalette, label: t("Couleur de texte") },
             sharedAccessiblePalette,
           ]}
-          onChange={(color) => {
+          onChange={(item) => {
             // If the same color is picked, remove it (=toggle mode).
-            if (color === textColor) {
+            if (item.value === textColor) {
               setTextColor("");
               editor?.chain().focus().unsetColor().run();
             } else {
-              setTextColor(color);
-              editor?.chain().focus().setColor(color).run();
+              setTextColor(item.value);
+              editor?.chain().focus().setColor(item.value).run();
             }
           }}
         />
@@ -252,17 +252,21 @@ export const useToolbarItems = (
         <ColorPicker
           model={highlightColor}
           palettes={[
-            { ...DefaultPalette, label: t("Couleur de fond") },
+            {
+              ...DefaultPalette,
+              label: t("Couleur de fond"),
+              reset: { value: "", description: t("Aucune") },
+            },
             sharedAccessiblePalette,
           ]}
-          onChange={(color) => {
+          onChange={(item) => {
             // If the same color is picked, remove it (=toggle mode).
-            if (color === highlightColor) {
+            if (item.value === highlightColor || item.value === "") {
               setHighlightColor("");
               editor?.chain().focus().unsetHighlight().run();
             } else {
-              setHighlightColor(color);
-              editor?.chain().focus().setHighlight({ color: color }).run();
+              setHighlightColor(item.value);
+              editor?.chain().focus().setHighlight({ color: item.value }).run();
             }
           }}
         />
