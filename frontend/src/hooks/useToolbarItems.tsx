@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, Fragment } from "react";
 
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
@@ -20,17 +20,17 @@ import {
 } from "@edifice-ui/icons";
 import {
   AccessiblePalette,
-  ActionMenu,
-  ActionMenuOptions,
+  Dropdown,
   ColorPalette,
   ColorPicker,
   DefaultPalette,
-  SelectList,
   ToolbarOptions,
   useHasWorkflow,
   NOOP,
   MediaLibraryResult,
   MediaLibraryType,
+  IconButton,
+  DropdownMenuOptions,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import { WorkspaceElement } from "edifice-ts-client";
@@ -40,8 +40,9 @@ import { useTranslation } from "react-i18next";
 export const useToolbarItems = (
   editor: Editor | null,
   showMediaLibraryForType: (type: MediaLibraryType | null) => void,
-  listOptions: ActionMenuOptions[],
-  alignmentOptions: ActionMenuOptions[],
+  listOptions: DropdownMenuOptions[],
+  alignmentOptions: DropdownMenuOptions[],
+  options: DropdownMenuOptions[],
 ) => {
   const { t } = useTranslation();
 
@@ -70,6 +71,10 @@ export const useToolbarItems = (
   const canRecord = useHasWorkflow(
     "com.opendigitaleducation.video.controllers.VideoController|view",
   );
+
+  const [value, setValue] = useState<string>("sans-serif");
+
+  const [size, setSize] = useState<TypoSizeLevel>();
 
   const toolbarItems: ToolbarOptions[] = [
     {
@@ -112,44 +117,71 @@ export const useToolbarItems = (
       icon: <TextTypo />,
       label: "Choix de la famille de typographie",
       hasDropdown: true,
-      content: () => (
-        <SelectList
-          onChange={([fontFamily]) => {
-            if (typeof fontFamily === "string" && fontFamily.length > 0) {
-              editor?.chain().focus().setFontFamily(fontFamily).run();
-            } else {
-              editor?.chain().focus().unsetFontFamily().run();
-            }
-          }}
-          isMonoSelection
-          hideCheckbox
-          options={[
-            {
-              value: "",
-              label: t("Sans-serif"),
-            },
-            {
-              value: "Lora",
-              label: t("Serif"),
-              className: "ff-serif",
-            },
-            {
-              value: "IBM Plex Mono",
-              label: t("Monoscript"),
-              className: "ff-script",
-            },
-            {
-              value: "Ecriture A",
-              label: t("Cursive"),
-              className: "ff-cursive",
-            },
-            {
-              value: "OpenDyslexic",
-              label: t("OpenDyslexic"),
-              className: "ff-dyslexic",
-            },
-          ]}
-        />
+      content: (item) => (
+        <Dropdown>
+          {(triggerProps) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                {[
+                  {
+                    value: "",
+                    label: t("Sans-serif"),
+                  },
+                  {
+                    value: "Lora",
+                    label: t("Serif"),
+                    className: "ff-serif",
+                  },
+                  {
+                    value: "IBM Plex Mono",
+                    label: t("Monoscript"),
+                    className: "ff-script",
+                  },
+                  {
+                    value: "Ecriture A",
+                    label: t("Cursive"),
+                    className: "ff-cursive",
+                  },
+                  {
+                    value: "OpenDyslexic",
+                    label: t("OpenDyslexic"),
+                    className: "ff-dyslexic",
+                  },
+                ].map((option, index) => {
+                  return (
+                    <Fragment key={option.label}>
+                      {index !== 0 ? <Dropdown.Separator /> : null}
+                      <Dropdown.RadioItem
+                        value={option.value}
+                        model={value}
+                        onChange={(value: string) => {
+                          if (typeof value === "string" && value.length > 0) {
+                            editor?.chain().focus().setFontFamily(value).run();
+                            setValue(value);
+                          } else {
+                            editor?.chain().focus().unsetFontFamily().run();
+                            setValue("");
+                          }
+                          setValue(value);
+                        }}
+                      >
+                        {option.label}
+                      </Dropdown.RadioItem>
+                    </Fragment>
+                  );
+                })}
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
       ),
       action: () => console.log("click"),
       isEnable: !!editor?.extensionManager.extensions.find(
@@ -161,44 +193,69 @@ export const useToolbarItems = (
       icon: <TextSize />,
       label: "Choix de la taille de typographie",
       hasDropdown: true,
-      content: () => (
-        <SelectList
-          onChange={([value]) => {
-            editor
-              ?.chain()
-              .focus()
-              .toggleTypoSize({ level: value as TypoSizeLevel })
-              .run();
-          }}
-          isMonoSelection
-          hideCheckbox
-          options={[
-            {
-              value: 2,
-              label: t("Titre 1"),
-              className: "fs-2 fw-bold",
-            },
-            {
-              value: 3,
-              label: t("Titre 2"),
-              className: "fs-3 fw-bold",
-            },
-            {
-              value: 4,
-              label: t("Texte grand"),
-              className: "fs-4",
-            },
-            {
-              value: 5,
-              label: t("Texte normal"),
-            },
-            {
-              value: 6,
-              label: t("Texte petit"),
-              className: "fs-6",
-            },
-          ]}
-        />
+      content: (item) => (
+        <Dropdown>
+          {(triggerProps) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                {[
+                  {
+                    value: 2,
+                    label: t("Titre 1"),
+                    className: "fs-2 fw-bold",
+                  },
+                  {
+                    value: 3,
+                    label: t("Titre 2"),
+                    className: "fs-3 fw-bold",
+                  },
+                  {
+                    value: 4,
+                    label: t("Texte grand"),
+                    className: "fs-4",
+                  },
+                  {
+                    value: 5,
+                    label: t("Texte normal"),
+                  },
+                  {
+                    value: 6,
+                    label: t("Texte petit"),
+                    className: "fs-6",
+                  },
+                ].map((option, index) => {
+                  return (
+                    <Fragment key={option.label}>
+                      {index !== 0 ? <Dropdown.Separator /> : null}
+                      <Dropdown.RadioItem
+                        value={option.value}
+                        model={size}
+                        onChange={(value: TypoSizeLevel) => {
+                          editor
+                            ?.chain()
+                            .focus()
+                            .toggleTypoSize({ level: value as TypoSizeLevel })
+                            .run();
+                          setSize(value);
+                        }}
+                      >
+                        {option.label}
+                      </Dropdown.RadioItem>
+                    </Fragment>
+                  );
+                })}
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
       ),
       action: () => console.log("click"),
       isEnable: !!editor?.extensionManager.extensions.find(
@@ -214,24 +271,42 @@ export const useToolbarItems = (
         color: /^#([0-9a-f]{3}){1,2}$/i,
       }),
       hasDropdown: true,
-      content: () => (
-        <ColorPicker
-          model={textColor}
-          palettes={[
-            { ...DefaultPalette, label: t("Couleur de texte") },
-            sharedAccessiblePalette,
-          ]}
-          onChange={(color) => {
-            // If the same color is picked, remove it (=toggle mode).
-            if (color === textColor) {
-              setTextColor("");
-              editor?.chain().focus().unsetColor().run();
-            } else {
-              setTextColor(color);
-              editor?.chain().focus().setColor(color).run();
-            }
-          }}
-        />
+      content: (item) => (
+        <Dropdown>
+          {(triggerProps, itemRefs) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                <ColorPicker
+                  ref={(el) => (itemRefs.current["color-picker"] = el)}
+                  model={textColor}
+                  palettes={[
+                    { ...DefaultPalette, label: t("Couleur de texte") },
+                    sharedAccessiblePalette,
+                  ]}
+                  onSuccess={(color: string) => {
+                    console.log({ color });
+                    // If the same color is picked, remove it (=toggle mode).
+                    if (color === textColor) {
+                      setTextColor("");
+                      editor?.chain().focus().unsetColor().run();
+                    } else {
+                      setTextColor(color);
+                      editor?.chain().focus().setColor(color).run();
+                    }
+                  }}
+                />
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
       ),
       isEnable: !!editor?.extensionManager.extensions.find(
         (item) =>
@@ -248,24 +323,47 @@ export const useToolbarItems = (
         color: /^#([0-9a-f]{3}){1,2}$/i,
       }),
       hasDropdown: true,
-      content: () => (
-        <ColorPicker
-          model={highlightColor}
-          palettes={[
-            { ...DefaultPalette, label: t("Couleur de fond") },
-            sharedAccessiblePalette,
-          ]}
-          onChange={(color) => {
-            // If the same color is picked, remove it (=toggle mode).
-            if (color === highlightColor) {
-              setHighlightColor("");
-              editor?.chain().focus().unsetHighlight().run();
-            } else {
-              setHighlightColor(color);
-              editor?.chain().focus().setHighlight({ color: color }).run();
-            }
-          }}
-        />
+      content: (item) => (
+        <Dropdown>
+          {(triggerProps, itemRefs) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                <ColorPicker
+                  ref={(el) => (itemRefs.current["highlight-picker"] = el)}
+                  palettes={[
+                    {
+                      ...DefaultPalette,
+                      reset: { value: "transparent", description: "None" },
+                    },
+                  ]}
+                  model={highlightColor}
+                  onSuccess={(color: string) => {
+                    // If the same color is picked, remove it (=toggle mode).
+                    if (color === highlightColor) {
+                      setHighlightColor("");
+                      editor?.chain().focus().unsetHighlight().run();
+                    } else {
+                      setHighlightColor(color);
+                      editor
+                        ?.chain()
+                        .focus()
+                        .setHighlight({ color: color })
+                        .run();
+                    }
+                  }}
+                />
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
       ),
       isEnable:
         !!editor?.extensionManager.splittableMarks.includes("highlight"),
@@ -306,61 +404,80 @@ export const useToolbarItems = (
       icon: <Smiley />,
       label: "Emojis",
       isActive: false,
-      isEnable: true,
       action: NOOP,
       hasDropdown: true,
-      content: () => (
-        <EmojiPicker
-          height={400}
-          width={316}
-          onEmojiClick={(emoji) =>
-            editor?.commands.insertContentAt(
-              editor.view.state.selection,
-              emoji.emoji,
-            )
-          }
-          previewConfig={{ showPreview: false }}
-          searchPlaceHolder={t("Recherche")}
-          categories={[
-            {
-              category: Categories.SUGGESTED,
-              name: `${t("Utilisés récemment")}`,
-            },
-            {
-              category: Categories.SMILEYS_PEOPLE,
-              name: `${t("Personnes")}`,
-            },
-            {
-              category: Categories.ANIMALS_NATURE,
-              name: `${t("Animaux et nature")}`,
-            },
-            {
-              category: Categories.FOOD_DRINK,
-              name: `${t("Aliments et boissons")}`,
-            },
-            {
-              category: Categories.TRAVEL_PLACES,
-              name: `${t("Voyages et lieux")}`,
-            },
-            {
-              category: Categories.ACTIVITIES,
-              name: `${t("Activités")}`,
-            },
-            {
-              category: Categories.OBJECTS,
-              name: `${t("Objets")}`,
-            },
-            {
-              category: Categories.SYMBOLS,
-              name: `${t("Symbôles")}`,
-            },
-            {
-              category: Categories.FLAGS,
-              name: `${t("Drapeaux")}`,
-            },
-          ]}
-        />
+      content: (item) => (
+        <Dropdown overflow={false}>
+          {(triggerProps, itemRefs) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                <div ref={(el) => (itemRefs.current["highlight-picker"] = el)}>
+                  <EmojiPicker
+                    height={400}
+                    width={316}
+                    onEmojiClick={(emoji) =>
+                      editor?.commands.insertContentAt(
+                        editor.view.state.selection,
+                        emoji.emoji,
+                      )
+                    }
+                    previewConfig={{ showPreview: false }}
+                    searchPlaceHolder={t("Recherche")}
+                    categories={[
+                      {
+                        category: Categories.SUGGESTED,
+                        name: `${t("Utilisés récemment")}`,
+                      },
+                      {
+                        category: Categories.SMILEYS_PEOPLE,
+                        name: `${t("Personnes")}`,
+                      },
+                      {
+                        category: Categories.ANIMALS_NATURE,
+                        name: `${t("Animaux et nature")}`,
+                      },
+                      {
+                        category: Categories.FOOD_DRINK,
+                        name: `${t("Aliments et boissons")}`,
+                      },
+                      {
+                        category: Categories.TRAVEL_PLACES,
+                        name: `${t("Voyages et lieux")}`,
+                      },
+                      {
+                        category: Categories.ACTIVITIES,
+                        name: `${t("Activités")}`,
+                      },
+                      {
+                        category: Categories.OBJECTS,
+                        name: `${t("Objets")}`,
+                      },
+                      {
+                        category: Categories.SYMBOLS,
+                        name: `${t("Symbôles")}`,
+                      },
+                      {
+                        category: Categories.FLAGS,
+                        name: `${t("Drapeaux")}`,
+                      },
+                    ]}
+                  />
+                </div>
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
       ),
+      isEnable:
+        !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
     {
       name: "linker",
@@ -379,7 +496,40 @@ export const useToolbarItems = (
       label: "list",
       name: "list",
       hasDropdown: true,
-      content: () => <ActionMenu id="action-menu-list" options={listOptions} />,
+      content: (item) => (
+        <Dropdown>
+          {(triggerProps) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                {listOptions.map((option, index) => {
+                  return (
+                    <Fragment key={index}>
+                      {option.type === "divider" ? (
+                        <Dropdown.Separator />
+                      ) : (
+                        <Dropdown.Item
+                          icon={option.icon}
+                          onClick={option.action}
+                        >
+                          {option.label}
+                        </Dropdown.Item>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
+      ),
       isEnable: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "starterKit",
       ),
@@ -390,8 +540,39 @@ export const useToolbarItems = (
       label: "alignment",
       name: "alignment",
       hasDropdown: true,
-      content: () => (
-        <ActionMenu id="action-menu-list" options={alignmentOptions} />
+      content: (item) => (
+        <Dropdown>
+          {(triggerProps) => (
+            <>
+              <IconButton
+                {...triggerProps}
+                type="button"
+                aria-label={item.label}
+                color="tertiary"
+                variant="ghost"
+                icon={item.icon}
+              />
+              <Dropdown.Menu>
+                {alignmentOptions.map((option, index) => {
+                  return (
+                    <Fragment key={index}>
+                      {option.type === "divider" ? (
+                        <Dropdown.Separator />
+                      ) : (
+                        <Dropdown.Item
+                          icon={option.icon}
+                          onClick={option.action}
+                        >
+                          {option.label}
+                        </Dropdown.Item>
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </Dropdown.Menu>
+            </>
+          )}
+        </Dropdown>
       ),
       isEnable: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "textAlign",
@@ -399,6 +580,41 @@ export const useToolbarItems = (
     },
     {
       type: "divider",
+    },
+    {
+      action: () => console.log("on click"),
+      icon: <AlignLeft />,
+      label: "alignment",
+      name: "alignment",
+      hasDropdown: true,
+      content: () => (
+        <Dropdown>
+          <Dropdown.Trigger
+            label={t("Plus")}
+            variant="ghost"
+            size="md"
+            tabIndex={-1}
+          />
+          <Dropdown.Menu>
+            {options.map((option, index) => {
+              return (
+                <Fragment key={index}>
+                  {option.type === "divider" ? (
+                    <Dropdown.Separator />
+                  ) : (
+                    <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      {option.label}
+                    </Dropdown.Item>
+                  )}
+                </Fragment>
+              );
+            })}
+          </Dropdown.Menu>
+        </Dropdown>
+      ),
+      isEnable: !!editor?.extensionManager.extensions.find(
+        (item) => item.name === "textAlign",
+      ),
     },
   ];
 

@@ -12,14 +12,14 @@ import {
   AlignRight,
   AlignJustify,
 } from "@edifice-ui/icons";
-import { ActionMenuOptions } from "@edifice-ui/react";
+import { DropdownMenuOptions } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 
 export const useActionOptions = (
   editor: Editor | null,
   toggleMathsModal: Function,
 ) => {
-  const options: ActionMenuOptions[] = [
+  const options: DropdownMenuOptions[] = [
     {
       icon: <TextVanilla />,
       label: "Supprimer la mise en forme",
@@ -67,7 +67,7 @@ export const useActionOptions = (
       action: () => console.log("click"),
     },
   ];
-  const listOptions: ActionMenuOptions[] = [
+  const listOptions: DropdownMenuOptions[] = [
     {
       icon: <BulletList />,
       label: "Liste à puce",
@@ -79,7 +79,7 @@ export const useActionOptions = (
       action: () => editor?.chain().focus().toggleOrderedList().run(),
     },
   ];
-  const alignmentOptions: ActionMenuOptions[] = [
+  const alignmentOptions: DropdownMenuOptions[] = [
     {
       icon: <AlignLeft />,
       label: "Aligner à gauche",
