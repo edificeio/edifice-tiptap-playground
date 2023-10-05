@@ -1,6 +1,6 @@
 {
   "name": "edifice-tiptap-playground",
-  "version": "1.0.0-main.202310051817",
+  "version": "1.0.0-%branch%.%generateVersion%",
   "description": "Edifice Tiptap Playground",
   "homepage": "https://github.com/opendigitaleducation/edifice-tiptap-playground#readme",
   "bugs": {
