@@ -46,6 +46,7 @@ export default ({ mode }: { mode: string }) => {
     "/explorer": proxyObj,
     "/mindmap": proxyObj,
     "/pocediteur": proxyObj,
+    "/video": proxyObj,
   };
 
   const base = mode === "production" ? "/tiptap" : "";

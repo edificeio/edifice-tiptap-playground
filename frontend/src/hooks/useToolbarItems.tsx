@@ -69,7 +69,7 @@ export const useToolbarItems = (
   }, [editor, editor?.state]);
 
   const canRecord = useHasWorkflow(
-    "com.opendigitaleducation.video.controllers.VideoController|view",
+    "com.opendigitaleducation.video.controllers.VideoController|capture",
   );
 
   const [value, setValue] = useState<string>("sans-serif");
@@ -83,15 +83,14 @@ export const useToolbarItems = (
       label: "image",
       name: "image",
       className: "widget-image",
-      isEnable: true,
     },
     {
-      action: () => () => showMediaLibraryForType("video"),
+      action: () => showMediaLibraryForType("video"),
       icon: <RecordVideo />,
       label: "video",
       name: "video",
       className: "widget-video",
-      isEnable: !!canRecord,
+      isDisabled: !canRecord,
     },
     {
       action: () => showMediaLibraryForType("audio"),
@@ -99,7 +98,6 @@ export const useToolbarItems = (
       label: "audio",
       name: "audio",
       className: "widget-audio",
-      isEnable: true,
     },
     {
       action: () => showMediaLibraryForType("attachment"),
@@ -107,7 +105,6 @@ export const useToolbarItems = (
       label: "attachment",
       name: "attachment",
       className: "widget-attachment",
-      isEnable: true,
     },
     {
       type: "divider",
@@ -184,7 +181,7 @@ export const useToolbarItems = (
         </Dropdown>
       ),
       action: () => console.log("click"),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isDisabled: !editor?.extensionManager.extensions.find(
         (item) => item.name === "fontFamily",
       ),
     },
@@ -258,7 +255,7 @@ export const useToolbarItems = (
         </Dropdown>
       ),
       action: () => console.log("click"),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isDisabled: !editor?.extensionManager.extensions.find(
         (item) => item.name === "typoSize",
       ),
     },
@@ -308,7 +305,7 @@ export const useToolbarItems = (
           )}
         </Dropdown>
       ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isDisabled: !editor?.extensionManager.extensions.find(
         (item) =>
           item.name === "color" &&
           !!editor?.extensionManager.splittableMarks.includes("textStyle"),
@@ -365,8 +362,8 @@ export const useToolbarItems = (
           )}
         </Dropdown>
       ),
-      isEnable:
-        !!editor?.extensionManager.splittableMarks.includes("highlight"),
+      isDisabled:
+        !editor?.extensionManager.splittableMarks.includes("highlight"),
     },
     {
       type: "divider",
@@ -377,7 +374,7 @@ export const useToolbarItems = (
       label: "Ajout de gras",
       action: () => editor?.chain().focus().toggleBold().run(),
       isActive: editor?.isActive("bold"),
-      isEnable: !!editor?.extensionManager.splittableMarks.includes("bold"),
+      isDisabled: !editor?.extensionManager.splittableMarks.includes("bold"),
     },
     {
       name: "italic",
@@ -385,7 +382,7 @@ export const useToolbarItems = (
       label: "Incliner le texte",
       action: () => editor?.chain().focus().toggleItalic().run(),
       isActive: editor?.isActive("italic"),
-      isEnable: !!editor?.extensionManager.splittableMarks.includes("italic"),
+      isDisabled: !editor?.extensionManager.splittableMarks.includes("italic"),
     },
     {
       name: "underline",
@@ -393,8 +390,8 @@ export const useToolbarItems = (
       label: "Souligner le texte",
       action: () => editor?.chain().focus().toggleUnderline().run(),
       isActive: editor?.isActive("underline"),
-      isEnable:
-        !!editor?.extensionManager.splittableMarks.includes("underline"),
+      isDisabled:
+        !editor?.extensionManager.splittableMarks.includes("underline"),
     },
     {
       type: "divider",
@@ -476,15 +473,12 @@ export const useToolbarItems = (
           )}
         </Dropdown>
       ),
-      isEnable:
-        !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
     {
       name: "linker",
       icon: <Link />,
       label: "Ajout d'un lien",
       isActive: editor?.isActive("linker"),
-      isEnable: true,
       action: () => console.log("click"),
     },
     {
@@ -530,7 +524,7 @@ export const useToolbarItems = (
           )}
         </Dropdown>
       ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isDisabled: !editor?.extensionManager.extensions.find(
         (item) => item.name === "starterKit",
       ),
     },
@@ -574,7 +568,7 @@ export const useToolbarItems = (
           )}
         </Dropdown>
       ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isDisabled: !editor?.extensionManager.extensions.find(
         (item) => item.name === "textAlign",
       ),
     },
@@ -612,7 +606,7 @@ export const useToolbarItems = (
           </Dropdown.Menu>
         </Dropdown>
       ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isDisabled: !editor?.extensionManager.extensions.find(
         (item) => item.name === "textAlign",
       ),
     },
@@ -664,12 +658,15 @@ export const useToolbarItems = (
         }
 
         case "video": {
-          const richContent = `[useToolbarItems/toRichContent] TODO support video tags`;
-          editor?.commands.insertContentAt(
-            editor.view.state.selection,
-            richContent,
-          );
-          editor?.commands.enter();
+          const video = result as WorkspaceElement;
+          editor
+            ?.chain()
+            .focus()
+            .setVideo(
+              video._id || "",
+              `/workspace/document/${video._id}`,
+              true,
+            );
           break;
         }
 

@@ -45,7 +45,7 @@ function Root() {
           />
         </Grid.Col>
         <Grid.Col sm="4" md="8" lg="6" xl="9" className="py-16">
-          <Tiptap />
+          <Tiptap appCode="blog" />
         </Grid.Col>
       </Grid>
     </Layout>
