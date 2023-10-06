@@ -1,6 +1,6 @@
 {
   "name": "edifice-tiptap-playground",
-  "version": "1.0.0-main.202310051817",
+  "version": "1.0.0-%branch%.%generateVersion%",
   "description": "Edifice Tiptap Playground",
   "homepage": "https://github.com/opendigitaleducation/edifice-tiptap-playground#readme",
   "bugs": {
@@ -46,7 +46,6 @@
   "dependencies": {
     "@edifice-tiptap-extensions/extension-attachment": "develop-b2school",
     "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
-    "@edifice-tiptap-extensions/extension-table-cell": "develop-b2school",
     "@edifice-tiptap-extensions/extension-typosize": "develop-b2school",
     "@edifice-tiptap-extensions/extension-video": "develop-b2school",
     "@edifice-ui/icons": "develop-b2school",
