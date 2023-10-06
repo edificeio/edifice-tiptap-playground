@@ -21,8 +21,8 @@ import {
   ColorPickerItem,
   DefaultPalette,
   Dropdown,
-  FloatingToolbar,
-  FloatingToolbarItem,
+  Toolbar,
+  ToolbarItem,
   IconButtonProps,
 } from "@edifice-ui/react";
 import { FloatingMenu, Editor } from "@tiptap/react";
@@ -67,7 +67,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
     }
   }, [editor, editor?.state, isSpan]);
 
-  const tableToolbarItems: FloatingToolbarItem[] = useMemo(() => {
+  const tableToolbarItems: ToolbarItem[] = useMemo(() => {
     // Manage background colors.
     const cellBackgroundPalette: ColorPalette = {
       ...DefaultPalette,
@@ -279,7 +279,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
           }}
           shouldShow={() => editor.isActive("table")}
         >
-          <FloatingToolbar items={tableToolbarItems} />
+          <Toolbar items={tableToolbarItems} />
         </FloatingMenu>
       )}
     </>

@@ -24,12 +24,10 @@ import {
   ColorPalette,
   ColorPicker,
   DefaultPalette,
-  ToolbarOptions,
+  ToolbarItem,
   useHasWorkflow,
-  NOOP,
   MediaLibraryResult,
   MediaLibraryType,
-  IconButton,
   DropdownMenuOptions,
   ColorPaletteItem,
 } from "@edifice-ui/react";
@@ -62,559 +60,521 @@ export const useToolbarItems = (
   };
   const [textColor, setTextColor] = useState<string>("#4A4A4A");
   const [highlightColor, setHighlightColor] = useState<string>("");
+  const [value, setValue] = useState<string>("sans-serif");
+  const [size, setSize] = useState<TypoSizeLevel>();
 
   useEffect(() => {
-    // When cursor moves in editor, update the text and background colors.
-    setTextColor(editor?.getAttributes("textStyle").color ?? "#4A4A4A");
+    // When cursor moves in editor, update the text values.
+    const textStyle = editor?.getAttributes("textStyle");
+    setTextColor(textStyle?.color ?? "#4A4A4A");
     setHighlightColor(editor?.getAttributes("highlight").color ?? "");
+    setValue(textStyle?.fontFamily ?? "");
+    // TODO setSize( ?? 5);
   }, [editor, editor?.state]);
 
   const canRecord = useHasWorkflow(
     "com.opendigitaleducation.video.controllers.VideoController|view",
   );
 
-  const [value, setValue] = useState<string>("sans-serif");
-
-  const [size, setSize] = useState<TypoSizeLevel>();
-
-  const toolbarItems: ToolbarOptions[] = [
+  const toolbarItems: ToolbarItem[] = [
     {
-      action: () => showMediaLibraryForType("image"),
-      icon: <Landscape />,
-      label: "image",
+      type: "icon",
+      props: {
+        icon: <Landscape />,
+        className: "widget-image",
+        "aria-label": t("Insérer une image"),
+        onClick: () => showMediaLibraryForType("image"),
+      },
       name: "image",
-      className: "widget-image",
-      isEnable: true,
     },
     {
-      action: () => () => showMediaLibraryForType("video"),
-      icon: <RecordVideo />,
-      label: "video",
+      type: "icon",
+      props: {
+        icon: <RecordVideo />,
+        className: "widget-video",
+        "aria-label": t("Insérer une vidéo"),
+        onClick: () => showMediaLibraryForType("video"),
+      },
       name: "video",
-      className: "widget-video",
-      isEnable: !!canRecord,
+      isHidden: !canRecord,
     },
     {
-      action: () => showMediaLibraryForType("audio"),
-      icon: <Mic />,
-      label: "audio",
+      type: "icon",
+      props: {
+        icon: <Mic />,
+        className: "widget-audio",
+        "aria-label": t("Insérer une piste audio"),
+        onClick: () => showMediaLibraryForType("audio"),
+      },
       name: "audio",
-      className: "widget-audio",
-      isEnable: true,
     },
     {
-      action: () => showMediaLibraryForType("attachment"),
-      icon: <Paperclip />,
-      label: "attachment",
+      type: "icon",
+      props: {
+        icon: <Paperclip />,
+        className: "widget-attachment",
+        "aria-label": t("Insérer une pièce jointe"),
+        onClick: () => showMediaLibraryForType("attachment"),
+      },
       name: "attachment",
-      className: "widget-attachment",
-      isEnable: true,
     },
     {
       type: "divider",
+      name: "div-1",
     },
     {
-      name: "text_typo",
-      icon: <TextTypo />,
-      label: "Choix de la famille de typographie",
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown>
-          {(triggerProps) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
-              />
-              <Dropdown.Menu>
-                {[
-                  {
-                    value: "",
-                    label: t("Sans-serif"),
-                  },
-                  {
-                    value: "Lora",
-                    label: t("Serif"),
-                    className: "ff-serif",
-                  },
-                  {
-                    value: "IBM Plex Mono",
-                    label: t("Monoscript"),
-                    className: "ff-script",
-                  },
-                  {
-                    value: "Ecriture A",
-                    label: t("Cursive"),
-                    className: "ff-cursive",
-                  },
-                  {
-                    value: "OpenDyslexic",
-                    label: t("OpenDyslexic"),
-                    className: "ff-dyslexic",
-                  },
-                ].map((option, index) => {
-                  return (
-                    <Fragment key={option.label}>
-                      {index !== 0 ? <Dropdown.Separator /> : null}
-                      <Dropdown.RadioItem
-                        value={option.value}
-                        model={value}
-                        onChange={(value: string) => {
-                          if (typeof value === "string" && value.length > 0) {
-                            editor?.chain().focus().setFontFamily(value).run();
-                            setValue(value);
-                          } else {
-                            editor?.chain().focus().unsetFontFamily().run();
-                            setValue("");
-                          }
+      type: "dropdown",
+      props: {
+        children: () => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<TextTypo />}
+              aria-label={t("Choix de la famille de typographie")}
+            />
+            <Dropdown.Menu>
+              {[
+                {
+                  value: "",
+                  label: t("Sans-serif"),
+                },
+                {
+                  value: "Lora",
+                  label: t("Serif"),
+                  className: "ff-serif",
+                },
+                {
+                  value: "IBM Plex Mono",
+                  label: t("Monoscript"),
+                  className: "ff-script",
+                },
+                {
+                  value: "Ecriture A",
+                  label: t("Cursive"),
+                  className: "ff-cursive",
+                },
+                {
+                  value: "OpenDyslexic",
+                  label: t("OpenDyslexic"),
+                  className: "ff-dyslexic",
+                },
+              ].map((option) => {
+                return (
+                  <Fragment key={option.label}>
+                    <Dropdown.RadioItem
+                      value={option.value}
+                      model={value}
+                      onChange={(value: string) => {
+                        if (typeof value === "string" && value.length > 0) {
+                          editor?.chain().focus().setFontFamily(value).run();
                           setValue(value);
-                        }}
-                      >
-                        {option.label}
-                      </Dropdown.RadioItem>
-                    </Fragment>
-                  );
-                })}
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      action: () => console.log("click"),
-      isEnable: !!editor?.extensionManager.extensions.find(
+                        } else {
+                          editor?.chain().focus().unsetFontFamily().run();
+                          setValue("");
+                        }
+                        setValue(value);
+                      }}
+                    >
+                      <span className={option.className}>{option.label}</span>
+                    </Dropdown.RadioItem>
+                  </Fragment>
+                );
+              })}
+            </Dropdown.Menu>
+          </>
+        ),
+      },
+      name: "text_typo",
+      isHidden: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "fontFamily",
       ),
     },
     {
+      type: "dropdown",
+      props: {
+        children: () => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<TextSize />}
+              aria-label={t("Choix de la taille de typographie")}
+            />
+            <Dropdown.Menu>
+              {[
+                {
+                  value: 2,
+                  label: t("Titre 1"),
+                  className: "fs-2 fw-bold",
+                },
+                {
+                  value: 3,
+                  label: t("Titre 2"),
+                  className: "fs-3 fw-bold",
+                },
+                {
+                  value: 4,
+                  label: t("Texte grand"),
+                  className: "fs-4",
+                },
+                {
+                  value: 5,
+                  label: t("Texte normal"),
+                },
+                {
+                  value: 6,
+                  label: t("Texte petit"),
+                  className: "fs-6",
+                },
+              ].map((option) => {
+                return (
+                  <Fragment key={option.label}>
+                    <Dropdown.RadioItem
+                      value={option.value}
+                      model={size}
+                      onChange={(value: TypoSizeLevel) => {
+                        editor
+                          ?.chain()
+                          .focus()
+                          .toggleTypoSize({ level: value as TypoSizeLevel })
+                          .run();
+                        setSize(value);
+                      }}
+                    >
+                      <span className={option.className}>{option.label}</span>
+                    </Dropdown.RadioItem>
+                  </Fragment>
+                );
+              })}
+            </Dropdown.Menu>
+          </>
+        ),
+      },
       name: "text_size",
-      icon: <TextSize />,
-      label: "Choix de la taille de typographie",
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown>
-          {(triggerProps) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
-              />
-              <Dropdown.Menu>
-                {[
-                  {
-                    value: 2,
-                    label: t("Titre 1"),
-                    className: "fs-2 fw-bold",
-                  },
-                  {
-                    value: 3,
-                    label: t("Titre 2"),
-                    className: "fs-3 fw-bold",
-                  },
-                  {
-                    value: 4,
-                    label: t("Texte grand"),
-                    className: "fs-4",
-                  },
-                  {
-                    value: 5,
-                    label: t("Texte normal"),
-                  },
-                  {
-                    value: 6,
-                    label: t("Texte petit"),
-                    className: "fs-6",
-                  },
-                ].map((option, index) => {
-                  return (
-                    <Fragment key={option.label}>
-                      {index !== 0 ? <Dropdown.Separator /> : null}
-                      <Dropdown.RadioItem
-                        value={option.value}
-                        model={size}
-                        onChange={(value: TypoSizeLevel) => {
-                          editor
-                            ?.chain()
-                            .focus()
-                            .toggleTypoSize({ level: value as TypoSizeLevel })
-                            .run();
-                          setSize(value);
-                        }}
-                      >
-                        {option.label}
-                      </Dropdown.RadioItem>
-                    </Fragment>
-                  );
-                })}
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      action: () => console.log("click"),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isHidden: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "typoSize",
       ),
     },
     {
-      action: () => console.log("on click"),
-      name: "color",
-      icon: <TextColor />,
-      label: "Couleur de texte",
-      isActive: editor?.isActive("textStyle", {
-        color: /^#([0-9a-f]{3}){1,2}$/i,
-      }),
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown>
-          {(triggerProps, itemRefs) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
+      type: "dropdown",
+      props: {
+        children: (triggerProps, itemRefs) => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<TextColor />}
+              aria-label={t("Couleur de texte")}
+              className={
+                editor?.isActive("textStyle", {
+                  color: /^#([0-9a-f]{3}){1,2}$/i,
+                })
+                  ? "selected"
+                  : ""
+              }
+            />
+            <Dropdown.Menu>
+              <ColorPicker
+                ref={(el) => (itemRefs.current["color-picker"] = el)}
+                model={textColor}
+                palettes={[
+                  { ...DefaultPalette, label: t("Couleur de texte") },
+                  sharedAccessiblePalette,
+                ]}
+                onSuccess={(color: ColorPaletteItem) => {
+                  // If the same color is picked, remove it (=toggle mode).
+                  if (color.value === textColor) {
+                    setTextColor("");
+                    editor?.chain().focus().unsetColor().run();
+                  } else {
+                    setTextColor(color.value);
+                    editor?.chain().focus().setColor(color.value).run();
+                  }
+                }}
               />
-              <Dropdown.Menu>
-                <ColorPicker
-                  ref={(el) => (itemRefs.current["color-picker"] = el)}
-                  model={textColor}
-                  palettes={[
-                    { ...DefaultPalette, label: t("Couleur de texte") },
-                    sharedAccessiblePalette,
-                  ]}
-                  onSuccess={(color: ColorPaletteItem) => {
-                    // If the same color is picked, remove it (=toggle mode).
-                    if (color.value === textColor) {
-                      setTextColor("");
-                      editor?.chain().focus().unsetColor().run();
-                    } else {
-                      setTextColor(color.value);
-                      editor?.chain().focus().setColor(color.value).run();
-                    }
-                  }}
-                />
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+            </Dropdown.Menu>
+          </>
+        ),
+      },
+      name: "color",
+      isHidden: !!editor?.extensionManager.extensions.find(
         (item) =>
           item.name === "color" &&
           !!editor?.extensionManager.splittableMarks.includes("textStyle"),
       ),
     },
     {
-      action: () => console.log("on click"),
-      name: "highlight",
-      icon: <TextHighlight />,
-      label: "Couleur de fond",
-      isActive: editor?.isActive("highlight", {
-        color: /^#([0-9a-f]{3}){1,2}$/i,
-      }),
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown>
-          {(triggerProps, itemRefs) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
+      type: "dropdown",
+      props: {
+        children: (triggerProps, itemRefs) => (
+          <>
+            <Dropdown.Trigger
+              disabled={editor?.isActive("highlight", {
+                color: /^#([0-9a-f]{3}){1,2}$/i,
+              })}
+              variant="ghost"
+              icon={<TextHighlight />}
+              aria-label={t("Couleur de fond")}
+            />
+            <Dropdown.Menu>
+              <ColorPicker
+                ref={(el) => (itemRefs.current["color-picker"] = el)}
+                palettes={[
+                  {
+                    ...DefaultPalette,
+                    reset: { value: "transparent", description: "None" },
+                  },
+                ]}
+                model={highlightColor}
+                onSuccess={(color: ColorPaletteItem) => {
+                  // If the same color is picked, remove it (=toggle mode).
+                  if (color.value === highlightColor || color.value === "") {
+                    setHighlightColor("");
+                    editor?.chain().focus().unsetHighlight().run();
+                  } else {
+                    setHighlightColor(color.value);
+                    editor
+                      ?.chain()
+                      .focus()
+                      .setHighlight({ color: color.value })
+                      .run();
+                  }
+                }}
               />
-              <Dropdown.Menu>
-                <ColorPicker
-                  ref={(el) => (itemRefs.current["highlight-picker"] = el)}
-                  palettes={[
-                    {
-                      ...DefaultPalette,
-                      reset: { value: "transparent", description: "None" },
-                    },
-                  ]}
-                  model={highlightColor}
-                  onSuccess={(color: ColorPaletteItem) => {
-                    // If the same color is picked, remove it (=toggle mode).
-                    if (color.value === highlightColor || color.value === "") {
-                      setHighlightColor("");
-                      editor?.chain().focus().unsetHighlight().run();
-                    } else {
-                      setHighlightColor(color.value);
-                      editor
-                        ?.chain()
-                        .focus()
-                        .setHighlight({ color: color.value })
-                        .run();
-                    }
-                  }}
-                />
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      isEnable:
+            </Dropdown.Menu>
+          </>
+        ),
+      },
+      name: "highlight",
+      isHidden:
         !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
     {
       type: "divider",
+      name: "div-2",
     },
     {
+      type: "icon",
+      props: {
+        icon: <TextBold />,
+        "aria-label": t("Ajout de gras"),
+        disabled: !editor?.isActive("bold"),
+        onClick: () => editor?.chain().focus().toggleBold().run(),
+      },
       name: "bold",
-      icon: <TextBold />,
-      label: "Ajout de gras",
-      action: () => editor?.chain().focus().toggleBold().run(),
-      isActive: editor?.isActive("bold"),
-      isEnable: !!editor?.extensionManager.splittableMarks.includes("bold"),
+      isHidden: !!editor?.extensionManager.splittableMarks.includes("bold"),
     },
     {
+      type: "icon",
+      props: {
+        icon: <TextItalic />,
+        "aria-label": t("Incliner le text"),
+        disabled: !editor?.isActive("italic"),
+        onClick: () => editor?.chain().focus().toggleItalic().run(),
+      },
       name: "italic",
-      icon: <TextItalic />,
-      label: "Incliner le texte",
-      action: () => editor?.chain().focus().toggleItalic().run(),
-      isActive: editor?.isActive("italic"),
-      isEnable: !!editor?.extensionManager.splittableMarks.includes("italic"),
+      isHidden: !!editor?.extensionManager.splittableMarks.includes("italic"),
     },
     {
+      type: "icon",
+      props: {
+        icon: <TextUnderline />,
+        "aria-label": t("Souligner le texte"),
+        disabled: !editor?.isActive("underline"),
+        onClick: () => editor?.chain().focus().toggleUnderline().run(),
+      },
       name: "underline",
-      icon: <TextUnderline />,
-      label: "Souligner le texte",
-      action: () => editor?.chain().focus().toggleUnderline().run(),
-      isActive: editor?.isActive("underline"),
-      isEnable:
+      isHidden:
         !!editor?.extensionManager.splittableMarks.includes("underline"),
     },
     {
       type: "divider",
+      name: "div-3",
     },
     {
+      type: "dropdown",
+      props: {
+        children: (triggerProps, itemRefs) => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<Smiley />}
+              aria-label={t("Emojis")}
+            />
+            <Dropdown.Menu>
+              <div ref={(el) => (itemRefs.current["highlight-picker"] = el)}>
+                <EmojiPicker
+                  height={400}
+                  width={316}
+                  onEmojiClick={(emoji) =>
+                    editor?.commands.insertContentAt(
+                      editor.view.state.selection,
+                      emoji.emoji,
+                    )
+                  }
+                  previewConfig={{ showPreview: false }}
+                  searchPlaceHolder={t("Recherche")}
+                  categories={[
+                    {
+                      category: Categories.SUGGESTED,
+                      name: `${t("Utilisés récemment")}`,
+                    },
+                    {
+                      category: Categories.SMILEYS_PEOPLE,
+                      name: `${t("Personnes")}`,
+                    },
+                    {
+                      category: Categories.ANIMALS_NATURE,
+                      name: `${t("Animaux et nature")}`,
+                    },
+                    {
+                      category: Categories.FOOD_DRINK,
+                      name: `${t("Aliments et boissons")}`,
+                    },
+                    {
+                      category: Categories.TRAVEL_PLACES,
+                      name: `${t("Voyages et lieux")}`,
+                    },
+                    {
+                      category: Categories.ACTIVITIES,
+                      name: `${t("Activités")}`,
+                    },
+                    {
+                      category: Categories.OBJECTS,
+                      name: `${t("Objets")}`,
+                    },
+                    {
+                      category: Categories.SYMBOLS,
+                      name: `${t("Symbôles")}`,
+                    },
+                    {
+                      category: Categories.FLAGS,
+                      name: `${t("Drapeaux")}`,
+                    },
+                  ]}
+                />
+              </div>
+            </Dropdown.Menu>
+          </>
+        ),
+      },
       name: "emoji",
-      icon: <Smiley />,
-      label: "Emojis",
-      isActive: false,
-      action: NOOP,
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown overflow={false}>
-          {(triggerProps, itemRefs) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
-              />
-              <Dropdown.Menu>
-                <div ref={(el) => (itemRefs.current["highlight-picker"] = el)}>
-                  <EmojiPicker
-                    height={400}
-                    width={316}
-                    onEmojiClick={(emoji) =>
-                      editor?.commands.insertContentAt(
-                        editor.view.state.selection,
-                        emoji.emoji,
-                      )
-                    }
-                    previewConfig={{ showPreview: false }}
-                    searchPlaceHolder={t("Recherche")}
-                    categories={[
-                      {
-                        category: Categories.SUGGESTED,
-                        name: `${t("Utilisés récemment")}`,
-                      },
-                      {
-                        category: Categories.SMILEYS_PEOPLE,
-                        name: `${t("Personnes")}`,
-                      },
-                      {
-                        category: Categories.ANIMALS_NATURE,
-                        name: `${t("Animaux et nature")}`,
-                      },
-                      {
-                        category: Categories.FOOD_DRINK,
-                        name: `${t("Aliments et boissons")}`,
-                      },
-                      {
-                        category: Categories.TRAVEL_PLACES,
-                        name: `${t("Voyages et lieux")}`,
-                      },
-                      {
-                        category: Categories.ACTIVITIES,
-                        name: `${t("Activités")}`,
-                      },
-                      {
-                        category: Categories.OBJECTS,
-                        name: `${t("Objets")}`,
-                      },
-                      {
-                        category: Categories.SYMBOLS,
-                        name: `${t("Symbôles")}`,
-                      },
-                      {
-                        category: Categories.FLAGS,
-                        name: `${t("Drapeaux")}`,
-                      },
-                    ]}
-                  />
-                </div>
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      isEnable:
+      isHidden:
         !!editor?.extensionManager.splittableMarks.includes("highlight"),
     },
     {
+      type: "icon",
+      props: {
+        icon: <Link />,
+        "aria-label": t("Ajout d'un lien"),
+        disabled: !editor?.isActive("linker"),
+        onClick: () => console.log("click"),
+      },
       name: "linker",
-      icon: <Link />,
-      label: "Ajout d'un lien",
-      isActive: editor?.isActive("linker"),
-      isEnable: true,
-      action: () => console.log("click"),
     },
     {
       type: "divider",
+      name: "div-4",
     },
     {
-      action: () => console.log("on click"),
-      icon: <BulletList />,
-      label: "list",
+      type: "dropdown",
+      props: {
+        children: () => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<BulletList />}
+              aria-label={t("Options d'affichage en liste")}
+            />
+            <Dropdown.Menu>
+              {listOptions.map((option, index) => {
+                return (
+                  <Fragment key={index}>
+                    {option.type === "divider" ? (
+                      <Dropdown.Separator />
+                    ) : (
+                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                        {option.label}
+                      </Dropdown.Item>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </Dropdown.Menu>
+          </>
+        ),
+      },
       name: "list",
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown>
-          {(triggerProps) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
-              />
-              <Dropdown.Menu>
-                {listOptions.map((option, index) => {
-                  return (
-                    <Fragment key={index}>
-                      {option.type === "divider" ? (
-                        <Dropdown.Separator />
-                      ) : (
-                        <Dropdown.Item
-                          icon={option.icon}
-                          onClick={option.action}
-                        >
-                          {option.label}
-                        </Dropdown.Item>
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isHidden: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "starterKit",
       ),
     },
     {
-      action: () => console.log("on click"),
-      icon: <AlignLeft />,
-      label: "alignment",
+      type: "dropdown",
+      props: {
+        children: () => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<AlignLeft />}
+              aria-label={t("Options d'alignement")}
+            />
+            <Dropdown.Menu>
+              {alignmentOptions.map((option, index) => {
+                return (
+                  <Fragment key={index}>
+                    {option.type === "divider" ? (
+                      <Dropdown.Separator />
+                    ) : (
+                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                        {option.label}
+                      </Dropdown.Item>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </Dropdown.Menu>
+          </>
+        ),
+      },
       name: "alignment",
-      hasDropdown: true,
-      content: (item) => (
-        <Dropdown>
-          {(triggerProps) => (
-            <>
-              <IconButton
-                {...triggerProps}
-                type="button"
-                aria-label={item.label}
-                color="tertiary"
-                variant="ghost"
-                icon={item.icon}
-              />
-              <Dropdown.Menu>
-                {alignmentOptions.map((option, index) => {
-                  return (
-                    <Fragment key={index}>
-                      {option.type === "divider" ? (
-                        <Dropdown.Separator />
-                      ) : (
-                        <Dropdown.Item
-                          icon={option.icon}
-                          onClick={option.action}
-                        >
-                          {option.label}
-                        </Dropdown.Item>
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </Dropdown.Menu>
-            </>
-          )}
-        </Dropdown>
-      ),
-      isEnable: !!editor?.extensionManager.extensions.find(
+      isHidden: !!editor?.extensionManager.extensions.find(
         (item) => item.name === "textAlign",
       ),
     },
     {
       type: "divider",
+      name: "div-5",
     },
     {
-      action: () => console.log("on click"),
-      icon: <AlignLeft />,
-      label: "alignment",
-      name: "alignment",
-      hasDropdown: true,
-      content: () => (
-        <Dropdown>
-          <Dropdown.Trigger
-            label={t("Plus")}
-            variant="ghost"
-            size="md"
-            tabIndex={-1}
-          />
-          <Dropdown.Menu>
-            {options.map((option, index) => {
-              return (
-                <Fragment key={index}>
-                  {option.type === "divider" ? (
-                    <Dropdown.Separator />
-                  ) : (
-                    <Dropdown.Item icon={option.icon} onClick={option.action}>
-                      {option.label}
-                    </Dropdown.Item>
-                  )}
-                </Fragment>
-              );
-            })}
-          </Dropdown.Menu>
-        </Dropdown>
-      ),
-      isEnable: !!editor?.extensionManager.extensions.find(
-        (item) => item.name === "textAlign",
-      ),
+      type: "dropdown",
+      props: {
+        children: () => (
+          <>
+            <Dropdown.Trigger
+              variant="ghost"
+              icon={<AlignLeft />}
+              label={t("Plus")}
+              size="md"
+              tabIndex={-1}
+            />
+            <Dropdown.Menu>
+              {options.map((option, index) => {
+                return (
+                  <Fragment key={index}>
+                    {option.type === "divider" ? (
+                      <Dropdown.Separator />
+                    ) : (
+                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                        {option.label}
+                      </Dropdown.Item>
+                    )}
+                  </Fragment>
+                );
+              })}
+            </Dropdown.Menu>
+          </>
+        ),
+      },
+      name: "plus",
     },
   ];
 

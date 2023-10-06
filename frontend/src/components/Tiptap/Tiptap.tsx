@@ -203,7 +203,7 @@ const Tiptap = () => {
     <>
       <TiptapWrapper>
         <Toolbar
-          data={toolbarItems}
+          items={toolbarItems}
           variant="no-shadow"
           isBlock
           align="left"
@@ -219,6 +219,7 @@ const Tiptap = () => {
       <TableToolbar editor={editor} />
 
       <MediaLibrary
+        appCode="blog"
         type={mediaLibraryType}
         onCancel={() => setMediaLibraryType(null)}
         onSuccess={onMediaLibrarySuccess}
