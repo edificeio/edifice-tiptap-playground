@@ -144,6 +144,7 @@ const Tiptap = () => {
     (type: MediaLibraryType | null) => setMediaLibraryType(type),
     listOptions,
     alignmentOptions,
+    options,
   );
 
   useEffect(() => {
@@ -168,9 +169,9 @@ const Tiptap = () => {
         );
       }
     }
-  }, [fileId, docId, editor]);
+  }, [fileId, docId, editor, source]);
 
-  //  console.log(editor?.extensionManager.extensions);
+  // console.log(editor?.extensionManager.extensions);
 
   const onMediaLibrarySuccess = useCallback(
     (result: MediaLibraryResult) => {
@@ -203,7 +204,6 @@ const Tiptap = () => {
       <TiptapWrapper>
         <Toolbar
           data={toolbarItems}
-          options={options}
           variant="no-shadow"
           isBlock
           align="left"

@@ -24,6 +24,10 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
+if (process.env.NODE_ENV !== "production") {
+  import("edifice-bootstrap/dist/index.css");
+}
+
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {

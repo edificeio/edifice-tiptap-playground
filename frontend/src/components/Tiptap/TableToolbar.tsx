@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { RefAttributes, useEffect, useMemo, useState } from "react";
 
 import {
   HighlightRow,
@@ -14,19 +14,16 @@ import {
   DeleteRowHighlight,
   DeleteColumnHighlight,
   Delete,
-  RafterDown,
 } from "@edifice-ui/icons";
 import {
-  ActionMenu,
-  ActionMenuOptions,
   ColorPalette,
   ColorPicker,
   ColorPickerItem,
   DefaultPalette,
-  Toolbar,
-  ToolbarOptions,
-  NOOP,
-  DropdownTrigger,
+  Dropdown,
+  FloatingToolbar,
+  FloatingToolbarItem,
+  IconButtonProps,
 } from "@edifice-ui/react";
 import { FloatingMenu, Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
@@ -50,9 +47,9 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
     );
   }, [editor, editor?.state]);
 
-  const isActive = editor?.isActive("tableCell", {
-    backgroundColor: /^#([0-9a-f]{3}){1,2}$/i,
-  });
+  // const isActive = editor?.isActive("tableCell", {
+  //   backgroundColor: /^#([0-9a-f]{3}){1,2}$/i,
+  // });
 
   const [isSpan, setSpan] = useState<boolean | undefined>(undefined);
   useEffect(() => {
@@ -70,7 +67,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
     }
   }, [editor, editor?.state, isSpan]);
 
-  const tableToolbarItems: ToolbarOptions[] = useMemo(() => {
+  const tableToolbarItems: FloatingToolbarItem[] = useMemo(() => {
     // Manage background colors.
     const cellBackgroundPalette: ColorPalette = {
       ...DefaultPalette,
@@ -81,154 +78,196 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
         isReset: true,
       },
     };
-    const addOptions: ActionMenuOptions[] = [
-      {
-        action: () => editor?.chain().focus().addRowBefore().run(),
-        icon: <ArrowUp />,
-        label: t("Ligne au dessus"),
-      },
-      {
-        action: () => editor?.chain().focus().addRowAfter().run(),
-        icon: <ArrowDown />,
-        label: t("Ligne en dessous"),
-      },
-      {
-        type: "divider",
-      },
-      {
-        action: () => editor?.chain().focus().addColumnBefore().run(),
-        icon: <ArrowLeft />,
-        label: t("Colonne à gauche"),
-      },
-      {
-        action: () => editor?.chain().focus().addColumnAfter().run(),
-        icon: <ArrowRight />,
-        label: t("Colonne à droite"),
-      },
-      {
-        type: "divider",
-      },
-      {
-        action: () => editor?.chain().focus().toggleHeaderRow().run(),
-        icon: <HighlightRow />,
-        label: t("Entête première ligne"),
-      },
-      {
-        action: () => editor?.chain().focus().toggleHeaderColumn().run(),
-        icon: <HighlightColumn />,
-        label: t("Entête première colonne"),
-      },
-    ];
-    const delOptions: ActionMenuOptions[] = [
-      {
-        action: () => editor?.chain().focus().deleteRow().run(),
-        icon: <DeleteRow />,
-        label: t("Supprimer la ligne"),
-      },
-      {
-        action: () => editor?.chain().focus().deleteColumn().run(),
-        icon: <DeleteColumn />,
-        label: t("Supprimer la colonne"),
-      },
-      {
-        type: "divider",
-      },
-      {
-        action: () => editor?.chain().focus().toggleHeaderRow().run(),
-        icon: <DeleteRowHighlight />,
-        label: t("Supprimer en-tête ligne"),
-      },
-      {
-        action: () => editor?.chain().focus().toggleHeaderColumn().run(),
-        icon: <DeleteColumnHighlight />,
-        label: t("Supprimer en-tête colonne"),
-      },
-      {
-        type: "divider",
-      },
-      {
-        action: () => editor?.chain().focus().deleteTable().run(),
-        icon: <Delete />,
-        label: t("Supprimer tableau"),
-      },
-    ];
 
     return [
       {
-        action: NOOP,
-        name: "backgroundColor",
-        icon: (
-          <ColorPickerItem
-            model={{
-              value: backgroundColor,
-              description: "",
-              isReset:
-                !backgroundColor ||
-                backgroundColor.length === 0 ||
-                backgroundColor === "transparent",
-            }}
-          />
-        ),
-        label: t("Couleur de fond"),
-        isActive: isActive,
-        hasDropdown: true,
-        content: () => (
-          <ColorPicker
-            model={backgroundColor}
-            palettes={[cellBackgroundPalette]}
-            onChange={(item) => {
-              editor
-                ?.chain()
-                .focus()
-                .setCellAttribute(
-                  "backgroundColor",
-                  // reset color is transparent here => remove bkg color
-                  item.value === "transparent" ? "" : item.value,
-                )
-                .run();
-              setBackgroundColor(item.value);
-            }}
-          />
-        ),
+        type: "dropdown",
+        name: "bkg-col",
         isEnable: typeof editor?.getAttributes("tableCell") !== "undefined",
+        props: {
+          children: (
+            triggerProps: JSX.IntrinsicAttributes &
+              Omit<IconButtonProps, "ref"> &
+              RefAttributes<HTMLButtonElement>,
+            itemRefs,
+          ) => (
+            <>
+              <Dropdown.Trigger
+                variant="ghost"
+                aria-label={t("Couleur de fond")}
+                icon={
+                  <ColorPickerItem
+                    model={{
+                      value: backgroundColor,
+                      description: "",
+                      isReset:
+                        !backgroundColor ||
+                        backgroundColor.length === 0 ||
+                        backgroundColor === "transparent",
+                    }}
+                  />
+                }
+              />
+              <Dropdown.Menu>
+                <ColorPicker
+                  ref={(el) => (itemRefs.current["color-picker"] = el)}
+                  model={backgroundColor}
+                  palettes={[cellBackgroundPalette]}
+                  onSuccess={(item) => {
+                    editor
+                      ?.chain()
+                      .focus()
+                      .setCellAttribute(
+                        "backgroundColor",
+                        // reset color is transparent here => remove bkg color
+                        item.value === "transparent" ? "" : item.value,
+                      )
+                      .run();
+                    setBackgroundColor(item.value);
+                  }}
+                />
+              </Dropdown.Menu>
+            </>
+          ),
+        },
       },
       {
+        type: "icon",
         name: "mergeorsplit",
-        icon: isSpan ? <SplitCells /> : <MergeCells />,
-        label: "",
-        action: () => editor?.chain().focus().mergeOrSplit().run(),
         isEnable: typeof isSpan !== "undefined",
+        props: {
+          icon: isSpan ? <SplitCells /> : <MergeCells />,
+          "aria-label": isSpan ? t("Fractionner") : t("Fusionner"),
+          onClick: () => editor?.chain().focus().mergeOrSplit().run(),
+        },
       },
       {
         type: "divider",
+        name: "add-d0",
       },
       {
-        action: NOOP,
-        icon: <DropdownTrigger title={t("Supprimer")}></DropdownTrigger>,
-        label: t("Ajouter"),
+        type: "dropdown",
         name: "add",
-        hasDropdown: true,
-        content: () => (
-          <ActionMenu id="action-menu-list" options={addOptions} />
-        ),
-        isEnable: true,
+        props: {
+          children: () => (
+            <>
+              <Dropdown.Trigger variant="ghost" label={t("Ajouter")} />
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  key="add-above"
+                  icon={<ArrowUp />}
+                  onClick={() => editor?.chain().focus().addRowBefore().run()}
+                >
+                  {t("Ligne au dessus")}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  key="add-below"
+                  icon={<ArrowDown />}
+                  onClick={() => editor?.chain().focus().addRowAfter().run()}
+                >
+                  {t("Ligne en dessous")}
+                </Dropdown.Item>
+                <Dropdown.Separator />
+                <Dropdown.Item
+                  key="add-left"
+                  icon={<ArrowLeft />}
+                  onClick={() =>
+                    editor?.chain().focus().addColumnBefore().run()
+                  }
+                >
+                  {t("Colonne à gauche")}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  key="add-right"
+                  icon={<ArrowRight />}
+                  onClick={() => editor?.chain().focus().addColumnAfter().run()}
+                >
+                  {t("Colonne à droite")}
+                </Dropdown.Item>
+                <Dropdown.Separator />
+                <Dropdown.Item
+                  key="header-row"
+                  icon={<HighlightRow />}
+                  onClick={() =>
+                    editor?.chain().focus().toggleHeaderRow().run()
+                  }
+                >
+                  {t("Entête première ligne")}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  key="header-col"
+                  icon={<HighlightColumn />}
+                  onClick={() =>
+                    editor?.chain().focus().toggleHeaderColumn().run()
+                  }
+                >
+                  {t("Entête première colonne")}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </>
+          ),
+        },
       },
       {
         type: "divider",
+        name: "add-d1",
       },
       {
-        action: NOOP,
-        icon: <RafterDown />,
-        label: t("Supprimer"),
-        name: "delete",
-        hasDropdown: true,
-        content: () => (
-          <ActionMenu id="action-menu-list" options={delOptions} />
-        ),
-        isEnable: true,
+        type: "dropdown",
+        name: "del",
+        props: {
+          children: () => (
+            <>
+              <Dropdown.Trigger variant="ghost" label={t("Supprimer")} />
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  key="del-row"
+                  icon={<DeleteRow />}
+                  onClick={() => editor?.chain().focus().deleteRow().run()}
+                >
+                  {t("Supprimer la ligne")}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  key="del-col"
+                  icon={<DeleteColumn />}
+                  onClick={() => editor?.chain().focus().deleteColumn().run()}
+                >
+                  {t("Supprimer la colonne")}
+                </Dropdown.Item>
+                <Dropdown.Separator />
+                <Dropdown.Item
+                  key="del-header-row"
+                  icon={<DeleteRowHighlight />}
+                  onClick={() =>
+                    editor?.chain().focus().toggleHeaderRow().run()
+                  }
+                >
+                  {t("Supprimer en-tête ligne")}
+                </Dropdown.Item>
+                <Dropdown.Item
+                  key="del-header-col"
+                  icon={<DeleteColumnHighlight />}
+                  onClick={() =>
+                    editor?.chain().focus().toggleHeaderColumn().run()
+                  }
+                >
+                  {t("Supprimer en-tête colonne")}
+                </Dropdown.Item>
+                <Dropdown.Separator />
+                <Dropdown.Item
+                  key="del-table"
+                  icon={<Delete />}
+                  onClick={() => editor?.chain().focus().deleteTable().run()}
+                >
+                  {t("Supprimer tableau")}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </>
+          ),
+        },
       },
     ];
-  }, [backgroundColor, editor, isActive, isSpan, t]);
+  }, [backgroundColor, editor, isSpan, t]);
 
   return (
     <>
@@ -240,7 +279,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
           }}
           shouldShow={() => editor.isActive("table")}
         >
-          <Toolbar data={tableToolbarItems} />
+          <FloatingToolbar items={tableToolbarItems} />
         </FloatingMenu>
       )}
     </>
