@@ -31,7 +31,6 @@ import {
   ColorPicker,
   DefaultPalette,
   ToolbarItem,
-  useHasWorkflow,
   MediaLibraryResult,
   MediaLibraryType,
   DropdownMenuOptions,
@@ -80,10 +79,6 @@ export const useToolbarItems = (
     // TODO setSize( ?? 5);
   }, [editor, editor?.state]);
 
-  const canRecord = useHasWorkflow(
-    "com.opendigitaleducation.video.controllers.VideoController|capture",
-  );
-
   const toolbarItems: ToolbarItem[] = [
     {
       type: "icon",
@@ -104,7 +99,6 @@ export const useToolbarItems = (
         onClick: () => showMediaLibraryForType("video"),
       },
       name: "video",
-      visibility: canRecord ? "show" : "hide",
     },
     {
       type: "icon",
