@@ -350,9 +350,7 @@ export const useToolbarItems = (
         ),
       },
       name: "highlight",
-      visibility: editor?.extensionManager.splittableMarks.includes(
-        "highlight",
-      )
+      visibility: editor?.extensionManager.splittableMarks.includes("highlight")
         ? "show"
         : "hide",
     },
@@ -395,9 +393,7 @@ export const useToolbarItems = (
         onClick: () => editor?.chain().focus().toggleUnderline().run(),
       },
       name: "underline",
-      visibility: editor?.extensionManager.splittableMarks.includes(
-        "underline",
-      )
+      visibility: editor?.extensionManager.splittableMarks.includes("underline")
         ? "show"
         : "hide",
     },
@@ -473,9 +469,7 @@ export const useToolbarItems = (
         ),
       },
       name: "emoji",
-      visibility: editor?.extensionManager.splittableMarks.includes(
-        "highlight",
-      )
+      visibility: editor?.extensionManager.splittableMarks.includes("highlight")
         ? "show"
         : "hide",
     },
