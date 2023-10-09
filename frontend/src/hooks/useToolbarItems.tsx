@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useState, Fragment } from "react";
+import {
+  useCallback,
+  useEffect,
+  useState,
+  Fragment,
+  RefAttributes,
+} from "react";
 
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
@@ -30,6 +36,8 @@ import {
   MediaLibraryType,
   DropdownMenuOptions,
   ColorPaletteItem,
+  IconButton,
+  IconButtonProps,
 } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import { WorkspaceElement } from "edifice-ts-client";
@@ -125,12 +133,26 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: () => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+        ) => (
           <>
-            <Dropdown.Trigger
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<TextTypo />}
               aria-label={t("Choix de la famille de typographie")}
+              className={
+                editor?.isActive("textStyle", {
+                  color: /^#([0-9a-f]{3}){1,2}$/i,
+                })
+                  ? "selected"
+                  : ""
+              }
             />
             <Dropdown.Menu>
               {[
@@ -172,7 +194,6 @@ export const useToolbarItems = (
                           editor?.chain().focus().unsetFontFamily().run();
                           setValue("");
                         }
-                        setValue(value);
                       }}
                     >
                       <span className={option.className}>{option.label}</span>
@@ -194,10 +215,17 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: () => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+        ) => (
           <>
-            <Dropdown.Trigger
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<TextSize />}
               aria-label={t("Choix de la taille de typographie")}
             />
@@ -261,10 +289,18 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: (triggerProps, itemRefs) => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+          itemRefs,
+        ) => (
           <>
-            <Dropdown.Trigger
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<TextColor />}
               aria-label={t("Couleur de texte")}
               className={
@@ -310,15 +346,27 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: (triggerProps, itemRefs) => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+          itemRefs,
+        ) => (
           <>
-            <Dropdown.Trigger
-              disabled={editor?.isActive("highlight", {
-                color: /^#([0-9a-f]{3}){1,2}$/i,
-              })}
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<TextHighlight />}
               aria-label={t("Couleur de fond")}
+              className={
+                editor?.isActive("highlight", {
+                  color: /^#([0-9a-f]{3}){1,2}$/i,
+                })
+                  ? "selected"
+                  : ""
+              }
             />
             <Dropdown.Menu>
               <ColorPicker
@@ -363,7 +411,7 @@ export const useToolbarItems = (
       props: {
         icon: <TextBold />,
         "aria-label": t("Ajout de gras"),
-        disabled: !editor?.isActive("bold"),
+        className: editor?.isActive("bold") ? "is-selected" : "",
         onClick: () => editor?.chain().focus().toggleBold().run(),
       },
       name: "bold",
@@ -376,7 +424,7 @@ export const useToolbarItems = (
       props: {
         icon: <TextItalic />,
         "aria-label": t("Incliner le text"),
-        disabled: !editor?.isActive("italic"),
+        className: editor?.isActive("italic") ? "is-selected" : "",
         onClick: () => editor?.chain().focus().toggleItalic().run(),
       },
       name: "italic",
@@ -389,7 +437,7 @@ export const useToolbarItems = (
       props: {
         icon: <TextUnderline />,
         "aria-label": t("Souligner le texte"),
-        disabled: !editor?.isActive("underline"),
+        className: editor?.isActive("underline") ? "is-selected" : "",
         onClick: () => editor?.chain().focus().toggleUnderline().run(),
       },
       name: "underline",
@@ -404,15 +452,22 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: (triggerProps, itemRefs) => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+        ) => (
           <>
-            <Dropdown.Trigger
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<Smiley />}
               aria-label={t("Emojis")}
             />
             <Dropdown.Menu>
-              <div ref={(el) => (itemRefs.current["highlight-picker"] = el)}>
+              <div>
                 <EmojiPicker
                   height={400}
                   width={316}
@@ -478,7 +533,7 @@ export const useToolbarItems = (
       props: {
         icon: <Link />,
         "aria-label": t("Ajout d'un lien"),
-        disabled: !editor?.isActive("linker"),
+        className: editor?.isActive("linker") ? "is-selected" : "",
         onClick: () => console.log("click"),
       },
       name: "linker",
@@ -490,10 +545,17 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: () => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+        ) => (
           <>
-            <Dropdown.Trigger
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<BulletList />}
               aria-label={t("Options d'affichage en liste")}
             />
@@ -525,10 +587,17 @@ export const useToolbarItems = (
     {
       type: "dropdown",
       props: {
-        children: () => (
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+        ) => (
           <>
-            <Dropdown.Trigger
+            <IconButton
+              {...triggerProps}
+              type="button"
               variant="ghost"
+              color="tertiary"
               icon={<AlignLeft />}
               aria-label={t("Options d'alignement")}
             />
@@ -568,7 +637,6 @@ export const useToolbarItems = (
           <>
             <Dropdown.Trigger
               variant="ghost"
-              icon={<AlignLeft />}
               label={t("Plus")}
               size="md"
               tabIndex={-1}
@@ -592,7 +660,7 @@ export const useToolbarItems = (
         ),
       },
       name: "plus",
-      visibility: !editor?.extensionManager.extensions.find(
+      visibility: editor?.extensionManager.extensions.find(
         (item) => item.name === "textAlign",
       )
         ? "show"
