@@ -73,7 +73,7 @@ export const useToolbarItems = (
   }, [editor, editor?.state]);
 
   const canRecord = useHasWorkflow(
-    "com.opendigitaleducation.video.controllers.VideoController|view",
+    "com.opendigitaleducation.video.controllers.VideoController|capture",
   );
 
   const toolbarItems: ToolbarItem[] = [
@@ -96,7 +96,7 @@ export const useToolbarItems = (
         onClick: () => showMediaLibraryForType("video"),
       },
       name: "video",
-      isHidden: !canRecord,
+      visibility: canRecord ? "show" : "hide",
     },
     {
       type: "icon",
@@ -185,9 +185,11 @@ export const useToolbarItems = (
         ),
       },
       name: "text_typo",
-      isHidden: !!editor?.extensionManager.extensions.find(
+      visibility: editor?.extensionManager.extensions.find(
         (item) => item.name === "fontFamily",
-      ),
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "dropdown",
@@ -250,9 +252,11 @@ export const useToolbarItems = (
         ),
       },
       name: "text_size",
-      isHidden: !!editor?.extensionManager.extensions.find(
+      visibility: editor?.extensionManager.extensions.find(
         (item) => item.name === "typoSize",
-      ),
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "dropdown",
@@ -295,11 +299,13 @@ export const useToolbarItems = (
         ),
       },
       name: "color",
-      isHidden: !!editor?.extensionManager.extensions.find(
+      visibility: editor?.extensionManager.extensions.find(
         (item) =>
           item.name === "color" &&
           !!editor?.extensionManager.splittableMarks.includes("textStyle"),
-      ),
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "dropdown",
@@ -344,8 +350,11 @@ export const useToolbarItems = (
         ),
       },
       name: "highlight",
-      isHidden:
-        !!editor?.extensionManager.splittableMarks.includes("highlight"),
+      visibility: editor?.extensionManager.splittableMarks.includes(
+        "highlight",
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "divider",
@@ -360,7 +369,9 @@ export const useToolbarItems = (
         onClick: () => editor?.chain().focus().toggleBold().run(),
       },
       name: "bold",
-      isHidden: !!editor?.extensionManager.splittableMarks.includes("bold"),
+      visibility: editor?.extensionManager.splittableMarks.includes("bold")
+        ? "show"
+        : "hide",
     },
     {
       type: "icon",
@@ -371,7 +382,9 @@ export const useToolbarItems = (
         onClick: () => editor?.chain().focus().toggleItalic().run(),
       },
       name: "italic",
-      isHidden: !!editor?.extensionManager.splittableMarks.includes("italic"),
+      visibility: editor?.extensionManager.splittableMarks.includes("italic")
+        ? "show"
+        : "hide",
     },
     {
       type: "icon",
@@ -382,8 +395,11 @@ export const useToolbarItems = (
         onClick: () => editor?.chain().focus().toggleUnderline().run(),
       },
       name: "underline",
-      isHidden:
-        !!editor?.extensionManager.splittableMarks.includes("underline"),
+      visibility: editor?.extensionManager.splittableMarks.includes(
+        "underline",
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "divider",
@@ -457,8 +473,11 @@ export const useToolbarItems = (
         ),
       },
       name: "emoji",
-      isHidden:
-        !!editor?.extensionManager.splittableMarks.includes("highlight"),
+      visibility: editor?.extensionManager.splittableMarks.includes(
+        "highlight",
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "icon",
@@ -503,9 +522,11 @@ export const useToolbarItems = (
         ),
       },
       name: "list",
-      isHidden: !!editor?.extensionManager.extensions.find(
+      visibility: editor?.extensionManager.extensions.find(
         (item) => item.name === "starterKit",
-      ),
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "dropdown",
@@ -536,9 +557,11 @@ export const useToolbarItems = (
         ),
       },
       name: "alignment",
-      isHidden: !!editor?.extensionManager.extensions.find(
+      visibility: editor?.extensionManager.extensions.find(
         (item) => item.name === "textAlign",
-      ),
+      )
+        ? "show"
+        : "hide",
     },
     {
       type: "divider",
@@ -575,6 +598,11 @@ export const useToolbarItems = (
         ),
       },
       name: "plus",
+      visibility: !editor?.extensionManager.extensions.find(
+        (item) => item.name === "textAlign",
+      )
+        ? "show"
+        : "hide",
     },
   ];
 
@@ -624,12 +652,15 @@ export const useToolbarItems = (
         }
 
         case "video": {
-          const richContent = `[useToolbarItems/toRichContent] TODO support video tags`;
-          editor?.commands.insertContentAt(
-            editor.view.state.selection,
-            richContent,
-          );
-          editor?.commands.enter();
+          const video = result as WorkspaceElement;
+          editor
+            ?.chain()
+            .focus()
+            .setVideo(
+              video._id || "",
+              `/workspace/document/${video._id}`,
+              true,
+            );
           break;
         }
 

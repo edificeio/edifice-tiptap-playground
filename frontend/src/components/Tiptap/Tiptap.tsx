@@ -40,9 +40,13 @@ import "katex/dist/katex.min.css";
 import "~/styles/index.scss";
 import "~/styles/table.scss";
 
+export interface TiptapProps {
+  appCode: string;
+}
+
 const MathsModal = lazy(async () => await import("./MathsModal"));
 
-const Tiptap = () => {
+const Tiptap = ({ appCode }: TiptapProps) => {
   const queryParameters = new URLSearchParams(window.location.search);
   const fileId = queryParameters.get("file");
   const docId = queryParameters.get("doc");
@@ -219,7 +223,7 @@ const Tiptap = () => {
       <TableToolbar editor={editor} />
 
       <MediaLibrary
-        appCode="blog"
+        appCode={appCode}
         type={mediaLibraryType}
         onCancel={() => setMediaLibraryType(null)}
         onSuccess={onMediaLibrarySuccess}
