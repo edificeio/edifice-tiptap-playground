@@ -2,6 +2,7 @@ import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { Attachment } from "@edifice-tiptap-extensions/extension-attachment";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
+import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import {
@@ -21,7 +22,6 @@ import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
-import TableCell from "@tiptap/extension-table-cell";
 import TableHeader from "@tiptap/extension-table-header";
 import TableRow from "@tiptap/extension-table-row";
 import TextAlign from "@tiptap/extension-text-align";
@@ -32,6 +32,7 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
+import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
@@ -206,7 +207,7 @@ const Tiptap = ({ appCode }: TiptapProps) => {
     <>
       <TiptapWrapper>
         <Toolbar
-          data={toolbarItems}
+          items={toolbarItems}
           variant="no-shadow"
           isBlock
           align="left"
@@ -218,6 +219,8 @@ const Tiptap = ({ appCode }: TiptapProps) => {
           className="py-12 px-16"
         />
       </TiptapWrapper>
+
+      <TableToolbar editor={editor} />
 
       <MediaLibrary
         appCode={appCode}
