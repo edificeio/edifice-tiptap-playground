@@ -25,7 +25,12 @@ import {
   ToolbarItem,
   IconButtonProps,
 } from "@edifice-ui/react";
-import { FloatingMenu, Editor } from "@tiptap/react";
+import {
+  FloatingMenu,
+  FloatingMenuProps,
+  Editor,
+  findParentNodeClosestToPos,
+} from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
 interface TableToolbarProps {
@@ -47,9 +52,37 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
     );
   }, [editor, editor?.state]);
 
-  // const isActive = editor?.isActive("tableCell", {
-  //   backgroundColor: /^#([0-9a-f]{3}){1,2}$/i,
-  // });
+  /** Options need some computing */
+  const tippyOptions: FloatingMenuProps["tippyOptions"] = useMemo(
+    () => ({
+      placement: "bottom",
+      /** Try to get the bounding rect of the table. */
+      getReferenceClientRect: () => {
+        const parentDiv = editor?.isActive("table")
+          ? findParentNodeClosestToPos(
+              editor.state.selection.$anchor,
+              (node) => node.type.name === "table",
+            )
+          : null;
+
+        // Retrieve the <div class="tableWrapper"> that wraps the <table>
+        if (parentDiv) {
+          const parentDomNode = editor?.view.nodeDOM(parentDiv.pos) as
+            | HTMLElement
+            | undefined;
+
+          const tableDomNode = parentDomNode?.querySelector("table");
+          if (tableDomNode) {
+            return tableDomNode.getBoundingClientRect();
+          }
+        }
+
+        // This should never happen... but it keeps the transpiler happy.
+        return new DOMRect(0, 0, 100, 100);
+      },
+    }),
+    [editor, editor?.state],
+  );
 
   const [isSpan, setSpan] = useState<boolean | undefined>(undefined);
   useEffect(() => {
@@ -274,9 +307,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
       {editor && (
         <FloatingMenu
           editor={editor}
-          tippyOptions={{
-            placement: "bottom",
-          }}
+          tippyOptions={tippyOptions}
           shouldShow={() => editor.isActive("table")}
         >
           <Toolbar items={tableToolbarItems} />
