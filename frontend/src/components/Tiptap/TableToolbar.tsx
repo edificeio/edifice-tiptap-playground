@@ -54,8 +54,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
 
   /** Adjust a DOMRect to make it visible at a correct place.  */
   function adjustRect(rect: DOMRect) {
-    // Final position is 10px too low (dunno why) or may be sticky, so adjust it here.
-    let yOffset = 10;
+    let yOffset = 0;
     if (window.visualViewport) {
       const bottomScreen =
         window.innerHeight || document.documentElement.clientHeight;
@@ -70,6 +69,8 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
   const tippyOptions: FloatingMenuProps["tippyOptions"] = useMemo(
     () => ({
       placement: "bottom",
+      offset: [0, 0],
+      // popperOptions: {modifiers: [ /*see popper v2 modifiers*/ ]},
       /** Try to get the bounding rect of the table. */
       getReferenceClientRect: () => {
         const parentDiv = editor?.isActive("table")
@@ -95,7 +96,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
         return new DOMRect(0, 0, 100, 100);
       },
     }),
-    [editor, editor?.state],
+    [editor],
   );
 
   const [isSpan, setSpan] = useState<boolean | undefined>(undefined);
