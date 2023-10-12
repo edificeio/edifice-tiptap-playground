@@ -52,6 +52,20 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
     );
   }, [editor, editor?.state]);
 
+  /** Adjust a DOMRect to make it visible at a correct place.  */
+  function adjustRect(rect: DOMRect) {
+    // Final position is 10px too low (dunno why) or may be sticky, so adjust it here.
+    let yOffset = 10;
+    if (window.visualViewport) {
+      const bottomScreen =
+        window.innerHeight || document.documentElement.clientHeight;
+      if (rect.bottom >= bottomScreen) {
+        yOffset += rect.bottom - bottomScreen - rect.height;
+      }
+    }
+    return new DOMRect(rect.x, rect.y - yOffset, rect.width, rect.height);
+  }
+
   /** Options need some computing */
   const tippyOptions: FloatingMenuProps["tippyOptions"] = useMemo(
     () => ({
@@ -73,7 +87,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
 
           const tableDomNode = parentDomNode?.querySelector("table");
           if (tableDomNode) {
-            return tableDomNode.getBoundingClientRect();
+            return adjustRect(tableDomNode.getBoundingClientRect());
           }
         }
 
@@ -310,7 +324,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
           tippyOptions={tippyOptions}
           shouldShow={() => editor.isActive("table")}
         >
-          <Toolbar items={tableToolbarItems} />
+          <Toolbar className="p-4" items={tableToolbarItems} />
         </FloatingMenu>
       )}
     </>
