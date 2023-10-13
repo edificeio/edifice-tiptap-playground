@@ -70,6 +70,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
     () => ({
       placement: "bottom",
       offset: [0, 0],
+      zIndex: 999,
       // popperOptions: {modifiers: [ /*see popper v2 modifiers*/ ]},
       /** Try to get the bounding rect of the table. */
       getReferenceClientRect: () => {
