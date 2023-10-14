@@ -7,8 +7,7 @@ import {
   Grid,
   Image,
 } from "@edifice-ui/react";
-
-import Tiptap from "~/components/Tiptap/Tiptap";
+import { Outlet } from "react-router-dom";
 
 function Root() {
   const { init } = useOdeClient();
@@ -45,7 +44,7 @@ function Root() {
           />
         </Grid.Col>
         <Grid.Col sm="4" md="8" lg="6" xl="9" className="py-16">
-          <Tiptap appCode="blog" />
+          <Outlet />
         </Grid.Col>
       </Grid>
     </Layout>

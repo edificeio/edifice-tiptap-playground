@@ -9,10 +9,11 @@ import {
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRoot } from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
+
+import { router } from "./routes";
 
 import "./i18n";
-
-import Root from "~/app/root";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
@@ -24,9 +25,9 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-if (process.env.NODE_ENV !== "production") {
+/* if (process.env.NODE_ENV !== "production") {
   import("edifice-bootstrap/dist/index.css");
-}
+} */
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -51,7 +52,7 @@ root.render(
         }}
       >
         <ThemeProvider>
-          <Root />
+          <RouterProvider router={router} />
         </ThemeProvider>
       </OdeClientProvider>
       <ReactQueryDevtools initialIsOpen={false} />
