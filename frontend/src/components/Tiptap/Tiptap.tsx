@@ -38,7 +38,6 @@ import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
 import "katex/dist/katex.min.css";
-import "~/styles/index.scss";
 import "~/styles/table.scss";
 
 export interface TiptapProps {
