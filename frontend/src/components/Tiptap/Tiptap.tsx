@@ -38,6 +38,7 @@ import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
 import "katex/dist/katex.min.css";
+import "../../styles/table.scss";
 
 const MathsModal = lazy(async () => await import("./MathsModal"));
 
