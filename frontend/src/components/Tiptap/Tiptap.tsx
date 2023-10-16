@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useCallback } from "react";
+import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { Attachment } from "@edifice-tiptap-extensions/extension-attachment";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
@@ -38,13 +38,22 @@ import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
 import "katex/dist/katex.min.css";
-import "../../styles/table.scss";
+import "~/styles/index.scss";
+import "~/styles/table.scss";
+
+export interface TiptapProps {
+  appCode: string;
+}
 
 const MathsModal = lazy(async () => await import("./MathsModal"));
 
 const Tiptap = () => {
   const { appCode } = useOdeClient();
-  const [isEditable] = useState(true);
+
+  const queryParameters = new URLSearchParams(window.location.search);
+  const fileId = queryParameters.get("file");
+  const docId = queryParameters.get("doc");
+  const source = queryParameters.get("source");
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -123,7 +132,6 @@ const Tiptap = () => {
           </tbody>
         </table>
       `,
-    editable: isEditable,
   });
 
   const [mediaLibraryType, setMediaLibraryType] =
@@ -145,6 +153,32 @@ const Tiptap = () => {
     alignmentOptions,
     options,
   );
+
+  useEffect(() => {
+    if (editor) {
+      if (fileId) {
+        fetch(`/pocediteur/files/${fileId}`).then((response) => {
+          if (response.ok) {
+            response.text().then((data) => {
+              editor.commands.setContent(data);
+            });
+          }
+        });
+      } else if (docId) {
+        fetch(`/pocediteur/${source}/docs/${docId}?cleanHtml=true`).then(
+          (response) => {
+            if (response.ok) {
+              response.json().then((data) => {
+                editor.commands.setContent(data.content);
+              });
+            }
+          },
+        );
+      }
+    }
+  }, [fileId, docId, editor, source]);
+
+  // console.log(editor?.extensionManager.extensions);
 
   const onMediaLibrarySuccess = useCallback(
     (result: MediaLibraryResult) => {
@@ -175,15 +209,13 @@ const Tiptap = () => {
   return (
     <>
       <TiptapWrapper>
-        {isEditable && (
-          <Toolbar
-            items={toolbarItems}
-            variant="no-shadow"
-            isBlock
-            align="left"
-            ariaControls="editorContent"
-          />
-        )}
+        <Toolbar
+          items={toolbarItems}
+          variant="no-shadow"
+          isBlock
+          align="left"
+          ariaControls="editorContent"
+        />
         <EditorContent
           editor={editor}
           id="editorContent"
