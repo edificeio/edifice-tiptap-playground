@@ -721,7 +721,16 @@ export const useToolbarItems = (
         }
 
         case "attachment": {
-          const richContent = `[useToolbarItems/toRichContent] TODO support attachments`;
+          let innerHtml = "";
+          for (let i = 0; i < result.length; i++) {
+            innerHtml += `<a href="/workspace/document/${
+              (result as WorkspaceElement[])[i]._id
+            }">${(result as WorkspaceElement[])[i].name}
+            </a>`;
+          }
+          const richContent = `<div class="attachments">
+            ${innerHtml}
+          </div>`;
           editor?.commands.insertContentAt(
             editor.view.state.selection,
             richContent,
