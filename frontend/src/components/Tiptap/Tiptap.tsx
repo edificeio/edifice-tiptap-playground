@@ -247,12 +247,14 @@ const Tiptap = () => {
 
       <TableToolbar editor={editor} />
 
-      <MediaLibrary
-        appCode={appCode ?? ""}
-        type={mediaLibraryType}
-        onCancel={() => setMediaLibraryType(null)}
-        onSuccess={onMediaLibrarySuccess}
-      />
+      <Suspense fallback={<LoadingScreen />}>
+        <MediaLibrary
+          appCode={appCode}
+          type={mediaLibraryType}
+          onCancel={() => setMediaLibraryType(null)}
+          onSuccess={onMediaLibrarySuccess}
+        />
+      </Suspense>
 
       <Suspense fallback={<LoadingScreen />}>
         {isMathsModalOpen && (

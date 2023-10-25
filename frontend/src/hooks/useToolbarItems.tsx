@@ -450,6 +450,7 @@ export const useToolbarItems = (
           triggerProps: JSX.IntrinsicAttributes &
             Omit<IconButtonProps, "ref"> &
             RefAttributes<HTMLButtonElement>,
+          itemRefs,
         ) => (
           <>
             <IconButton
@@ -461,7 +462,7 @@ export const useToolbarItems = (
               aria-label={t("Emojis")}
             />
             <Dropdown.Menu>
-              <div>
+              <div ref={(el) => (itemRefs.current["emoji-picker"] = el)}>
                 <EmojiPicker
                   height={400}
                   width={316}
