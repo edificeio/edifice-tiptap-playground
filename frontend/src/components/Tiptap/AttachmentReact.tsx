@@ -5,6 +5,7 @@ import { Delete, Download } from "@edifice-ui/icons";
 import { Attachment, Grid, IconButton } from "@edifice-ui/react";
 import { Editor } from "@tiptap/core";
 import { NodeViewWrapper, ReactNodeViewRenderer } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
 
 export const AttachReact = (Component: any) =>
   AttachmentExt.extend({
@@ -26,6 +27,8 @@ export interface AttachmentAttrsProps {
 }
 
 export const TestAttachment = (props: AttachmentProps) => {
+  const { t } = useTranslation();
+
   const { node } = props;
   const [attachmentArrayAttrs, setAttachmentArrayAttrs] = useState<
     AttachmentAttrsProps[]
@@ -47,7 +50,7 @@ export const TestAttachment = (props: AttachmentProps) => {
             padding: "12px",
           }}
         >
-          <p className="m-12">Pièce.s jointe.s</p>
+          <p className="m-12">{t("Pièce(s) jointe(s)")}</p>
           <Grid>
             {attachmentArrayAttrs?.map((attachment, index) => (
               <Grid.Col sm="6" key={index}>
@@ -56,7 +59,7 @@ export const TestAttachment = (props: AttachmentProps) => {
                   options={
                     <>
                       <IconButton
-                        aria-label="Add User"
+                        aria-label={t("download")}
                         color="tertiary"
                         type="button"
                         icon={<Download />}
@@ -64,7 +67,7 @@ export const TestAttachment = (props: AttachmentProps) => {
                         onClick={() => window.open(attachment.href)}
                       />
                       <IconButton
-                        aria-label="Delete"
+                        aria-label={t("delete")}
                         color="danger"
                         type="button"
                         icon={<Delete />}
