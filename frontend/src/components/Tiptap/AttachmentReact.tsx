@@ -50,7 +50,7 @@ export const TestAttachment = (props: AttachmentProps) => {
             padding: "12px",
           }}
         >
-          <p className="m-12">{t("Pièce(s) jointe(s)")}</p>
+          <p className="m-12">{t("editor.attachments.bloc")}</p>
           <Grid>
             {attachmentArrayAttrs?.map((attachment, index) => (
               <Grid.Col sm="6" key={index}>
@@ -67,7 +67,7 @@ export const TestAttachment = (props: AttachmentProps) => {
                         onClick={() => window.open(attachment.href)}
                       />
                       <IconButton
-                        aria-label={t("delete")}
+                        aria-label={t("explorer.delete")}
                         color="danger"
                         type="button"
                         icon={<Delete />}
