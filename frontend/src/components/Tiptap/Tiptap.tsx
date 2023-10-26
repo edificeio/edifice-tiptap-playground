@@ -1,6 +1,5 @@
 import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
-import { Attachment } from "@edifice-tiptap-extensions/extension-attachment";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
@@ -33,15 +32,19 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
+//import { AttachReact, TestAttachment } from "./AttachmentReact";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
+// eslint-disable-next-line import/order
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
+// eslint-disable-next-line import/order
+import { AttachReact, TestAttachment } from "./AttachmentReact";
 
 export interface TiptapProps {
-  appCode: string;
+  appCode?: string;
 }
 
 const MathsModal = lazy(async () => await import("./MathsModal"));
@@ -77,7 +80,7 @@ const Tiptap = () => {
       TypoSize,
       Video,
       IFrame,
-      Attachment,
+      AttachReact(TestAttachment),
       Image,
       Link,
       FontFamily,
@@ -129,7 +132,27 @@ const Tiptap = () => {
               <td>actress</td>
             </tr>
           </tbody>
-        </table>
+      </table>
+        <div>
+          <div class="attachments">
+            <a href="/workspace/document/23c8ab9e-386a-4d7e-a280-91f77d0da68c">
+              <div class="download"></div>
+              First
+          </a>
+            <a href="/workspace/document/23c8ab9e-386a-4d7e-a280-91f77d0da68c">
+              <div class="download"></div>
+              Second
+          </a>
+          <div class="attachments">
+            <a href="/workspace/document/23c8ab9e-386a-4d7e-a280-91f77d0da68c">
+              <div class="download"></div>
+              First
+          </a>
+            <a href="/workspace/document/23c8ab9e-386a-4d7e-a280-91f77d0da68c">
+              <div class="download"></div>
+              Second
+          </a>
+      </div>
       `,
   });
 
