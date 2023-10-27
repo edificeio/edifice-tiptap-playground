@@ -23,6 +23,7 @@ import {
   TextSize,
   TextTypo,
   TextUnderline,
+  SpeechToText,
 } from "@edifice-ui/icons";
 import {
   AccessiblePalette,
@@ -79,6 +80,12 @@ export const useToolbarItems = (
     // TODO setSize( ?? 5);
   }, [editor, editor?.state]);
 
+  /* TODO : à migrer dans l'extension TipTap ? */
+  const canRecognizeSpeech =
+    (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+      ? true
+      : false;
+
   const toolbarItems: ToolbarItem[] = [
     {
       type: "icon",
@@ -123,6 +130,30 @@ export const useToolbarItems = (
     {
       type: "divider",
       name: "div-1",
+    },
+    {
+      type: "icon",
+      props: {
+        icon: <SpeechToText />,
+        "aria-label": t("Reconnaissance vocale"),
+        className: editor?.commands.isSpeechRecognitionStarted()
+          ? "is-selected"
+          : "",
+        onClick: () => {
+          if (editor?.commands.isSpeechRecognitionStarted()) {
+            editor?.commands.stopSpeechRecognition();
+          } else {
+            editor?.commands.startSpeechRecognition();
+          }
+        },
+      },
+      visibility: canRecognizeSpeech ? "show" : "hide",
+      name: "speechtotext",
+    },
+    {
+      type: "divider",
+      name: "div-speech",
+      visibility: canRecognizeSpeech ? "show" : "hide",
     },
     {
       type: "dropdown",
@@ -529,7 +560,7 @@ export const useToolbarItems = (
         icon: <Link />,
         "aria-label": t("Ajout d'un lien"),
         className: editor?.isActive("linker") ? "is-selected" : "",
-        onClick: () => console.log("click"),
+        onClick: () => showMediaLibraryForType("hyperlink"),
       },
       name: "linker",
     },

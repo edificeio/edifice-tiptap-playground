@@ -1,6 +1,7 @@
 import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
+import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
@@ -78,6 +79,7 @@ const Tiptap = () => {
       }),
       Typography,
       TypoSize,
+      SpeechRecognition,
       Video,
       IFrame,
       AttachReact(TestAttachment),
@@ -234,6 +236,7 @@ const Tiptap = () => {
         <Toolbar
           items={toolbarItems}
           variant="no-shadow"
+          className="rounded-top"
           isBlock
           align="left"
           ariaControls="editorContent"

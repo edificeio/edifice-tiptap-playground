@@ -36,6 +36,7 @@ export default ({ mode }: { mode: string }) => {
 
   const proxy = {
     "/applications-list": proxyObj,
+    "/resources-applications": proxyObj,
     "/conf/public": proxyObj,
     "^/(?=help-1d|help-2d)": proxyObj,
     "^/(?=assets)": proxyObj,

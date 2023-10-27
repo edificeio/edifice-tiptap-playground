@@ -46,6 +46,8 @@
   "dependencies": {
     "@edifice-tiptap-extensions/extension-attachment": "develop-b2school",
     "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
+    "@edifice-tiptap-extensions/extension-speechrecognition": "develop-b2school",
+    "@edifice-tiptap-extensions/extension-speechsynthesis": "develop-b2school",
     "@edifice-tiptap-extensions/extension-table-cell": "develop-b2school",
     "@edifice-tiptap-extensions/extension-typosize": "develop-b2school",
     "@edifice-tiptap-extensions/extension-video": "develop-b2school",
@@ -95,6 +97,7 @@
   "devDependencies": {
     "@axe-core/react": "4.7.3",
     "@tanstack/react-query-devtools": "4.32.6",
+    "@types/dom-speech-recognition": "^0.0.1",
     "@types/node": "20.4.8",
     "@types/react": "18.2.19",
     "@types/react-dom": "18.2.7",
