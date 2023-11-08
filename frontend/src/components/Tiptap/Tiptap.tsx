@@ -1,6 +1,7 @@
 import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
+import { Linker } from "@edifice-tiptap-extensions/extension-linker";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
@@ -33,16 +34,12 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
-//import { AttachReact, TestAttachment } from "./AttachmentReact";
-import TableToolbar from "./TableToolbar";
-import { useActionOptions } from "~/hooks/useActionOptions";
-// eslint-disable-next-line import/order
-import { useToolbarItems } from "~/hooks/useToolbarItems";
-
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
-// eslint-disable-next-line import/order
 import { AttachReact, TestAttachment } from "./AttachmentReact";
+import TableToolbar from "./TableToolbar";
+import { useActionOptions } from "~/hooks/useActionOptions";
+import { useToolbarItems } from "~/hooks/useToolbarItems";
 
 export interface TiptapProps {
   appCode?: string;
@@ -85,6 +82,7 @@ const Tiptap = () => {
       AttachReact(TestAttachment),
       Image,
       Link,
+      Linker,
       FontFamily,
       Mathematics,
     ],
@@ -121,6 +119,9 @@ const Tiptap = () => {
         <br />
         — Mom
       </blockquote>
+      <p>
+        And now, an internal link : <a href="/blog/" title="A link" target="_blank" data-id="123456" data-app-prefix="magic">See it</a>
+      </p>
       <table>
           <tbody>
             <tr>
