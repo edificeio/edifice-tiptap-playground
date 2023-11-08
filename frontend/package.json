@@ -46,6 +46,7 @@
   "dependencies": {
     "@edifice-tiptap-extensions/extension-attachment": "develop-b2school",
     "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
+    "@edifice-tiptap-extensions/extension-linker": "develop-b2school",
     "@edifice-tiptap-extensions/extension-speechrecognition": "develop-b2school",
     "@edifice-tiptap-extensions/extension-speechsynthesis": "develop-b2school",
     "@edifice-tiptap-extensions/extension-table-cell": "develop-b2school",

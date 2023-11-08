@@ -39,6 +39,7 @@ import {
   IconButton,
   IconButtonProps,
 } from "@edifice-ui/react";
+import { ResourceTabResult } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 import { WorkspaceElement } from "edifice-ts-client";
 import EmojiPicker, { Categories } from "emoji-picker-react";
@@ -772,12 +773,59 @@ export const useToolbarItems = (
         }
 
         case "hyperlink": {
-          const richContent = `[useToolbarItems/toRichContent] TODO support hyperlinks`;
-          editor?.commands.insertContentAt(
-            editor.view.state.selection,
-            richContent,
-          );
-          editor?.commands.enter();
+          const resourceTabResult = result as ResourceTabResult;
+
+          editor?.commands.focus();
+          if (Array.isArray(resourceTabResult.resources)) {
+            // Case of internal link
+            resourceTabResult.resources.forEach((link) => {
+              // If no text is pre-selected,
+              if (editor.state.selection.empty) {
+                const from = editor.state.selection.head;
+                const to = from + link.name.length;
+                // Insert the name of the link and select it.
+                editor
+                  ?.chain()
+                  .insertContent(link.name)
+                  .setTextSelection({ from, to })
+                  .run();
+                // Add a link to it.
+                editor?.commands.setLinker({
+                  href: link.path,
+                  "data-app-prefix": link.application,
+                  "data-id": link.assetId,
+                  target: resourceTabResult.target ?? null,
+                  title: link.name,
+                });
+                // Cancel selection, so that next links are added afterward.
+                const newPosition = editor.state.selection.head;
+                editor.commands.setTextSelection({
+                  from: newPosition,
+                  to: newPosition,
+                });
+                if (
+                  resourceTabResult &&
+                  resourceTabResult.resources &&
+                  resourceTabResult.resources.length > 1
+                ) {
+                  editor.commands.enter();
+                }
+              } else {
+                // Add a link to selected text.
+                editor.commands.setLinker({
+                  href: link.path,
+                  "data-app-prefix": link.application,
+                  "data-id": link.assetId,
+                  target: resourceTabResult.target ?? null,
+                  title: link.name,
+                });
+              }
+            });
+          } else {
+            // TODO Case of external link
+            const richContent = "<p>TODO: external link</p>";
+            editor?.commands.insertContent(richContent);
+          }
           break;
         }
 
