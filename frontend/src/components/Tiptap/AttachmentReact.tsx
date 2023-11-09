@@ -46,8 +46,8 @@ export const TestAttachment = (props: AttachmentProps) => {
         <div
           style={{
             backgroundColor: "#F2F2F2",
-            borderRadius: "8px",
-            padding: "12px",
+            borderRadius: ".8rem",
+            padding: "1.2rem",
           }}
         >
           <p className="m-12 mt-0">{t("editor.attachments.bloc")}</p>
