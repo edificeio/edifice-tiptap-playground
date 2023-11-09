@@ -40,15 +40,24 @@ import { Mathematics } from "@tiptap-pro/extension-mathematics";
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
 import { AttachReact, TestAttachment } from "./AttachmentReact";
+import ImageExtension from "./ImageExtension";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
+import "katex/dist/katex.min.css";
+import "~/styles/table.scss";
 
 export interface TiptapProps {
   appCode?: string;
 }
 
 const MathsModal = lazy(async () => await import("./MathsModal"));
+const ImageBubbleMenu = lazy(
+  async () => await import("../image/ImageBubbleMenu"),
+);
+const ImageEditorModal = lazy(
+  async () => await import("../image/ImageEditorModal"),
+);
 
 const Tiptap = () => {
   const { appCode, currentLanguage } = useOdeClient();
@@ -62,6 +71,7 @@ const Tiptap = () => {
   const editor = useEditor({
     editable,
     extensions: [
+      ImageExtension,
       StarterKit,
       Highlight.configure({
         multicolor: true,
@@ -134,6 +144,7 @@ const Tiptap = () => {
       <p>
         And now, an internal link : <a href="/blog/" title="A link" target="_blank" data-id="123456" data-app-prefix="magic">See it</a>
       </p>
+      <img alt="mon image" style="width:400px" src="https://images.unsplash.com/photo-1668539445692-cd5d790c8352?ixlib=rb-4.0.3&amp;ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&amp;auto=format&amp;fit=crop&amp;w=1740&amp;q=80" class="">
       <table>
           <tbody>
             <tr>
@@ -175,6 +186,8 @@ const Tiptap = () => {
     useState<MediaLibraryType | null>(null);
 
   const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
+  const [isImageModalOpen, toggleImageModal] = useToggle(false);
+  const [imageSrc, setImageSrc] = useState<string>("");
 
   /* A bouger ailleurs, à externaliser ? */
   const [options, listOptions, alignmentOptions] = useActionOptions(
@@ -277,6 +290,15 @@ const Tiptap = () => {
     toggleMathsModal();
   };
 
+  const onImageModalSuccess = (blob: Blob) => {
+    toggleImageModal();
+    console.log("BLOB", blob);
+  };
+
+  const onImageModalCancel = () => {
+    toggleImageModal();
+  };
+  console.log("IMAGE", imageSrc, isImageModalOpen);
   return (
     <>
       <Toolbar
@@ -320,6 +342,28 @@ const Tiptap = () => {
             isOpen={isMathsModalOpen}
             onCancel={onMathsModalCancel}
             onSuccess={onMathsModalSuccess}
+          />
+        )}
+      </Suspense>
+      {editor && (
+        <Suspense fallback={<LoadingScreen />}>
+          <ImageBubbleMenu
+            editor={editor}
+            onEdit={(src) => {
+              setImageSrc(src);
+              toggleImageModal();
+            }}
+          />
+        </Suspense>
+      )}
+      <Suspense fallback={<LoadingScreen />}>
+        {isImageModalOpen && (
+          <ImageEditorModal
+            image={imageSrc}
+            isOpen={isImageModalOpen}
+            onCancel={onImageModalCancel}
+            onSave={onImageModalSuccess}
+            onError={console.error}
           />
         )}
       </Suspense>
