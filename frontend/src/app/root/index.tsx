@@ -9,6 +9,8 @@ import {
 } from "@edifice-ui/react";
 import { Outlet } from "react-router-dom";
 
+import edifice from "../../assets/edifice.png";
+
 function Root() {
   const { init } = useOdeClient();
 
@@ -37,11 +39,7 @@ function Root() {
           className="border-end pt-16 pe-16 d-none d-lg-block"
           as="aside"
         >
-          <Image
-            ratio="1"
-            alt="mon image"
-            src="https://images.unsplash.com/photo-1668539445692-cd5d790c8352?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80"
-          />
+          <Image ratio="1" alt="mon image" src={edifice} objectFit="contain" />
         </Grid.Col>
         <Grid.Col sm="4" md="8" lg="6" xl="9" className="py-16">
           <Outlet />
