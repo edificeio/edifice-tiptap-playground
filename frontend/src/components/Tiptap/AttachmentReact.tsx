@@ -50,7 +50,7 @@ export const TestAttachment = (props: AttachmentProps) => {
             padding: "12px",
           }}
         >
-          <p className="m-12">{t("editor.attachments.bloc")}</p>
+          <p className="m-12 mt-0">{t("editor.attachments.bloc")}</p>
           <Grid>
             {attachmentArrayAttrs?.map((attachment, index) => (
               <Grid.Col sm="6" key={index}>
