@@ -10,6 +10,7 @@ import {
 import { Outlet } from "react-router-dom";
 
 import edifice from "../../assets/edifice.png";
+import BlogNavigator from "~/components/ent/BlogNavigator";
 
 function Root() {
   const { init } = useOdeClient();
@@ -40,6 +41,7 @@ function Root() {
           as="aside"
         >
           <Image ratio="1" alt="mon image" src={edifice} objectFit="contain" />
+          <BlogNavigator />
         </Grid.Col>
         <Grid.Col sm="4" md="8" lg="6" xl="9" className="py-16">
           <Outlet />
