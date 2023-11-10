@@ -48,6 +48,21 @@ export default ({ mode }: { mode: string }) => {
     "/mindmap": proxyObj,
     "/pocediteur": proxyObj,
     "/video": proxyObj,
+    // needed for linker (behaviours)
+    "/actualites/linker/infos": proxyObj,
+    "/collaborativewall/list/all": proxyObj,
+    "/community/listallpages": proxyObj,
+    "/exercizer/subjects-scheduled": proxyObj,
+    "/formulaire/forms/linker": proxyObj,
+    "/forum/categories": proxyObj,
+    "/homeworks/list": proxyObj,
+    "/magneto/boards/editable": proxyObj,
+    "/mindmap/list/all": proxyObj,
+    "/pages/list/all": proxyObj,
+    "/poll/list/all": proxyObj,
+    "/scrapbook/list/all": proxyObj,
+    "/timelinegenerator/timelines": proxyObj,
+    "/wiki/listallpages": proxyObj
   };
 
   const base = mode === "production" ? "/tiptap" : "";
