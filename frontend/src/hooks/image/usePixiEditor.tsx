@@ -1,44 +1,117 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import * as PIXI from "pixi.js";
 
-const usePixiEditor = ({
-  imageSrc,
-  width = 680,
-  height = 400,
-}: {
-  imageSrc: string;
-  height?: number;
-  width?: number;
-}) => {
+import useBlurTool from "./useBlurTool";
+import useHistoryTool from "./useHistoryTool";
+import useRotateTool from "./useRotateTool";
+const DEFAULT_WIDTH = 680;
+const MIN_WIDTH = 400;
+const DEFAULT_HEIGHT = 400;
+const SPRITE_NAME = "image";
+type Dimension = { width: number; height: number };
+const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
   const [application, setApplication] = useState<PIXI.Application | undefined>(
     undefined,
   );
   const [scale, setScale] = useState<{ x: number; y: number } | undefined>(
     undefined,
   );
-  useEffect(() => {
-    if (application === undefined || application.stage === null) {
-      return;
-    }
-    const parent = application.view.parentNode as HTMLElement | undefined;
-    const sprite = PIXI.Sprite.from(imageSrc, {});
-    sprite.interactive = true;
-    if (parent) {
-      // minWidth = 400px
-      const parentWidth = Math.max(parent.offsetWidth, 400);
+  const [dimension, setDimension] = useState<Dimension | undefined>(undefined);
+  const setImageSize = useCallback(
+    ({ height, width }: Dimension) => {
+      const child = application?.stage.getChildByName(SPRITE_NAME);
+      if (application && child) {
+        (child as PIXI.Sprite).anchor.x = 0.5;
+        (child as PIXI.Sprite).anchor.y = 0.5;
+        child.position = {
+          x: width / 2,
+          y: height / 2,
+        } as PIXI.Point;
+        application.renderer.resize(width, height);
+        setDimension({ height, width });
+      }
+    },
+    [application],
+  );
+  const resize = useCallback(
+    ({
+      sprite,
+      application,
+    }: {
+      sprite: PIXI.Sprite;
+      application: PIXI.Application;
+    }) => {
+      const parent = application.view.parentNode as HTMLElement | undefined;
+      const parentWidth = Math.max(parent?.offsetWidth ?? 0, MIN_WIDTH);
       const scaleX = parentWidth / sprite.width;
       const scaleY = scaleX * (sprite.height / sprite.width);
-      const newWith = sprite.width * scaleX;
-      const newHeight = sprite.height * scaleY;
+      const size = Math.max(sprite.width * scaleX, sprite.height * scaleY);
       sprite.scale = new PIXI.Point(scaleX, scaleY);
-      const blurFilter = new PIXI.filters.BlurFilter();
-      sprite.filters?.push(blurFilter);
-      application.renderer.resize(newWith, newHeight);
+      sprite.anchor.x = 0.5;
+      sprite.anchor.y = 0.5;
+      sprite.position = new PIXI.Point(size / 2, size / 2);
+      application.renderer.resize(size, size);
+      console.log(
+        "DIM",
+        size,
+        size,
+        "SCALE",
+        scaleX,
+        scaleY,
+        "SPRITE",
+        sprite.width,
+        sprite.height,
+      );
+      //sprite.pivot.set(newWith / 2, newHeight / 2);
+      // update state
       setScale({ x: scaleX, y: scaleY });
-    }
-    application.stage.addChild(sprite);
-  }, [imageSrc, width, height, application]);
+      setDimension({ width: size, height: size });
+    },
+    [],
+  );
+  const setBlob = ({
+    imageSrc,
+    dimension,
+  }: {
+    imageSrc: Blob;
+    dimension?: Dimension;
+  }) => {
+    const imageUrl = URL.createObjectURL(imageSrc);
+    const image = new Image();
+    image.src = imageUrl;
+    image.onload = () => {
+      setImage({ imageSrc: image, dimension });
+    };
+  };
+  const setImage = useCallback(
+    async ({
+      imageSrc,
+    }: {
+      imageSrc: string | HTMLImageElement;
+      dimension?: Dimension;
+    }) => {
+      if (application === undefined || application.stage === null) {
+        return;
+      }
+      // remove previous sprite
+      application.stage.getChildByName(SPRITE_NAME)?.removeFromParent();
+      // add new sprite
+      const texture =
+        imageSrc instanceof HTMLImageElement
+          ? PIXI.Texture.from(imageSrc)
+          : await PIXI.Texture.fromURL(imageSrc);
+      const sprite = PIXI.Sprite.from(texture, {});
+      sprite.interactive = true;
+      sprite.name = SPRITE_NAME;
+      application.stage.addChild(sprite);
+      resize({ application, sprite });
+    },
+    [application, resize],
+  );
+  useEffect(() => {
+    setImage({ imageSrc });
+  }, [imageSrc, setImage]);
   const toBlob = () => {
     return new Promise<Blob>((resolve, reject) => {
       application?.view?.toBlob?.((blob) => {
@@ -46,85 +119,39 @@ const usePixiEditor = ({
       });
     });
   };
-  const brushSize = 20;
-  const drawBrush = (): PIXI.Graphics => {
-    const widthRatio = scale?.x ?? 1;
-    const heightRatio = scale?.y ?? 1;
-    const brush = new PIXI.Graphics();
-    brush.beginFill(0xffffff, 1);
-    brush.drawCircle(
-      brushSize * widthRatio,
-      brushSize * heightRatio,
-      brushSize * heightRatio,
-    );
-    brush.lineStyle(0);
-    brush.endFill();
-    return brush;
+  const toDataURL = () => {
+    return application?.view?.toDataURL?.();
   };
-  const drawCircle = (event: PIXI.FederatedPointerEvent) => {
-    if (application === undefined) return;
-    const widthRatio = scale?.x ?? 1;
-    const heightRatio = scale?.y ?? 1;
-    const localPosition = application.stage.toLocal(event.global);
-    const texture = PIXI.Texture.from(imageSrc);
-    const rect = new PIXI.Rectangle(
-      localPosition.x - brushSize * widthRatio,
-      localPosition.y - brushSize * heightRatio,
-      brushSize * widthRatio * 2,
-      brushSize * heightRatio * 2,
-    );
-    if (rect.x < 0) {
-      rect.x = 0;
-    }
-    if (rect.y < 0) {
-      rect.y = 0;
-    }
-    if (rect.x + rect.width > texture.width) {
-      rect.width -= rect.x + rect.width - (texture.width - 10);
-    }
-    if (rect.y + rect.height > texture.height) {
-      rect.height -= rect.y + rect.height - (texture.height - 10);
-    }
-
-    const toBlur = new PIXI.Texture(texture.baseTexture, rect);
-    const newSprite = new PIXI.Sprite(toBlur);
-    newSprite.filters = [new PIXI.filters.BlurFilter(3 * widthRatio)];
-    newSprite.width = brushSize * widthRatio * 2;
-    newSprite.height = brushSize * heightRatio * 2;
-    newSprite.position = {
-      x: localPosition.x - brushSize * widthRatio,
-      y: localPosition.y - brushSize * heightRatio,
-    } as PIXI.Point;
-    newSprite.mask = drawBrush();
-    application.stage.addChild(newSprite);
-    newSprite.addChild(newSprite.mask);
-  };
-  const enableBrush = () => {
-    if (application === undefined) return;
-    application.stage.on("pointermove", drawCircle);
-  };
-  const disableBrush = () => {
-    if (application === undefined) return;
-    application.stage.off("pointermove", drawCircle);
-  };
-  const enableBlur = (enable: boolean) => {
-    if (application === undefined) return;
-    console.log("BLUR", enable);
-    if (enable) {
-      console.log("BIND");
-      application.stage.interactive = true;
-      application.stage.on("pointerdown", enableBrush);
-      application.stage.on("pointerup", disableBrush);
-    } else {
-      application.stage.off("pointerdown", enableBrush);
-      application.stage.off("pointerup", disableBrush);
-      application.stage.off("pointermove", drawCircle);
-    }
-  };
+  const { toggleBlur } = useBlurTool({
+    spriteName: SPRITE_NAME,
+    imageSrc,
+    application,
+    scale,
+  });
+  const { rotate } = useRotateTool({
+    height: dimension?.height ?? DEFAULT_HEIGHT,
+    width: dimension?.width ?? DEFAULT_WIDTH,
+    spriteName: SPRITE_NAME,
+    application,
+    onResize({ height, width }) {
+      setImageSize({ height, width });
+    },
+  });
+  const { restore, wrap, historyCount } = useHistoryTool({
+    application,
+    onRestore(imageSrc) {
+      console.log("RESTORE", dimension);
+      setBlob({ imageSrc, dimension });
+    },
+  });
   return {
-    toBlob,
+    historyCount,
     setApplication,
-    enableBlur,
+    restore,
+    toggleBlur: wrap(toggleBlur),
+    rotate: wrap(rotate),
+    toBlob,
+    toDataURL,
   };
 };
 

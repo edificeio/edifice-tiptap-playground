@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import { Button, Modal } from "@edifice-ui/react";
 import { Stage } from "@pixi/react";
@@ -14,9 +14,6 @@ interface ImageEditorProps {
   onSave(blob: Blob): void;
   onError?(err: string): void;
 }
-interface ImageEditorState {
-  rotation: number;
-}
 const ImageEditor: React.FC<ImageEditorProps> = ({
   image: imageSrc,
   isOpen,
@@ -24,12 +21,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   onError,
   onSave,
 }) => {
-  const { toBlob, setApplication, enableBlur } = usePixiEditor({
-    imageSrc,
-  });
-  const [, setState] = useState<ImageEditorState>({
-    rotation: 0,
-  });
+  const { toBlob, setApplication, toggleBlur, restore, rotate } = usePixiEditor(
+    {
+      imageSrc,
+    },
+  );
   const handleSave = async () => {
     try {
       const blob = await toBlob();
@@ -44,20 +40,18 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const handleOperation = (operation: "ROTATE" | "UNDO" | "CROP" | "BLUR") => {
     switch (operation) {
       case "ROTATE": {
-        setState((state) => ({
-          ...state,
-          rotation: state.rotation + Math.PI / 2,
-        }));
+        rotate();
         break;
       }
       case "UNDO": {
+        restore();
         break;
       }
       case "CROP": {
         break;
       }
       case "BLUR": {
-        enableBlur(true);
+        toggleBlur(true);
         break;
       }
     }
@@ -70,7 +64,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       <Modal.Body>
         <div>
           <ImageEditorMenu handle={handleOperation} />
-          <Stage onMount={(app) => setApplication(app)}></Stage>
+          <Stage
+            onMount={(app) => setApplication(app)}
+            options={{ preserveDrawingBuffer: true, backgroundAlpha: 0 }}
+          ></Stage>
         </div>
       </Modal.Body>
       <Modal.Footer>
