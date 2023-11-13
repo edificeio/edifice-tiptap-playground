@@ -34,7 +34,7 @@ const BlogNavigator = () => {
       }
     }
     inner();
-  });
+  }, []);
 
   function renderLoading() {
     return <div>Loading</div>;
