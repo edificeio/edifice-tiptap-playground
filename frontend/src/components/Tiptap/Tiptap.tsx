@@ -3,9 +3,11 @@ import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { Linker } from "@edifice-tiptap-extensions/extension-linker";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
+import SpeechSynthesis from "@edifice-tiptap-extensions/extension-speechsynthesis";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
+import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import {
   LoadingScreen,
   MediaLibrary,
@@ -13,6 +15,7 @@ import {
   MediaLibraryType,
   TiptapWrapper,
   Toolbar,
+  ToolbarItem,
   useOdeClient,
   useToggle,
 } from "@edifice-ui/react";
@@ -48,13 +51,16 @@ export interface TiptapProps {
 const MathsModal = lazy(async () => await import("./MathsModal"));
 
 const Tiptap = () => {
-  const { appCode } = useOdeClient();
+  const { appCode, currentLanguage } = useOdeClient();
+  const [editable, toggleEditable] = useToggle(true);
+  const [speechSynthetisis, setSpeechSynthetisis] = useState<boolean>(false);
 
   const queryParameters = new URLSearchParams(window.location.search);
   const fileId = queryParameters.get("file");
   const docId = queryParameters.get("doc");
   const source = queryParameters.get("source");
   const editor = useEditor({
+    editable,
     extensions: [
       StarterKit,
       Highlight.configure({
@@ -77,6 +83,12 @@ const Tiptap = () => {
       Typography,
       TypoSize,
       SpeechRecognition,
+      SpeechSynthesis.configure({
+        lang:
+          currentLanguage?.length === 2
+            ? `${currentLanguage}-${currentLanguage.toUpperCase()}`
+            : "fr-FR",
+      }),
       Video,
       IFrame,
       AttachReact(TestAttachment),
@@ -179,6 +191,38 @@ const Tiptap = () => {
     options,
   );
 
+  const toolbarDemo: ToolbarItem[] = [
+    {
+      type: "icon",
+      props: {
+        icon: <TextToSpeech />,
+        className: speechSynthetisis ? "bg-primary" : "",
+        "aria-label": "Synthèse vocale",
+        onClick: () => {
+          if (speechSynthetisis) {
+            editor?.commands.stopSpeechSynthesis();
+            setSpeechSynthetisis(false);
+          } else {
+            const speech = editor?.commands.startSpeechSynthesis() || false;
+            setSpeechSynthetisis(speech);
+          }
+        },
+      },
+      name: "video",
+      visibility: editable ? "hide" : "show",
+    },
+    {
+      type: "icon",
+      props: {
+        icon: <Edit />,
+        className: editable ? "bg-primary" : "",
+        "aria-label": "Changer de mode",
+        onClick: () => toggleEditable(),
+      },
+      name: "mode",
+    },
+  ];
+
   useEffect(() => {
     if (editor) {
       if (fileId) {
@@ -202,6 +246,10 @@ const Tiptap = () => {
       }
     }
   }, [fileId, docId, editor, source]);
+
+  useEffect(() => {
+    editor?.setEditable(editable);
+  }, [editor, editable]);
 
   // console.log(editor?.extensionManager.extensions);
 
@@ -233,15 +281,23 @@ const Tiptap = () => {
 
   return (
     <>
+      <Toolbar
+        items={toolbarDemo}
+        variant="no-shadow"
+        isBlock={true}
+        align="right"
+      />
       <TiptapWrapper>
-        <Toolbar
-          items={toolbarItems}
-          variant="no-shadow"
-          className="rounded-top"
-          isBlock
-          align="left"
-          ariaControls="editorContent"
-        />
+        {editable && (
+          <Toolbar
+            items={toolbarItems}
+            variant="no-shadow"
+            className="rounded-top"
+            isBlock
+            align="left"
+            ariaControls="editorContent"
+          />
+        )}
         <EditorContent
           editor={editor}
           id="editorContent"
