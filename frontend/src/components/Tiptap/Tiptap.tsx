@@ -2,11 +2,12 @@ import { useEffect, Suspense, lazy, useState, useCallback } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { Linker } from "@edifice-tiptap-extensions/extension-linker";
-import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
+// import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import {
+  Button,
   LoadingScreen,
   MediaLibrary,
   MediaLibraryResult,
@@ -54,7 +55,11 @@ const Tiptap = () => {
   const fileId = queryParameters.get("file");
   const docId = queryParameters.get("doc");
   const source = queryParameters.get("source");
+
+  const [editable, setEditable] = useState(false);
+
   const editor = useEditor({
+    editable: false,
     extensions: [
       StarterKit,
       Highlight.configure({
@@ -76,7 +81,7 @@ const Tiptap = () => {
       }),
       Typography,
       TypoSize,
-      SpeechRecognition,
+      // SpeechRecognition,
       Video,
       IFrame,
       AttachReact(TestAttachment),
@@ -233,15 +238,18 @@ const Tiptap = () => {
 
   return (
     <>
+      {/* <Button onClick={() => editor?.setEditable(true)}>Éditer</Button> */}
       <TiptapWrapper>
-        <Toolbar
-          items={toolbarItems}
-          variant="no-shadow"
-          className="rounded-top"
-          isBlock
-          align="left"
-          ariaControls="editorContent"
-        />
+        {editor?.isEditable && (
+          <Toolbar
+            items={toolbarItems}
+            variant="no-shadow"
+            className="rounded-top"
+            isBlock
+            align="left"
+            ariaControls="editorContent"
+          />
+        )}
         <EditorContent
           editor={editor}
           id="editorContent"

@@ -7,10 +7,15 @@ import {
   Grid,
   Image,
 } from "@edifice-ui/react";
-import { Outlet } from "react-router-dom";
+// import { Outlet } from "react-router-dom";
 
 import edifice from "../../assets/edifice.png";
-import BlogNavigator from "~/components/ent/BlogNavigator";
+import BlogNavigator from "~/components/BlogNavigator";
+import Dropzone from "~/features/Drop";
+import { DropzoneProvider } from "~/features/DropContext";
+import Files from "~/features/Files";
+import FileUploader from "~/features/FileUploader";
+// import FileUploader from "~/features/FileUploader";
 
 function Root() {
   const { init } = useOdeClient();
@@ -44,7 +49,14 @@ function Root() {
           <BlogNavigator />
         </Grid.Col>
         <Grid.Col sm="4" md="8" lg="6" xl="9" className="py-16">
-          <Outlet />
+          {/* <Outlet /> */}
+          <FileUploader />
+          {/* <DropzoneProvider>
+            <div>
+              <Dropzone />
+              <Files />
+            </div>
+          </DropzoneProvider> */}
         </Grid.Col>
       </Grid>
     </Layout>

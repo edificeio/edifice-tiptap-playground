@@ -44,18 +44,16 @@ const queryClient = new QueryClient({
 });
 
 root.render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <OdeClientProvider
-        params={{
-          app: "blog",
-        }}
-      >
-        <ThemeProvider>
-          <RouterProvider router={router} />
-        </ThemeProvider>
-      </OdeClientProvider>
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  </StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <OdeClientProvider
+      params={{
+        app: "blog",
+      }}
+    >
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </OdeClientProvider>
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>,
 );

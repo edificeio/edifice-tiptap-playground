@@ -23,7 +23,7 @@ import {
   TextSize,
   TextTypo,
   TextUnderline,
-  SpeechToText,
+  // SpeechToText,
 } from "@edifice-ui/icons";
 import {
   AccessiblePalette,
@@ -82,10 +82,10 @@ export const useToolbarItems = (
   }, [editor, editor?.state]);
 
   /* TODO : à migrer dans l'extension TipTap ? */
-  const canRecognizeSpeech =
+  /* const canRecognizeSpeech =
     (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
       ? true
-      : false;
+      : false; */
 
   const toolbarItems: ToolbarItem[] = [
     {
@@ -132,7 +132,7 @@ export const useToolbarItems = (
       type: "divider",
       name: "div-1",
     },
-    {
+    /* {
       type: "icon",
       props: {
         icon: <SpeechToText />,
@@ -155,7 +155,7 @@ export const useToolbarItems = (
       type: "divider",
       name: "div-speech",
       visibility: canRecognizeSpeech ? "show" : "hide",
-    },
+    }, */
     {
       type: "dropdown",
       props: {
