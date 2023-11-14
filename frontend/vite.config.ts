@@ -62,21 +62,21 @@ export default ({ mode }: { mode: string }) => {
     "/poll/list/all": proxyObj,
     "/scrapbook/list/all": proxyObj,
     "/timelinegenerator/timelines": proxyObj,
-    "/wiki/listallpages": proxyObj
+    "/wiki/listallpages": proxyObj,
   };
 
   const base = mode === "production" ? "/tiptap" : "";
 
   const build = {
     assetsDir: "public",
-    rollupOptions: {
+    /* rollupOptions: {
       external: ["edifice-ts-client"],
       output: {
         paths: {
           "edifice-ts-client": "/assets/js/edifice-ts-client/index.js",
         },
       },
-    },
+    }, */
   };
 
   const plugins = [react(), tsconfigPaths()];
