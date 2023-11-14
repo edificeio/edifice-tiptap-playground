@@ -52,17 +52,6 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
       sprite.anchor.y = 0.5;
       sprite.position = new PIXI.Point(size / 2, size / 2);
       application.renderer.resize(size, size);
-      console.log(
-        "DIM",
-        size,
-        size,
-        "SCALE",
-        scaleX,
-        scaleY,
-        "SPRITE",
-        sprite.width,
-        sprite.height,
-      );
       //sprite.pivot.set(newWith / 2, newHeight / 2);
       // update state
       setScale({ x: scaleX, y: scaleY });
@@ -122,7 +111,7 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
   const toDataURL = () => {
     return application?.view?.toDataURL?.();
   };
-  const { toggleBlur } = useBlurTool({
+  const { startBlur, stopBlur } = useBlurTool({
     spriteName: SPRITE_NAME,
     imageSrc,
     application,
@@ -137,10 +126,9 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
       setImageSize({ height, width });
     },
   });
-  const { restore, wrap, historyCount } = useHistoryTool({
+  const { restore, historize, historyCount } = useHistoryTool({
     application,
     onRestore(imageSrc) {
-      console.log("RESTORE", dimension);
       setBlob({ imageSrc, dimension });
     },
   });
@@ -148,8 +136,9 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     historyCount,
     setApplication,
     restore,
-    toggleBlur: wrap(toggleBlur),
-    rotate: wrap(rotate),
+    stopBlur,
+    startBlur: historize(startBlur),
+    rotate: historize(rotate),
     toBlob,
     toDataURL,
   };

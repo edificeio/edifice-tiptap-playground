@@ -1,5 +1,7 @@
 import * as PIXI from "pixi.js";
 
+const BRUSH_SIZE = 20;
+const CURSOR_NAME = "BRUSH_CURSOR";
 const useBlurTool = ({
   application,
   scale,
@@ -10,14 +12,17 @@ const useBlurTool = ({
   spriteName: string;
   imageSrc: string;
 }) => {
-  const brushSize = 20;
-  const drawBrush = (position: PIXI.Point): PIXI.Graphics => {
+  //TODO useSideControl => draw rectangle with 4 (or 2) corners => corners follow mouse
+  const radius = () => {
     const widthRatio = scale?.x ?? 1;
     const heightRatio = scale?.y ?? 1;
     const ratio = Math.max(widthRatio, heightRatio);
+    return BRUSH_SIZE * ratio;
+  };
+  const drawBrush = (position: PIXI.Point): PIXI.Graphics => {
     const brush = new PIXI.Graphics();
     brush.beginFill(0xffffff, 1);
-    brush.drawCircle(position.x, position.y, brushSize * ratio);
+    brush.drawCircle(position.x, position.y, radius());
     brush.lineStyle(0);
     brush.endFill();
     return brush;
@@ -72,20 +77,53 @@ const useBlurTool = ({
     if (application === undefined) return;
     application.stage.off("pointermove", drawCircle);
   };
-  const toggleBlur = (enable: boolean) => {
+  const drawCursor = () => {
     if (application === undefined) return;
-    if (enable) {
-      application.stage.interactive = true;
-      application.stage.on("pointerdown", enableBrush);
-      application.stage.on("pointerup", disableBrush);
-    } else {
-      application.stage.off("pointerdown", enableBrush);
-      application.stage.off("pointerup", disableBrush);
-      application.stage.off("pointermove", drawCircle);
+    // remove cursor before draw
+    removeCursor();
+    const circle = new PIXI.Graphics();
+    circle.lineStyle(1, 0xff0000);
+    circle.drawCircle(0, 0, radius());
+    circle.endFill();
+    circle.name = CURSOR_NAME;
+    application.stage.addChild(circle);
+  };
+  const removeCursor = () => {
+    if (application === undefined) return;
+    const child = application.stage.getChildByName(CURSOR_NAME);
+    if (child) {
+      child.removeFromParent();
     }
   };
+  const handleCursorMove = (event: PIXI.FederatedPointerEvent) => {
+    if (application === undefined) return;
+    const child = application.stage.getChildByName(CURSOR_NAME);
+    if (child) {
+      const localPosition = application.stage.toLocal(event.global);
+      child.position.x = localPosition.x;
+      child.position.y = localPosition.y;
+    }
+  };
+  const startBlur = () => {
+    if (application === undefined) return;
+
+    drawCursor();
+    application.stage.interactive = true;
+    application.stage.on("pointerdown", enableBrush);
+    application.stage.on("pointerup", disableBrush);
+    application.stage.on("mousemove", handleCursorMove);
+  };
+  const stopBlur = () => {
+    if (application === undefined) return;
+    removeCursor();
+    application.stage.off("pointerdown", enableBrush);
+    application.stage.off("pointerup", disableBrush);
+    application.stage.off("pointermove", drawCircle);
+    application.stage.off("mousemove", handleCursorMove);
+  };
   return {
-    toggleBlur,
+    startBlur,
+    stopBlur,
   };
 };
 

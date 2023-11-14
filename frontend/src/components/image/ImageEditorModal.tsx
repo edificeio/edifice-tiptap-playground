@@ -4,7 +4,7 @@ import { Button, Modal } from "@edifice-ui/react";
 import { Stage } from "@pixi/react";
 import { t } from "i18next";
 
-import ImageEditorMenu from "./ImageEditorMenu";
+import ImageEditorMenu, { ImageEditorAction } from "./ImageEditorMenu";
 import usePixiEditor from "~/hooks/image/usePixiEditor";
 
 interface ImageEditorProps {
@@ -21,11 +21,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   onError,
   onSave,
 }) => {
-  const { toBlob, setApplication, toggleBlur, restore, rotate } = usePixiEditor(
-    {
+  const { toBlob, setApplication, startBlur, stopBlur, restore, rotate } =
+    usePixiEditor({
       imageSrc,
-    },
-  );
+    });
   const handleSave = async () => {
     try {
       const blob = await toBlob();
@@ -37,7 +36,10 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const handleCancel = () => {
     onCancel();
   };
-  const handleOperation = (operation: "ROTATE" | "UNDO" | "CROP" | "BLUR") => {
+  const handleOperation = (operation: ImageEditorAction) => {
+    //disable
+    stopBlur();
+    //enable
     switch (operation) {
       case "ROTATE": {
         rotate();
@@ -50,8 +52,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
       case "CROP": {
         break;
       }
+      case "RESIZE": {
+        break;
+      }
       case "BLUR": {
-        toggleBlur(true);
+        startBlur();
         break;
       }
     }

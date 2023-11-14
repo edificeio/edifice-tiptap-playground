@@ -16,7 +16,7 @@ const useHistoryTool = ({
   dimension,
   onRestore,
 }: UseHistoryToolsProps) => {
-  const [history, setHistory] = useState<Blob[]>([]);
+  const [history, setHistory] = useState<Promise<Blob>[]>([]);
   const [imageDetails, setImageDetails] = useState<ImageDetails>({});
   useEffect(() => {
     setHistory([]);
@@ -27,31 +27,36 @@ const useHistoryTool = ({
       scale,
     });
   }, [scale, dimension]);
-  const restore = () => {
+  const restore = async () => {
     const imgData = history.pop();
     if (imgData) {
-      onRestore(imgData, imageDetails);
+      onRestore(await imgData, imageDetails);
       setHistory(history.filter((current) => current !== imgData));
     }
   };
-  const wrap = <T extends (...args: any[]) => any>(callback: T) => {
+  const historize = <T extends (...args: any[]) => any>(callback: T) => {
     return function (...args: any[]) {
-      application?.view?.toBlob?.(
-        (blob) => {
-          if (blob) {
-            setHistory([...history, blob]);
-          }
-        },
-        "image/png",
-        1,
-      );
+      const promise = new Promise<Blob>((resolve, reject) => {
+        application?.view?.toBlob?.(
+          (blob) => {
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject("EXTRACT_FAIL");
+            }
+          },
+          "image/png",
+          1,
+        );
+      });
+      setHistory([...history, promise]);
       return callback.call(callback, ...args);
     } as T;
   };
   return {
     historyCount: history.length,
     restore,
-    wrap,
+    historize,
   };
 };
 
