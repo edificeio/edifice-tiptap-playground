@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as PIXI from "pixi.js";
 
 import useBlurTool from "./useBlurTool";
+import useCropTool from "./useCropTool";
 import useHistoryTool from "./useHistoryTool";
 import useRotateTool from "./useRotateTool";
 const DEFAULT_WIDTH = 680;
@@ -117,6 +118,11 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     application,
     scale,
   });
+  const { startCrop, stopCrop } = useCropTool({
+    spriteName: SPRITE_NAME,
+    application,
+    imageSrc,
+  });
   const { rotate } = useRotateTool({
     height: dimension?.height ?? DEFAULT_HEIGHT,
     width: dimension?.width ?? DEFAULT_WIDTH,
@@ -136,7 +142,9 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     historyCount,
     setApplication,
     restore,
+    stopCrop,
     stopBlur,
+    startCrop: historize(startCrop),
     startBlur: historize(startBlur),
     rotate: historize(rotate),
     toBlob,

@@ -12,7 +12,7 @@ const useBlurTool = ({
   spriteName: string;
   imageSrc: string;
 }) => {
-  //TODO useSideControl => draw rectangle with 4 (or 2) corners => corners follow mouse
+  //TODO limit history in size + debounce mouseevent (aggregate)
   const radius = () => {
     const widthRatio = scale?.x ?? 1;
     const heightRatio = scale?.y ?? 1;

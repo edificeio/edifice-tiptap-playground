@@ -21,10 +21,18 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   onError,
   onSave,
 }) => {
-  const { toBlob, setApplication, startBlur, stopBlur, restore, rotate } =
-    usePixiEditor({
-      imageSrc,
-    });
+  const {
+    toBlob,
+    setApplication,
+    startBlur,
+    stopBlur,
+    restore,
+    rotate,
+    startCrop,
+    stopCrop,
+  } = usePixiEditor({
+    imageSrc,
+  });
   const handleSave = async () => {
     try {
       const blob = await toBlob();
@@ -39,6 +47,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const handleOperation = (operation: ImageEditorAction) => {
     //disable
     stopBlur();
+    stopCrop();
     //enable
     switch (operation) {
       case "ROTATE": {
@@ -50,6 +59,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         break;
       }
       case "CROP": {
+        startCrop();
         break;
       }
       case "RESIZE": {
