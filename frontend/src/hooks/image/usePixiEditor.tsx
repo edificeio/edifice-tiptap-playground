@@ -4,37 +4,45 @@ import * as PIXI from "pixi.js";
 
 import useBlurTool from "./useBlurTool";
 import useCropTool from "./useCropTool";
-import useHistoryTool from "./useHistoryTool";
+import useHistoryTool, { HistoryState } from "./useHistoryTool";
+import useResizeTool from "./useResizeTool";
 import useRotateTool from "./useRotateTool";
-const DEFAULT_WIDTH = 680;
 const MIN_WIDTH = 400;
-const DEFAULT_HEIGHT = 400;
 const SPRITE_NAME = "image";
-type Dimension = { width: number; height: number };
 const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
   const [application, setApplication] = useState<PIXI.Application | undefined>(
     undefined,
   );
-  const [scale, setScale] = useState<{ x: number; y: number } | undefined>(
-    undefined,
-  );
-  const [dimension, setDimension] = useState<Dimension | undefined>(undefined);
-  const setImageSize = useCallback(
-    ({ height, width }: Dimension) => {
-      const child = application?.stage.getChildByName(SPRITE_NAME);
-      if (application && child) {
-        (child as PIXI.Sprite).anchor.x = 0.5;
-        (child as PIXI.Sprite).anchor.y = 0.5;
-        child.position = {
-          x: width / 2,
-          y: height / 2,
-        } as PIXI.Point;
-        application.renderer.resize(width, height);
-        setDimension({ height, width });
-      }
+
+  const { startBlur, stopBlur } = useBlurTool({
+    spriteName: SPRITE_NAME,
+    imageSrc,
+    application,
+  });
+  const { startCrop, stopCrop, saveCropIfNeeded } = useCropTool({
+    spriteName: SPRITE_NAME,
+    application,
+    imageSrc,
+    onSave(sprite) {
+      setImage({ imageSrc: sprite });
     },
-    [application],
-  );
+  });
+  const { rotate, rotateCount } = useRotateTool({
+    spriteName: SPRITE_NAME,
+    application,
+  });
+  const { startResize, stopResize } = useResizeTool({
+    spriteName: SPRITE_NAME,
+    application,
+  });
+  const { restore, historize, historyCount } = useHistoryTool({
+    application,
+    rotateCount,
+    spriteName: SPRITE_NAME,
+    onRestore(imageSrc, state) {
+      setBlob({ imageSrc, state });
+    },
+  });
   const resize = useCallback(
     ({
       sprite,
@@ -45,47 +53,46 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     }) => {
       const parent = application.view.parentNode as HTMLElement | undefined;
       const parentWidth = Math.max(parent?.offsetWidth ?? 0, MIN_WIDTH);
-      const scaleX = parentWidth / sprite.width;
-      const scaleY = scaleX * (sprite.height / sprite.width);
-      const size = Math.max(sprite.width * scaleX, sprite.height * scaleY);
-      sprite.scale = new PIXI.Point(scaleX, scaleY);
+      const imageRatio = sprite.width / sprite.height;
+      const newWidth = parentWidth;
+      const newHeight = newWidth / imageRatio;
       sprite.anchor.x = 0.5;
       sprite.anchor.y = 0.5;
-      sprite.position = new PIXI.Point(size / 2, size / 2);
-      application.renderer.resize(size, size);
-      //sprite.pivot.set(newWith / 2, newHeight / 2);
-      // update state
-      setScale({ x: scaleX, y: scaleY });
-      setDimension({ width: size, height: size });
+      sprite.position = new PIXI.Point(newWidth / 2, newHeight / 2);
+      sprite.width = newWidth;
+      sprite.height = newHeight;
+      application.renderer.resize(newWidth, newHeight);
     },
     [],
   );
   const setBlob = ({
     imageSrc,
-    dimension,
+    state,
   }: {
     imageSrc: Blob;
-    dimension?: Dimension;
+    state: HistoryState;
   }) => {
     const imageUrl = URL.createObjectURL(imageSrc);
     const image = new Image();
     image.src = imageUrl;
     image.onload = () => {
-      setImage({ imageSrc: image, dimension });
+      setImage({ imageSrc: image, state });
     };
   };
   const setImage = useCallback(
     async ({
       imageSrc,
+      state,
     }: {
       imageSrc: string | HTMLImageElement | PIXI.Sprite;
-      dimension?: Dimension;
+      state?: HistoryState;
     }) => {
       if (application === undefined || application.stage === null) {
         return;
       }
       // remove previous sprite
-      application.stage.getChildByName(SPRITE_NAME)?.removeFromParent();
+      const previous = application.stage.getChildByName(SPRITE_NAME, true);
+      previous?.removeFromParent();
       // add new sprite
       const texture =
         imageSrc instanceof HTMLImageElement
@@ -100,7 +107,20 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
       sprite.interactive = true;
       sprite.name = SPRITE_NAME;
       application.stage.addChild(sprite);
-      resize({ application, sprite });
+      if (state) {
+        const { stageSize, spriteSize } = state;
+        sprite.width = spriteSize.width;
+        sprite.height = spriteSize.height;
+        sprite.anchor.x = 0.5;
+        sprite.anchor.y = 0.5;
+        sprite.position = new PIXI.Point(
+          stageSize.width / 2,
+          stageSize.height / 2,
+        );
+        application.renderer.resize(stageSize.width, stageSize.height);
+      } else {
+        resize({ application, sprite });
+      }
     },
     [application, resize],
   );
@@ -117,41 +137,14 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
   const toDataURL = () => {
     return application?.view?.toDataURL?.();
   };
-  const { startBlur, stopBlur } = useBlurTool({
-    spriteName: SPRITE_NAME,
-    imageSrc,
-    application,
-    scale,
-  });
-  const { startCrop, stopCrop, saveCropIfNeeded } = useCropTool({
-    spriteName: SPRITE_NAME,
-    application,
-    imageSrc,
-    onSave(sprite) {
-      setImage({ imageSrc: sprite });
-    },
-  });
-  const { rotate } = useRotateTool({
-    height: dimension?.height ?? DEFAULT_HEIGHT,
-    width: dimension?.width ?? DEFAULT_WIDTH,
-    spriteName: SPRITE_NAME,
-    application,
-    onResize({ height, width }) {
-      setImageSize({ height, width });
-    },
-  });
-  const { restore, historize, historyCount } = useHistoryTool({
-    application,
-    onRestore(imageSrc) {
-      setBlob({ imageSrc, dimension });
-    },
-  });
   return {
     historyCount,
     setApplication,
     restore,
     stopCrop,
     stopBlur,
+    stopResize,
+    startResize: historize(startResize),
     startCrop: historize(startCrop),
     startBlur: historize(startBlur),
     rotate: historize(rotate),

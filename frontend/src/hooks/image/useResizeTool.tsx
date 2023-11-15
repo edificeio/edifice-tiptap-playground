@@ -1,8 +1,7 @@
 import * as PIXI from "pixi.js";
 const POINT_RADIUS = 40;
-const PADDING = 50;
-const CROP_MASK_NAME = "CROP_MASK_NAME";
-const CROP_BACKGROUND_NAME = "CROP_BACKGROUND_NAME";
+const RESIZE_BACKGROUND_NAME = "RESIZE_BACKGROUND_NAME";
+const RESIZE_SPRITE_NAME = "RESIZE_SPRITE_NAME";
 type CornerType = "TOP_LEFT" | "TOP_RIGHT" | "BOTTOM_LEFT" | "BOTTOM_RIGHT";
 const CORNERS: Array<CornerType> = [
   "TOP_LEFT",
@@ -10,17 +9,13 @@ const CORNERS: Array<CornerType> = [
   "BOTTOM_LEFT",
   "BOTTOM_RIGHT",
 ];
-const CROP_CORNER_NAME = (index: CornerType) => "CROP_CORNER_" + index;
-const useCropTool = ({
+const RESIZE_CORNER_NAME = (index: CornerType) => "RESIZE_CORNER_" + index;
+const useResizeTool = ({
   application,
   spriteName,
-  imageSrc,
-  onSave,
 }: {
-  onSave(sprite: PIXI.Sprite): void;
   application?: PIXI.Application;
   spriteName: string;
-  imageSrc: string;
 }) => {
   const drawBackground = () => {
     removeBackground();
@@ -31,34 +26,24 @@ const useCropTool = ({
     const spriteBounds = sprite.getLocalBounds();
     // draw background
     const background = new PIXI.Graphics();
-    background.beginFill(0xffffff, 0.5);
+    background.beginFill(0xffffff, 1);
     background.drawRect(0, 0, spriteBounds.width, spriteBounds.height);
     background.endFill();
-    background.name = CROP_BACKGROUND_NAME;
+    background.name = RESIZE_BACKGROUND_NAME;
     background.position = new PIXI.Point(spriteBounds.x, spriteBounds.y);
     sprite.addChild(background);
-    // draw rectangle
-    const rectMask = new PIXI.Graphics();
-    rectMask.beginFill(0x000000, 1);
-    rectMask.drawRect(
-      0,
-      0,
-      spriteBounds.width - 2 * PADDING,
-      spriteBounds.height - 2 * PADDING,
-    );
-    rectMask.endFill();
-    rectMask.position = new PIXI.Point(PADDING, PADDING);
-    rectMask.name = CROP_MASK_NAME;
-    background.addChild(rectMask);
     // draw image
     const texture = sprite.texture.clone();
-    const spriteMask = new PIXI.Sprite(texture);
-    spriteMask.mask = rectMask;
-    background.addChild(spriteMask);
+    const resizedSprite = new PIXI.Sprite(texture);
+    resizedSprite.name = RESIZE_SPRITE_NAME;
+    background.addChild(resizedSprite);
   };
   const removeBackground = () => {
     if (application === undefined) return;
-    const child = application.stage.getChildByName(CROP_BACKGROUND_NAME, true);
+    const child = application.stage.getChildByName(
+      RESIZE_BACKGROUND_NAME,
+      true,
+    );
     child?.removeFromParent();
   };
   const computeCornerPosition = (
@@ -67,28 +52,23 @@ const useCropTool = ({
   ) => {
     switch (position) {
       case "TOP_LEFT": {
-        return { x: bounds.x, y: bounds.y, start: 0, end: Math.PI / 2 };
+        return { x: 0, y: 0, start: 0, end: Math.PI / 2 };
       }
       case "TOP_RIGHT": {
-        return {
-          x: bounds.x + bounds.width,
-          y: bounds.y,
-          start: Math.PI / 2,
-          end: Math.PI,
-        };
+        return { x: bounds.width, y: 0, start: Math.PI / 2, end: Math.PI };
       }
       case "BOTTOM_LEFT": {
         return {
-          x: bounds.x,
-          y: bounds.y + bounds.height,
+          x: 0,
+          y: bounds.height,
           start: (3 * Math.PI) / 2,
           end: 2 * Math.PI,
         };
       }
       case "BOTTOM_RIGHT": {
         return {
-          x: bounds.x + bounds.width,
-          y: bounds.y + bounds.height,
+          x: bounds.width,
+          y: bounds.height,
           start: Math.PI,
           end: (3 * Math.PI) / 2,
         };
@@ -97,102 +77,94 @@ const useCropTool = ({
   };
   const refreshCorners = () => {
     if (application === undefined) return;
-    const mask = application.stage.getChildByName(
-      CROP_MASK_NAME,
+    const sprite = application.stage.getChildByName(
+      RESIZE_SPRITE_NAME,
       true,
-    ) as PIXI.Graphics | null;
-    if (mask === undefined || mask === null) return;
+    ) as PIXI.Sprite | null;
+    if (sprite === undefined || sprite === null) return;
     CORNERS.forEach((cornerType) => {
       const corner = application.stage.getChildByName(
-        CROP_CORNER_NAME(cornerType),
+        RESIZE_CORNER_NAME(cornerType),
         true,
       );
       if (corner === undefined || corner === null) return;
       const position = computeCornerPosition(cornerType, {
-        height: mask.height,
-        width: mask.width,
-        x: mask.x,
-        y: mask.y,
+        height: sprite.height,
+        width: sprite.width,
+        x: sprite.x,
+        y: sprite.y,
       });
       corner.position = new PIXI.Point(position.x, position.y);
     });
   };
-  const moveMask = (
+  const resizeSprite = (
     cornerType: CornerType,
     position: { x: number; y: number },
   ) => {
     if (application === undefined) return;
-    const mask = application.stage.getChildByName(
-      CROP_MASK_NAME,
+    const sprite = application.stage.getChildByName(
+      RESIZE_SPRITE_NAME,
       true,
-    ) as PIXI.Graphics | null;
-    if (mask === undefined || mask === null) return;
-    const width = mask.width;
-    const height = mask.height;
-    const left = mask.position.x;
-    const top = mask.position.y;
+    ) as PIXI.Sprite | null;
+    if (sprite === undefined || sprite === null) return;
+    const width = sprite.width;
+    const height = sprite.height;
+    const left = sprite.position.x;
+    const top = sprite.position.y;
     const right = left + width;
     const bottom = top + height;
     switch (cornerType) {
       case "TOP_LEFT": {
-        mask.position.x = position.x;
-        mask.position.y = position.y;
-        mask.width = right - position.x;
-        mask.height = bottom - position.y;
+        sprite.position.x = position.x;
+        sprite.position.y = position.y;
+        sprite.width = right - position.x;
+        sprite.height = bottom - position.y;
         break;
       }
       case "TOP_RIGHT": {
-        mask.position.y = position.y;
-        mask.width = position.x - mask.position.x;
-        mask.height = bottom - position.y;
+        sprite.position.y = position.y;
+        sprite.width = position.x - sprite.position.x;
+        sprite.height = bottom - position.y;
         break;
       }
       case "BOTTOM_LEFT": {
-        mask.position.x = position.x;
-        mask.width = right - position.x;
-        mask.height = position.y - mask.position.y;
+        sprite.position.x = position.x;
+        sprite.width = right - position.x;
+        sprite.height = position.y - sprite.position.y;
         break;
       }
       case "BOTTOM_RIGHT": {
-        mask.width = position.x - mask.position.x;
-        mask.height = position.y - mask.position.y;
+        sprite.width = position.x - sprite.position.x;
+        sprite.height = position.y - sprite.position.y;
         break;
       }
     }
     refreshCorners();
   };
-  const drawCorner = (cornerType: CornerType) => {
+  const removeCorner = (cornerType: CornerType) => {
     if (application === undefined) return;
-    // delete before draw
     const previous = application.stage.getChildByName(
-      CROP_CORNER_NAME(cornerType),
+      RESIZE_CORNER_NAME(cornerType),
       true,
     );
     previous?.removeFromParent();
-    // search sprite
+  };
+  const drawCorner = (cornerType: CornerType) => {
+    if (application === undefined) return;
+    // delete before draw
+    removeCorner(cornerType);
+    // search background
     const background = application.stage.getChildByName(
-      CROP_BACKGROUND_NAME,
+      RESIZE_BACKGROUND_NAME,
       true,
     ) as PIXI.Graphics | null;
-    const mask = application.stage.getChildByName(
-      CROP_MASK_NAME,
-      true,
-    ) as PIXI.Graphics | null;
-    if (
-      background === null ||
-      background === undefined ||
-      mask === undefined ||
-      mask === null
-    )
-      return;
+    if (background === null || background === undefined) return;
     // compute position
-    console.log("MASK1:", mask.getLocalBounds());
-    console.log("MASK2:", mask.x, mask.y, mask.width, mask.height);
     const position = computeCornerPosition(cornerType, {
-      height: mask.height,
-      width: mask.width,
-      x: mask.x,
-      y: mask.y,
+      height: background.height,
+      width: background.width,
+      x: background.x,
+      y: background.y,
     });
     //add corner
     const corner = new PIXI.Graphics();
@@ -201,14 +173,14 @@ const useCropTool = ({
     corner.lineTo(0, 0);
     corner.endFill();
     corner.position = new PIXI.Point(position.x, position.y);
-    corner.name = CROP_CORNER_NAME(cornerType);
+    corner.name = RESIZE_CORNER_NAME(cornerType);
     // add mouse listener
     corner.interactive = true;
     const handleCursorMove = (event: PIXI.FederatedPointerEvent) => {
       const localPosition = background.toLocal(event.global);
       corner.position.x = localPosition.x;
       corner.position.y = localPosition.y;
-      moveMask(cornerType, localPosition);
+      resizeSprite(cornerType, localPosition);
     };
     const handlePointerDown = () => {
       corner.on("pointermove", handleCursorMove);
@@ -237,36 +209,23 @@ const useCropTool = ({
   const removeControl = () => {
     if (application === undefined) return;
     removeBackground();
+    removeCorner("BOTTOM_LEFT");
+    removeCorner("BOTTOM_RIGHT");
+    removeCorner("TOP_LEFT");
+    removeCorner("TOP_RIGHT");
   };
-  const startCrop = () => {
+  const startResize = () => {
     if (application === undefined) return;
     drawControl();
   };
-  const stopCrop = () => {
+  const stopResize = () => {
     if (application === undefined) return;
     removeControl();
   };
-  const saveCropIfNeeded = () => {
-    if (application === undefined) return;
-    const mask = application.stage.getChildByName(
-      CROP_MASK_NAME,
-      true,
-    ) as PIXI.Graphics | null;
-    if (mask === undefined || mask === null) return;
-    const originalSprite = PIXI.Sprite.from(imageSrc);
-    const cropped = new PIXI.Texture(
-      originalSprite.texture.baseTexture,
-      new PIXI.Rectangle(mask.x, mask.y, mask.width, mask.height),
-    );
-    const sprite = new PIXI.Sprite(cropped);
-    onSave(sprite);
-    return sprite;
-  };
   return {
-    saveCropIfNeeded,
-    startCrop,
-    stopCrop,
+    startResize,
+    stopResize,
   };
 };
 
-export default useCropTool;
+export default useResizeTool;

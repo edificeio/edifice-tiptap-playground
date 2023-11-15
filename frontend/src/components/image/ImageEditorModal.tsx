@@ -31,6 +31,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     startCrop,
     stopCrop,
     saveCropIfNeeded,
+    startResize,
+    stopResize,
   } = usePixiEditor({
     imageSrc,
   });
@@ -51,6 +53,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     //disable
     stopBlur();
     stopCrop();
+    stopResize();
     //enable
     switch (operation) {
       case "ROTATE": {
@@ -66,6 +69,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         break;
       }
       case "RESIZE": {
+        startResize();
         break;
       }
       case "BLUR": {
@@ -80,7 +84,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         <span className="h2">{t("RETOUCHE DE L'IMAGE")}</span>
       </Modal.Header>
       <Modal.Body>
-        <div>
+        <div className="d-flex flex-column align-items-center gap-32">
           <ImageEditorMenu handle={handleOperation} />
           <Stage
             onMount={(app) => setApplication(app)}

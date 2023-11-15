@@ -4,21 +4,17 @@ const BRUSH_SIZE = 20;
 const CURSOR_NAME = "BRUSH_CURSOR";
 const useBlurTool = ({
   application,
-  scale,
   spriteName,
 }: {
   application?: PIXI.Application;
-  scale?: { x: number; y: number };
   spriteName: string;
   imageSrc: string;
 }) => {
   //TODO limit history in size + debounce mouseevent (aggregate)
   //TODO debounce to optimize and aggregate mouse event
+  //TODO issue with hisory + lag on resize + corner does not move as expected
   const radius = () => {
-    const widthRatio = scale?.x ?? 1;
-    const heightRatio = scale?.y ?? 1;
-    const ratio = Math.max(widthRatio, heightRatio);
-    return BRUSH_SIZE * ratio;
+    return BRUSH_SIZE;
   };
   const drawBrush = (position: PIXI.Point): PIXI.Graphics => {
     const brush = new PIXI.Graphics();

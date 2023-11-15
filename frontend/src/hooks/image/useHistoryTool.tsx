@@ -1,41 +1,44 @@
 import { useEffect, useState } from "react";
 
 import * as PIXI from "pixi.js";
-export interface ImageDetails {
-  scale?: { x: number; y: number };
-  dimension?: { width: number; height: number };
-}
-export interface UseHistoryToolsProps extends ImageDetails {
+export interface UseHistoryToolsProps {
   application?: PIXI.Application;
-  onRestore: (img: Blob, details: ImageDetails) => void;
+  spriteName: string;
+  rotateCount: number;
+  onRestore: (img: Blob, state: HistoryState) => void;
+}
+
+export interface HistoryState {
+  backup: Promise<Blob>;
+  rotateCount: number;
+  stageSize: { width: number; height: number };
+  spriteSize: { width: number; height: number };
 }
 
 const useHistoryTool = ({
   application,
-  scale,
-  dimension,
+  spriteName,
+  rotateCount,
   onRestore,
 }: UseHistoryToolsProps) => {
-  const [history, setHistory] = useState<Promise<Blob>[]>([]);
-  const [imageDetails, setImageDetails] = useState<ImageDetails>({});
+  const [history, setHistory] = useState<HistoryState[]>([]);
   useEffect(() => {
     setHistory([]);
   }, [application]);
-  useEffect(() => {
-    setImageDetails({
-      dimension,
-      scale,
-    });
-  }, [scale, dimension]);
   const restore = async () => {
     const imgData = history.pop();
     if (imgData) {
-      onRestore(await imgData, imageDetails);
+      onRestore(await imgData.backup, imgData);
       setHistory(history.filter((current) => current !== imgData));
     }
   };
   const historize = <T extends (...args: any[]) => any>(callback: T) => {
-    return function (...args: any[]) {
+    return async function (...args: any[]) {
+      const sprite = application?.stage.getChildByName(spriteName, true) as
+        | PIXI.Sprite
+        | null
+        | undefined;
+
       const promise = new Promise<Blob>((resolve, reject) => {
         application?.view?.toBlob?.(
           (blob) => {
@@ -49,7 +52,20 @@ const useHistoryTool = ({
           1,
         );
       });
-      setHistory([...history, promise]);
+      const state = {
+        backup: promise,
+        rotateCount,
+        spriteSize:
+          rotateCount % 2 === 1
+            ? { width: sprite?.height ?? 0, height: sprite?.width ?? 0 }
+            : { width: sprite?.width ?? 0, height: sprite?.height ?? 0 },
+        stageSize:
+          rotateCount % 2 === 1
+            ? { width: sprite?.height ?? 0, height: sprite?.width ?? 0 }
+            : { width: sprite?.width ?? 0, height: sprite?.height ?? 0 },
+      };
+      setHistory([...history, state]);
+      await promise;
       return callback.call(callback, ...args);
     } as T;
   };
