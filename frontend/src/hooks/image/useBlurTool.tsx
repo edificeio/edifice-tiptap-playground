@@ -13,6 +13,7 @@ const useBlurTool = ({
   imageSrc: string;
 }) => {
   //TODO limit history in size + debounce mouseevent (aggregate)
+  //TODO debounce to optimize and aggregate mouse event
   const radius = () => {
     const widthRatio = scale?.x ?? 1;
     const heightRatio = scale?.y ?? 1;
@@ -106,20 +107,19 @@ const useBlurTool = ({
   };
   const startBlur = () => {
     if (application === undefined) return;
-
     drawCursor();
     application.stage.interactive = true;
     application.stage.on("pointerdown", enableBrush);
-    application.stage.on("pointerup", disableBrush);
-    application.stage.on("mousemove", handleCursorMove);
+    application.stage.on("pointermove", handleCursorMove);
+    globalThis.addEventListener("pointerup", disableBrush);
   };
   const stopBlur = () => {
     if (application === undefined) return;
     removeCursor();
     application.stage.off("pointerdown", enableBrush);
-    application.stage.off("pointerup", disableBrush);
     application.stage.off("pointermove", drawCircle);
-    application.stage.off("mousemove", handleCursorMove);
+    application.stage.off("pointermove", handleCursorMove);
+    globalThis.removeEventListener("pointerup", disableBrush);
   };
   return {
     startBlur,

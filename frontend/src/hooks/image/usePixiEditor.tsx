@@ -78,7 +78,7 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     async ({
       imageSrc,
     }: {
-      imageSrc: string | HTMLImageElement;
+      imageSrc: string | HTMLImageElement | PIXI.Sprite;
       dimension?: Dimension;
     }) => {
       if (application === undefined || application.stage === null) {
@@ -90,8 +90,13 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
       const texture =
         imageSrc instanceof HTMLImageElement
           ? PIXI.Texture.from(imageSrc)
+          : imageSrc instanceof PIXI.Sprite
+          ? imageSrc
           : await PIXI.Texture.fromURL(imageSrc);
-      const sprite = PIXI.Sprite.from(texture, {});
+      const sprite =
+        texture instanceof PIXI.Sprite
+          ? texture
+          : PIXI.Sprite.from(texture, {});
       sprite.interactive = true;
       sprite.name = SPRITE_NAME;
       application.stage.addChild(sprite);
@@ -118,10 +123,13 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     application,
     scale,
   });
-  const { startCrop, stopCrop } = useCropTool({
+  const { startCrop, stopCrop, saveCropIfNeeded } = useCropTool({
     spriteName: SPRITE_NAME,
     application,
     imageSrc,
+    onSave(sprite) {
+      setImage({ imageSrc: sprite });
+    },
   });
   const { rotate } = useRotateTool({
     height: dimension?.height ?? DEFAULT_HEIGHT,
@@ -149,6 +157,7 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     rotate: historize(rotate),
     toBlob,
     toDataURL,
+    saveCropIfNeeded,
   };
 };
 

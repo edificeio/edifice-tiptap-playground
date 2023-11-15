@@ -30,6 +30,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     rotate,
     startCrop,
     stopCrop,
+    saveCropIfNeeded,
   } = usePixiEditor({
     imageSrc,
   });
@@ -45,6 +46,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     onCancel();
   };
   const handleOperation = (operation: ImageEditorAction) => {
+    //save if needed
+    saveCropIfNeeded();
     //disable
     stopBlur();
     stopCrop();
