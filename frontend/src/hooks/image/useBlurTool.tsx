@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+
 import * as PIXI from "pixi.js";
 
 import { debounceAggregate } from "./debounceAggregate";
@@ -13,10 +15,8 @@ const useBlurTool = ({
   spriteName: string;
   imageSrc: string;
 }) => {
-  //TODO limit history in size + debounce mouseevent (aggregate)
-  //TODO debounce to optimize and aggregate mouse event
-  //TODO issue with hisory + lag on resize + corner does not move as expected
-  //TODO save resize
+  //TODO limit history in size
+  //TODO blur not appear in crop tool (see resize that clone the stage)
   const radius = () => {
     return BRUSH_SIZE;
   };
@@ -32,35 +32,39 @@ const useBlurTool = ({
     }
     return container;
   };
-  const drawCircle = debounceAggregate(
-    DEBOUNCE,
-    (event: PIXI.FederatedMouseEvent) => {
-      if (application === undefined) return undefined;
-      return application.stage.toLocal(event.global);
-    },
-    (points: Array<PIXI.Point | undefined>) => {
-      if (application === undefined) return;
-      const child = application.stage.getChildByName(spriteName);
-      if (child === undefined || child === null) return;
-      const newSprite = new PIXI.Sprite((child as PIXI.Sprite).texture);
-      newSprite.filters = [new PIXI.filters.BlurFilter()];
-      newSprite.width = (child as PIXI.Sprite).width;
-      newSprite.height = (child as PIXI.Sprite).height;
-      // same size as parent
-      newSprite.scale = new PIXI.Point(1, 1);
-      newSprite.anchor = (child as PIXI.Sprite).anchor;
-      newSprite.mask = drawBrush(points);
-      (child as PIXI.Sprite).addChild(newSprite);
-    },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const drawCircle = useCallback(
+    debounceAggregate(
+      DEBOUNCE,
+      (event: PIXI.FederatedMouseEvent) => {
+        if (application === undefined) return undefined;
+        return application.stage.toLocal(event.global);
+      },
+      (points: Array<PIXI.Point | undefined>) => {
+        if (application === undefined) return;
+        const child = application.stage.getChildByName(spriteName);
+        if (child === undefined || child === null) return;
+        const newSprite = new PIXI.Sprite((child as PIXI.Sprite).texture);
+        newSprite.filters = [new PIXI.filters.BlurFilter()];
+        newSprite.width = (child as PIXI.Sprite).width;
+        newSprite.height = (child as PIXI.Sprite).height;
+        // same size as parent
+        newSprite.scale = new PIXI.Point(1, 1);
+        newSprite.anchor = (child as PIXI.Sprite).anchor;
+        newSprite.mask = drawBrush(points);
+        (child as PIXI.Sprite).addChild(newSprite);
+      },
+    ),
+    [application],
   );
-  const enableBrush = () => {
+  const enableBrush = useCallback(() => {
     if (application === undefined) return;
     application.stage.on("pointermove", drawCircle);
-  };
-  const disableBrush = () => {
+  }, [application, drawCircle]);
+  const disableBrush = useCallback(() => {
     if (application === undefined) return;
     application.stage.off("pointermove", drawCircle);
-  };
+  }, [application, drawCircle]);
   const drawCursor = () => {
     if (application === undefined) return;
     // remove cursor before draw
@@ -79,15 +83,18 @@ const useBlurTool = ({
       child.removeFromParent();
     }
   };
-  const handleCursorMove = (event: PIXI.FederatedMouseEvent) => {
-    if (application === undefined) return;
-    const point = application.stage.toLocal(event.global);
-    const child = application.stage.getChildByName(CURSOR_NAME);
-    if (child) {
-      child.position.x = point.x;
-      child.position.y = point.y;
-    }
-  };
+  const handleCursorMove = useCallback(
+    (event: PIXI.FederatedMouseEvent) => {
+      if (application === undefined) return;
+      const point = application.stage.toLocal(event.global);
+      const child = application.stage.getChildByName(CURSOR_NAME);
+      if (child) {
+        child.position.x = point.x;
+        child.position.y = point.y;
+      }
+    },
+    [application],
+  );
   const startBlur = () => {
     if (application === undefined) return;
     drawCursor();
@@ -99,6 +106,7 @@ const useBlurTool = ({
   const stopBlur = () => {
     if (application === undefined) return;
     removeCursor();
+    disableBrush();
     application.stage.off("pointerdown", enableBrush);
     application.stage.off("pointermove", drawCircle);
     application.stage.off("pointermove", handleCursorMove);

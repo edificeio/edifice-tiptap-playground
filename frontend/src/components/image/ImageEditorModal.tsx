@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Button, Modal } from "@edifice-ui/react";
 import { Stage } from "@pixi/react";
@@ -21,6 +21,9 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   onError,
   onSave,
 }) => {
+  const [currentOperation, setCurrentOperation] = useState<
+    ImageEditorAction | undefined
+  >(undefined);
   const {
     toBlob,
     setApplication,
@@ -30,7 +33,6 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
     rotate,
     startCrop,
     stopCrop,
-    saveCropIfNeeded,
     startResize,
     stopResize,
   } = usePixiEditor({
@@ -47,21 +49,21 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const handleCancel = () => {
     onCancel();
   };
-  const handleOperation = (operation: ImageEditorAction) => {
-    //save if needed
-    saveCropIfNeeded();
+  const handleOperation = async (operation: ImageEditorAction) => {
     //disable
     stopBlur();
-    stopCrop();
-    stopResize();
+    stopCrop(currentOperation === "CROP");
+    stopResize(currentOperation === "RESIZE");
+    // save
+    setCurrentOperation(operation);
     //enable
     switch (operation) {
       case "ROTATE": {
-        rotate();
+        await rotate();
         break;
       }
       case "UNDO": {
-        restore();
+        await restore();
         break;
       }
       case "CROP": {
@@ -69,11 +71,11 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
         break;
       }
       case "RESIZE": {
-        startResize();
+        await startResize();
         break;
       }
       case "BLUR": {
-        startBlur();
+        await startBlur();
         break;
       }
     }

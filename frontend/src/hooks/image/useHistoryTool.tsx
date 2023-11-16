@@ -67,7 +67,7 @@ const useHistoryTool = ({
       setHistory([...history, state]);
       await promise;
       return callback.call(callback, ...args);
-    } as T;
+    };
   };
   return {
     historyCount: history.length,

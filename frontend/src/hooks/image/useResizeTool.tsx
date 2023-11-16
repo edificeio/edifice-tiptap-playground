@@ -1,14 +1,8 @@
 import * as PIXI from "pixi.js";
-const POINT_RADIUS = 40;
-const RESIZE_BACKGROUND_NAME = "RESIZE_BACKGROUND_NAME";
-const RESIZE_SPRITE_NAME = "RESIZE_SPRITE_NAME";
+const POINT_RADIUS = 20;
+const CONTROL_NAME = "CONTROL_NAME";
 type CornerType = "TOP_LEFT" | "TOP_RIGHT" | "BOTTOM_LEFT" | "BOTTOM_RIGHT";
-const CORNERS: Array<CornerType> = [
-  "TOP_LEFT",
-  "TOP_RIGHT",
-  "BOTTOM_LEFT",
-  "BOTTOM_RIGHT",
-];
+
 const RESIZE_CORNER_NAME = (index: CornerType) => "RESIZE_CORNER_" + index;
 const useResizeTool = ({
   application,
@@ -17,129 +11,83 @@ const useResizeTool = ({
   application?: PIXI.Application;
   spriteName: string;
 }) => {
-  const drawBackground = () => {
-    removeBackground();
-    if (application === undefined) return;
-    const child = application.stage.getChildByName(spriteName);
-    if (child === null || child === undefined) return;
-    const sprite = child as PIXI.Sprite;
-    const spriteBounds = sprite.getLocalBounds();
-    // draw background
-    const background = new PIXI.Graphics();
-    background.beginFill(0xffffff, 1);
-    background.drawRect(0, 0, spriteBounds.width, spriteBounds.height);
-    background.endFill();
-    background.name = RESIZE_BACKGROUND_NAME;
-    background.position = new PIXI.Point(spriteBounds.x, spriteBounds.y);
-    sprite.addChild(background);
-    // draw image
-    const texture = sprite.texture.clone();
-    const resizedSprite = new PIXI.Sprite(texture);
-    resizedSprite.name = RESIZE_SPRITE_NAME;
-    background.addChild(resizedSprite);
-  };
-  const removeBackground = () => {
-    if (application === undefined) return;
-    const child = application.stage.getChildByName(
-      RESIZE_BACKGROUND_NAME,
-      true,
-    );
-    child?.removeFromParent();
-  };
   const computeCornerPosition = (
     position: CornerType,
-    bounds: { x: number; y: number; width: number; height: number },
+    sprite: PIXI.Graphics,
   ) => {
+    const left = sprite.x;
+    const top = sprite.y;
     switch (position) {
       case "TOP_LEFT": {
-        return { x: 0, y: 0, start: 0, end: Math.PI / 2 };
+        return { x: left, y: top, start: 0, end: Math.PI / 2 };
       }
       case "TOP_RIGHT": {
-        return { x: bounds.width, y: 0, start: Math.PI / 2, end: Math.PI };
+        return {
+          x: left + sprite.width,
+          y: top,
+          start: Math.PI / 2,
+          end: Math.PI,
+        };
       }
       case "BOTTOM_LEFT": {
         return {
-          x: 0,
-          y: bounds.height,
+          x: left,
+          y: top + sprite.height,
           start: (3 * Math.PI) / 2,
           end: 2 * Math.PI,
         };
       }
       case "BOTTOM_RIGHT": {
         return {
-          x: bounds.width,
-          y: bounds.height,
+          x: left + sprite.width,
+          y: top + sprite.height,
           start: Math.PI,
           end: (3 * Math.PI) / 2,
         };
       }
     }
   };
-  const refreshCorners = () => {
-    if (application === undefined) return;
-    const sprite = application.stage.getChildByName(
-      RESIZE_SPRITE_NAME,
-      true,
-    ) as PIXI.Sprite | null;
-    if (sprite === undefined || sprite === null) return;
-    CORNERS.forEach((cornerType) => {
-      const corner = application.stage.getChildByName(
-        RESIZE_CORNER_NAME(cornerType),
-        true,
-      );
-      if (corner === undefined || corner === null) return;
-      const position = computeCornerPosition(cornerType, {
-        height: sprite.height,
-        width: sprite.width,
-        x: sprite.x,
-        y: sprite.y,
-      });
-      corner.position = new PIXI.Point(position.x, position.y);
-    });
-  };
   const resizeSprite = (
     cornerType: CornerType,
     position: { x: number; y: number },
+    container: PIXI.Graphics,
   ) => {
     if (application === undefined) return;
     const sprite = application.stage.getChildByName(
-      RESIZE_SPRITE_NAME,
+      spriteName,
       true,
     ) as PIXI.Sprite | null;
     if (sprite === undefined || sprite === null) return;
-    const width = sprite.width;
-    const height = sprite.height;
-    const left = sprite.position.x;
-    const top = sprite.position.y;
-    const right = left + width;
-    const bottom = top + height;
     switch (cornerType) {
       case "TOP_LEFT": {
-        sprite.position.x = position.x;
-        sprite.position.y = position.y;
-        sprite.width = right - position.x;
-        sprite.height = bottom - position.y;
+        container.position = new PIXI.Point(position.x, position.y);
+        container.width = sprite.width - 2 * position.x;
+        container.height = sprite.height - 2 * position.y;
         break;
       }
       case "TOP_RIGHT": {
-        sprite.position.y = position.y;
-        sprite.width = position.x - sprite.position.x;
-        sprite.height = bottom - position.y;
+        const newX = sprite.width - position.x;
+        container.position = new PIXI.Point(newX, position.y);
+        container.width = sprite.width - 2 * newX;
+        container.height = sprite.height - 2 * position.y;
         break;
       }
       case "BOTTOM_LEFT": {
-        sprite.position.x = position.x;
-        sprite.width = right - position.x;
-        sprite.height = position.y - sprite.position.y;
+        const newY = sprite.height - position.y;
+        container.position = new PIXI.Point(position.x, newY);
+        container.width = sprite.width - 2 * position.x;
+        container.height = sprite.height - 2 * newY;
         break;
       }
       case "BOTTOM_RIGHT": {
-        sprite.width = position.x - sprite.position.x;
-        sprite.height = position.y - sprite.position.y;
+        const newY = sprite.height - position.y;
+        const newX = sprite.width - position.x;
+        container.position = new PIXI.Point(newX, newY);
+        container.width = sprite.width - 2 * newX;
+        container.height = sprite.height - 2 * newY;
         break;
       }
     }
-    refreshCorners();
   };
   const removeCorner = (cornerType: CornerType) => {
     if (application === undefined) return;
@@ -153,19 +101,24 @@ const useResizeTool = ({
     if (application === undefined) return;
     // delete before draw
     removeCorner(cornerType);
-    // search background
-    const background = application.stage.getChildByName(
-      RESIZE_BACKGROUND_NAME,
+    // search sprite
+    const sprite = application.stage.getChildByName(
+      spriteName,
+      true,
+    ) as PIXI.Sprite | null;
+    const container = application.stage.getChildByName(
+      CONTROL_NAME,
       true,
     ) as PIXI.Graphics | null;
-    if (background === null || background === undefined) return;
+    if (
+      sprite === null ||
+      sprite === undefined ||
+      container === null ||
+      container === undefined
+    )
+      return;
     // compute position
-    const position = computeCornerPosition(cornerType, {
-      height: background.height,
-      width: background.width,
-      x: background.x,
-      y: background.y,
-    });
+    const position = computeCornerPosition(cornerType, container);
     //add corner
     const corner = new PIXI.Graphics();
     corner.beginFill(0x4bafd5, 1);
@@ -176,31 +129,71 @@ const useResizeTool = ({
     corner.name = RESIZE_CORNER_NAME(cornerType);
     // add mouse listener
     corner.interactive = true;
-    const handleCursorMove = (event: PIXI.FederatedPointerEvent) => {
-      const localPosition = background.toLocal(event.global);
-      corner.position.x = localPosition.x;
-      corner.position.y = localPosition.y;
-      resizeSprite(cornerType, localPosition);
-    };
+    let enable = false;
+    application.stage.on("pointermove", (event: PIXI.FederatedMouseEvent) => {
+      if (enable === false) return;
+      const localPosition = application.stage.toLocal(event.global);
+      resizeSprite(cornerType, localPosition, container);
+    });
     const handlePointerDown = () => {
-      corner.on("pointermove", handleCursorMove);
+      enable = true;
     };
     const handlePointerUp = () => {
-      corner.off("pointermove", handleCursorMove);
+      enable = false;
     };
     corner.once("destroyed", () => {
       // cancel listener
-      corner.off("pointerdown", handlePointerDown);
+      corner.off("pointerdown");
       globalThis.removeEventListener("pointerup", handlePointerUp);
     });
     corner.on("pointerdown", handlePointerDown);
     globalThis.addEventListener("pointerup", handlePointerUp);
     // add to sprite
-    background.addChild(corner);
+    container.addChild(corner);
+  };
+  const drawContainer = () => {
+    removeContainer();
+    if (application === undefined) return;
+    const sprite = application.stage.getChildByName(
+      spriteName,
+      true,
+    ) as PIXI.Sprite | null;
+    if (sprite === null || sprite === undefined) return;
+    // clone stage
+    const stageTexture = application.renderer.generateTexture(
+      application.stage,
+    );
+    const clonedStage = new PIXI.Sprite(stageTexture);
+    // hide all child
+    application.stage.children.forEach((child) => {
+      child.alpha = 0;
+    });
+    //  create container
+    const container = new PIXI.Graphics();
+    container.drawRect(0, 0, sprite.width, sprite.height);
+    container.name = CONTROL_NAME;
+    container.interactive = true;
+    container.interactiveChildren = true;
+    application.stage.interactive = true;
+    application.stage.interactiveChildren = true;
+    application.stage.addChild(container);
+    container.addChild(clonedStage);
+  };
+  const removeContainer = () => {
+    if (application === undefined) return;
+    const container = application.stage.getChildByName(
+      CONTROL_NAME,
+      true,
+    ) as PIXI.Graphics | null;
+    container?.removeFromParent();
+    // display all child
+    application.stage.children.forEach((child) => {
+      child.alpha = 1;
+    });
   };
   const drawControl = () => {
     if (application === undefined) return;
-    drawBackground();
+    drawContainer();
     drawCorner("BOTTOM_LEFT");
     drawCorner("BOTTOM_RIGHT");
     drawCorner("TOP_LEFT");
@@ -208,19 +201,48 @@ const useResizeTool = ({
   };
   const removeControl = () => {
     if (application === undefined) return;
-    removeBackground();
+    removeContainer();
     removeCorner("BOTTOM_LEFT");
     removeCorner("BOTTOM_RIGHT");
     removeCorner("TOP_LEFT");
     removeCorner("TOP_RIGHT");
+    application.stage.off("pointermove");
   };
   const startResize = () => {
     if (application === undefined) return;
     drawControl();
   };
-  const stopResize = () => {
+  const stopResize = (save: boolean) => {
     if (application === undefined) return;
-    removeControl();
+    if (save) {
+      const container = application?.stage?.getChildByName(
+        CONTROL_NAME,
+        true,
+      ) as PIXI.Graphics | null;
+      const size = container
+        ? { height: container.height, width: container.width }
+        : undefined;
+      removeControl();
+      if (size) {
+        saveResize(size);
+      }
+    } else {
+      removeControl();
+    }
+    application.render();
+  };
+  const saveResize = ({ height, width }: { width: number; height: number }) => {
+    if (application === undefined) return;
+    const sprite = application.stage.getChildByName(
+      spriteName,
+      true,
+    ) as PIXI.Sprite | null;
+    if (sprite) {
+      sprite.width = width;
+      sprite.height = height;
+      sprite.position = new PIXI.Point(width / 2, height / 2);
+      application.renderer.resize(width, height);
+    }
   };
   return {
     startResize,

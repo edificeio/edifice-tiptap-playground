@@ -19,7 +19,7 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     imageSrc,
     application,
   });
-  const { startCrop, stopCrop, saveCropIfNeeded } = useCropTool({
+  const { startCrop, stopCrop, saveCrop } = useCropTool({
     spriteName: SPRITE_NAME,
     application,
     imageSrc,
@@ -150,7 +150,7 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     rotate: historize(rotate),
     toBlob,
     toDataURL,
-    saveCropIfNeeded,
+    saveCrop,
   };
 };
 

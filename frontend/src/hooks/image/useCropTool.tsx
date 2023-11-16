@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
-const POINT_RADIUS = 40;
-const PADDING = 50;
+const POINT_RADIUS = 20;
+const PADDING = 0;
 const CROP_MASK_NAME = "CROP_MASK_NAME";
 const CROP_BACKGROUND_NAME = "CROP_BACKGROUND_NAME";
 type CornerType = "TOP_LEFT" | "TOP_RIGHT" | "BOTTOM_LEFT" | "BOTTOM_RIGHT";
@@ -25,9 +25,10 @@ const useCropTool = ({
   const drawBackground = () => {
     removeBackground();
     if (application === undefined) return;
-    const child = application.stage.getChildByName(spriteName);
-    if (child === null || child === undefined) return;
-    const sprite = child as PIXI.Sprite;
+    const sprite = application.stage.getChildByName(
+      spriteName,
+    ) as PIXI.Sprite | null;
+    if (sprite === null || sprite === undefined) return;
     const spriteBounds = sprite.getLocalBounds();
     // draw background
     const background = new PIXI.Graphics();
@@ -178,16 +179,20 @@ const useCropTool = ({
       CROP_MASK_NAME,
       true,
     ) as PIXI.Graphics | null;
+    const sprite = application.stage.getChildByName(
+      spriteName,
+    ) as PIXI.Sprite | null;
     if (
+      sprite === null ||
+      sprite === undefined ||
       background === null ||
       background === undefined ||
       mask === undefined ||
       mask === null
     )
       return;
+    const scale = Math.max(sprite.scale.x, sprite.scale.y);
     // compute position
-    console.log("MASK1:", mask.getLocalBounds());
-    console.log("MASK2:", mask.x, mask.y, mask.width, mask.height);
     const position = computeCornerPosition(cornerType, {
       height: mask.height,
       width: mask.width,
@@ -197,28 +202,30 @@ const useCropTool = ({
     //add corner
     const corner = new PIXI.Graphics();
     corner.beginFill(0x4bafd5, 1);
-    corner.arc(0, 0, POINT_RADIUS, position.start, position.end);
+    corner.arc(0, 0, POINT_RADIUS / scale, position.start, position.end);
     corner.lineTo(0, 0);
     corner.endFill();
     corner.position = new PIXI.Point(position.x, position.y);
     corner.name = CROP_CORNER_NAME(cornerType);
     // add mouse listener
     corner.interactive = true;
-    const handleCursorMove = (event: PIXI.FederatedPointerEvent) => {
+    let enable = false;
+    application.stage.on("pointermove", (event: PIXI.FederatedMouseEvent) => {
+      if (enable === false) return;
       const localPosition = background.toLocal(event.global);
       corner.position.x = localPosition.x;
       corner.position.y = localPosition.y;
       moveMask(cornerType, localPosition);
-    };
+    });
     const handlePointerDown = () => {
-      corner.on("pointermove", handleCursorMove);
+      enable = true;
     };
     const handlePointerUp = () => {
-      corner.off("pointermove", handleCursorMove);
+      enable = false;
     };
     corner.once("destroyed", () => {
       // cancel listener
-      corner.off("pointerdown", handlePointerDown);
+      corner.off("pointerdown");
       globalThis.removeEventListener("pointerup", handlePointerUp);
     });
     corner.on("pointerdown", handlePointerDown);
@@ -228,6 +235,8 @@ const useCropTool = ({
   };
   const drawControl = () => {
     if (application === undefined) return;
+    application.stage.interactive = true;
+    application.stage.interactiveChildren = true;
     drawBackground();
     drawCorner("BOTTOM_LEFT");
     drawCorner("BOTTOM_RIGHT");
@@ -237,16 +246,23 @@ const useCropTool = ({
   const removeControl = () => {
     if (application === undefined) return;
     removeBackground();
+    application.stage.off("pointermove");
   };
   const startCrop = () => {
     if (application === undefined) return;
     drawControl();
   };
-  const stopCrop = () => {
+  const stopCrop = (save: boolean) => {
     if (application === undefined) return;
-    removeControl();
+    if (save) {
+      saveCrop();
+      removeControl();
+    } else {
+      removeControl();
+    }
+    application.render();
   };
-  const saveCropIfNeeded = () => {
+  const saveCrop = () => {
     if (application === undefined) return;
     const mask = application.stage.getChildByName(
       CROP_MASK_NAME,
@@ -263,7 +279,7 @@ const useCropTool = ({
     return sprite;
   };
   return {
-    saveCropIfNeeded,
+    saveCrop,
     startCrop,
     stopCrop,
   };

@@ -1,4 +1,4 @@
-export function debounceAggregate<INPUT, OUTPUT>(
+export function aggregate<INPUT, OUTPUT>(
   delay: number,
   map: (input: INPUT) => OUTPUT,
   callback: (aggregated: OUTPUT[]) => void,
@@ -8,7 +8,7 @@ export function debounceAggregate<INPUT, OUTPUT>(
   return function (arg: INPUT) {
     pending.push(map(arg));
     if (timerId) {
-      clearTimeout(timerId);
+      return;
     }
     timerId = setTimeout(() => {
       const copy = [...pending];
