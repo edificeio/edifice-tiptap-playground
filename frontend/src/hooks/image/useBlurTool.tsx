@@ -1,6 +1,9 @@
 import * as PIXI from "pixi.js";
 
+import { debounceAggregate } from "./debounceAggregate";
+
 const BRUSH_SIZE = 20;
+const DEBOUNCE = 50;
 const CURSOR_NAME = "BRUSH_CURSOR";
 const useBlurTool = ({
   application,
@@ -13,59 +16,43 @@ const useBlurTool = ({
   //TODO limit history in size + debounce mouseevent (aggregate)
   //TODO debounce to optimize and aggregate mouse event
   //TODO issue with hisory + lag on resize + corner does not move as expected
+  //TODO save resize
   const radius = () => {
     return BRUSH_SIZE;
   };
-  const drawBrush = (position: PIXI.Point): PIXI.Graphics => {
-    const brush = new PIXI.Graphics();
-    brush.beginFill(0xffffff, 1);
-    brush.drawCircle(position.x, position.y, radius());
-    brush.lineStyle(0);
-    brush.endFill();
-    return brush;
+  const drawBrush = (points: Array<PIXI.Point | undefined>): PIXI.Graphics => {
+    const container = new PIXI.Graphics();
+    for (const point of points) {
+      if (point) {
+        container.beginFill(0xffffff, 1);
+        container.drawCircle(point.x, point.y, radius());
+        container.lineStyle(0);
+        container.endFill();
+      }
+    }
+    return container;
   };
-  const drawCircle = (event: PIXI.FederatedPointerEvent) => {
-    if (application === undefined) return;
-    const child = application.stage.getChildByName(spriteName);
-    if (child === undefined || child === null) return;
-    const localPosition = application.stage.toLocal(event.global);
-    /*
-    const widthRatio = scale?.x ?? 1;
-    const heightRatio = scale?.y ?? 1;
-    const texture = PIXI.Texture.from((child as PIXI.Sprite).texture.baseTexture);
-    const rect = new PIXI.Rectangle(
-      localPosition.x - brushSize * widthRatio,
-      localPosition.y - brushSize * heightRatio,
-      brushSize * widthRatio * 2,
-      brushSize * heightRatio * 2,
-    );
-    if (rect.x < 0) {
-      rect.x = 0;
-    }
-    if (rect.y < 0) {
-      rect.y = 0;
-    }
-    if (rect.x + rect.width > texture.width) {
-      rect.width -= rect.x + rect.width - (texture.width - 10);
-    }
-    if (rect.y + rect.height > texture.height) {
-      rect.height -= rect.y + rect.height - (texture.height - 10);
-    }
-
-    const toBlur = new PIXI.Texture(texture.baseTexture, rect);
-    */
-    const newSprite = new PIXI.Sprite((child as PIXI.Sprite).texture);
-    newSprite.filters = [new PIXI.filters.BlurFilter()];
-    newSprite.width = (child as PIXI.Sprite).width;
-    newSprite.height = (child as PIXI.Sprite).height;
-    // same size as parent
-    newSprite.scale = new PIXI.Point(1, 1);
-    //newSprite.position = new PIXI.Point(localPosition.x, localPosition.y);
-    newSprite.anchor = (child as PIXI.Sprite).anchor;
-    newSprite.mask = drawBrush(localPosition);
-    //application.stage.addChild(newSprite);
-    (child as PIXI.Sprite).addChild(newSprite);
-  };
+  const drawCircle = debounceAggregate(
+    DEBOUNCE,
+    (event: PIXI.FederatedMouseEvent) => {
+      if (application === undefined) return undefined;
+      return application.stage.toLocal(event.global);
+    },
+    (points: Array<PIXI.Point | undefined>) => {
+      if (application === undefined) return;
+      const child = application.stage.getChildByName(spriteName);
+      if (child === undefined || child === null) return;
+      const newSprite = new PIXI.Sprite((child as PIXI.Sprite).texture);
+      newSprite.filters = [new PIXI.filters.BlurFilter()];
+      newSprite.width = (child as PIXI.Sprite).width;
+      newSprite.height = (child as PIXI.Sprite).height;
+      // same size as parent
+      newSprite.scale = new PIXI.Point(1, 1);
+      newSprite.anchor = (child as PIXI.Sprite).anchor;
+      newSprite.mask = drawBrush(points);
+      (child as PIXI.Sprite).addChild(newSprite);
+    },
+  );
   const enableBrush = () => {
     if (application === undefined) return;
     application.stage.on("pointermove", drawCircle);
@@ -92,13 +79,13 @@ const useBlurTool = ({
       child.removeFromParent();
     }
   };
-  const handleCursorMove = (event: PIXI.FederatedPointerEvent) => {
+  const handleCursorMove = (event: PIXI.FederatedMouseEvent) => {
     if (application === undefined) return;
+    const point = application.stage.toLocal(event.global);
     const child = application.stage.getChildByName(CURSOR_NAME);
     if (child) {
-      const localPosition = application.stage.toLocal(event.global);
-      child.position.x = localPosition.x;
-      child.position.y = localPosition.y;
+      child.position.x = point.x;
+      child.position.y = point.y;
     }
   };
   const startBlur = () => {
