@@ -88,6 +88,7 @@ export const useToolbarItems = (
       : false;
 
   const toolbarItems: ToolbarItem[] = [
+    //--------------- IMAGE ---------------//
     {
       type: "icon",
       props: {
@@ -98,6 +99,7 @@ export const useToolbarItems = (
       },
       name: "image",
     },
+    //--------------- VIDEO ---------------//
     {
       type: "icon",
       props: {
@@ -108,6 +110,7 @@ export const useToolbarItems = (
       },
       name: "video",
     },
+    //--------------- AUDIO ---------------//
     {
       type: "icon",
       props: {
@@ -118,6 +121,7 @@ export const useToolbarItems = (
       },
       name: "audio",
     },
+    //--------------- ATTACHMENT ---------------//
     {
       type: "icon",
       props: {
@@ -128,10 +132,12 @@ export const useToolbarItems = (
       },
       name: "attachment",
     },
+    //-------------------------------------//
     {
       type: "divider",
       name: "div-1",
     },
+    //--------------- SPEECH TO TEXT ---------------//
     {
       type: "icon",
       props: {
@@ -151,11 +157,13 @@ export const useToolbarItems = (
       visibility: canRecognizeSpeech ? "show" : "hide",
       name: "speechtotext",
     },
+    //------------------------------------//
     {
       type: "divider",
       name: "div-speech",
       visibility: canRecognizeSpeech ? "show" : "hide",
     },
+    //--------------- TYPOGRAPHY ---------------//
     {
       type: "dropdown",
       props: {
@@ -238,6 +246,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- TEXT SIZE ---------------//
     {
       type: "dropdown",
       props: {
@@ -312,6 +321,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- TEXT COLOR ---------------//
     {
       type: "dropdown",
       props: {
@@ -369,6 +379,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- TEXT HIGHLIGHTING COLOR ---------------//
     {
       type: "dropdown",
       props: {
@@ -428,10 +439,12 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //-------------------------------------//
     {
       type: "divider",
       name: "div-2",
     },
+    //--------------- BOLD ---------------//
     {
       type: "icon",
       props: {
@@ -445,6 +458,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- ITALIC ---------------//
     {
       type: "icon",
       props: {
@@ -458,6 +472,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- UNDERLINE ---------------//
     {
       type: "icon",
       props: {
@@ -471,10 +486,12 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //-------------------------------------//
     {
       type: "divider",
       name: "div-3",
     },
+    //--------------- EMOJI ---------------//
     {
       type: "dropdown",
       props: {
@@ -555,6 +572,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- LINKER (internal / external) ---------------//
     {
       type: "icon",
       props: {
@@ -565,10 +583,12 @@ export const useToolbarItems = (
       },
       name: "linker",
     },
+    //-----------------------------------//
     {
       type: "divider",
       name: "div-4",
     },
+    //--------------- UNOERDERED LIST ---------------//
     {
       type: "dropdown",
       props: {
@@ -611,6 +631,7 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //--------------- TEXT ALIGNMENT ---------------//
     {
       type: "dropdown",
       props: {
@@ -653,10 +674,12 @@ export const useToolbarItems = (
         ? "show"
         : "hide",
     },
+    //-------------------------------------//
     {
       type: "divider",
       name: "div-5",
     },
+    //--------------- MORE sub-menu ---------------//
     {
       type: "dropdown",
       props: {
