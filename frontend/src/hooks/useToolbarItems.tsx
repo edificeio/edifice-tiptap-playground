@@ -370,6 +370,7 @@ export const useToolbarItems = (
           </>
         ),
       },
+      overflow: false,
       name: "color",
       visibility: editor?.extensionManager.extensions.find(
         (item) =>

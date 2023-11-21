@@ -94,6 +94,7 @@
     "react-router-dom": "6.16.0",
     "swiper": "10.1.0",
     "edifice-ts-client": "develop-b2school",
+    "edifice-bootstrap": "develop-b2school",
     "zustand": "4.4.1"
   },
   "devDependencies": {
