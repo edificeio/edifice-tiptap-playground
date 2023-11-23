@@ -35,7 +35,7 @@ const MathsModal = ({
     editor?.commands.setContent(formulaEditor);
     editor?.commands.enter();
     return;
-  }, [editor]);
+  }, [editor, formulaEditor]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newFormulaTextarea: string = event.target.value;
