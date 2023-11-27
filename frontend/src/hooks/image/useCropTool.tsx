@@ -25,11 +25,21 @@ const useCropTool = ({
   const drawBackground = () => {
     removeBackground();
     if (application === undefined) return;
-    const sprite = application.stage.getChildByName(
+    const sprites = application.stage.getChildByName(
       spriteName,
     ) as PIXI.Sprite | null;
-    if (sprite === null || sprite === undefined) return;
-    const spriteBounds = sprite.getLocalBounds();
+    // clone stage
+    const stageTexture = application.renderer
+      .generateTexture(application.stage)
+      .clone();
+    const clonedStage = new PIXI.Sprite(stageTexture);
+    //
+    if (sprites === null || sprites === undefined) return;
+    const spriteBounds = sprites.getLocalBounds();
+    clonedStage.rotation = -sprites.rotation;
+    clonedStage.height = spriteBounds.height;
+    clonedStage.width = spriteBounds.width;
+    clonedStage.position = new PIXI.Point(0, 0);
     // draw background
     const background = new PIXI.Graphics();
     background.beginFill(0xffffff, 0.5);
@@ -37,7 +47,7 @@ const useCropTool = ({
     background.endFill();
     background.name = CROP_BACKGROUND_NAME;
     background.position = new PIXI.Point(spriteBounds.x, spriteBounds.y);
-    sprite.addChild(background);
+    sprites.addChild(background);
     // draw rectangle
     const rectMask = new PIXI.Graphics();
     rectMask.beginFill(0x000000, 1);
@@ -52,10 +62,8 @@ const useCropTool = ({
     rectMask.name = CROP_MASK_NAME;
     background.addChild(rectMask);
     // draw image
-    const texture = sprite.texture.clone();
-    const spriteMask = new PIXI.Sprite(texture);
-    spriteMask.mask = rectMask;
-    background.addChild(spriteMask);
+    clonedStage.mask = rectMask;
+    background.addChild(clonedStage);
   };
   const removeBackground = () => {
     if (application === undefined) return;

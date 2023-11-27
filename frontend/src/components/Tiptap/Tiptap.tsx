@@ -1,4 +1,4 @@
-import { useEffect, Suspense, lazy, useState, useCallback } from "react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { Linker } from "@edifice-tiptap-extensions/extension-linker";
@@ -33,7 +33,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
@@ -290,7 +290,7 @@ const Tiptap = () => {
     toggleMathsModal();
   };
 
-  const onImageModalSuccess = (blob: Blob) => {
+  const onImageModalSuccess = ({ blob }: { blob: Blob }) => {
     toggleImageModal();
     console.log("BLOB", blob);
   };
@@ -298,7 +298,6 @@ const Tiptap = () => {
   const onImageModalCancel = () => {
     toggleImageModal();
   };
-  console.log("IMAGE", imageSrc, isImageModalOpen);
   return (
     <>
       <Toolbar

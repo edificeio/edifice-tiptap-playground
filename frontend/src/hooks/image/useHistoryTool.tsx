@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import * as PIXI from "pixi.js";
 export interface UseHistoryToolsProps {
+  maxSize?: number;
   application?: PIXI.Application;
   spriteName: string;
   rotateCount: number;
@@ -14,8 +15,9 @@ export interface HistoryState {
   stageSize: { width: number; height: number };
   spriteSize: { width: number; height: number };
 }
-
+const DEFAULT_MAX_SIZE = 20;
 const useHistoryTool = ({
+  maxSize = DEFAULT_MAX_SIZE,
   application,
   spriteName,
   rotateCount,
@@ -31,6 +33,12 @@ const useHistoryTool = ({
       onRestore(await imgData.backup, imgData);
       setHistory(history.filter((current) => current !== imgData));
     }
+  };
+  const listSize = (arr: HistoryState[]) => {
+    if (arr.length > maxSize) {
+      arr.splice(0, arr.length - maxSize);
+    }
+    return arr;
   };
   const historize = <T extends (...args: any[]) => any>(callback: T) => {
     return async function (...args: any[]) {
@@ -64,7 +72,7 @@ const useHistoryTool = ({
             ? { width: sprite?.height ?? 0, height: sprite?.width ?? 0 }
             : { width: sprite?.width ?? 0, height: sprite?.height ?? 0 },
       };
-      setHistory([...history, state]);
+      setHistory([...listSize(history), state]);
       await promise;
       return callback.call(callback, ...args);
     };

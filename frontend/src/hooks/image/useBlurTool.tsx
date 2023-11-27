@@ -15,8 +15,6 @@ const useBlurTool = ({
   spriteName: string;
   imageSrc: string;
 }) => {
-  //TODO limit history in size
-  //TODO blur not appear in crop tool (see resize that clone the stage)
   const radius = () => {
     return BRUSH_SIZE;
   };

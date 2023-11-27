@@ -7,7 +7,7 @@ import useCropTool from "./useCropTool";
 import useHistoryTool, { HistoryState } from "./useHistoryTool";
 import useResizeTool from "./useResizeTool";
 import useRotateTool from "./useRotateTool";
-const MIN_WIDTH = 400;
+const MIN_WIDTH = 100;
 const SPRITE_NAME = "image";
 const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
   const [application, setApplication] = useState<PIXI.Application | undefined>(
