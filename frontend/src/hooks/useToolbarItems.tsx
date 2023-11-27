@@ -62,6 +62,7 @@ export const useToolbarItems = (
   const [highlightColor, setHighlightColor] = useState<string>("");
   const [value, setValue] = useState<string>("sans-serif");
   const [size, setSize] = useState<TypoSizeLevel>();
+  const [speechRecognition, setSpeechRecognition] = useState(false);
 
   useEffect(() => {
     // When cursor moves in editor, update the text values.
@@ -134,14 +135,14 @@ export const useToolbarItems = (
       props: {
         icon: <SpeechToText />,
         "aria-label": t("Reconnaissance vocale"),
-        className: editor?.commands.isSpeechRecognitionStarted()
-          ? "is-selected"
-          : "",
+        className: speechRecognition ? "is-selected" : "",
         onClick: () => {
-          if (editor?.commands.isSpeechRecognitionStarted()) {
+          if (speechRecognition) {
             editor?.commands.stopSpeechRecognition();
+            setSpeechRecognition(false);
           } else {
-            editor?.commands.startSpeechRecognition();
+            const speech = editor?.commands.startSpeechRecognition() || false;
+            setSpeechRecognition(speech);
           }
         },
       },
@@ -361,6 +362,7 @@ export const useToolbarItems = (
           </>
         ),
       },
+      overflow: false,
       name: "color",
       visibility: editor?.extensionManager.extensions.find(
         (item) =>

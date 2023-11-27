@@ -14,6 +14,7 @@ import { RouterProvider } from "react-router-dom";
 import { router } from "./routes";
 
 import "./i18n";
+import "edifice-bootstrap/dist/index.css";
 
 const rootElement = document.getElementById("root");
 const root = createRoot(rootElement!);
