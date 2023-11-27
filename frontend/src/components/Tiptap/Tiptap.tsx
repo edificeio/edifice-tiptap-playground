@@ -7,6 +7,7 @@ import {
   useRef,
 } from "react";
 
+import { Hyperlink } from "@edifice-tiptap-extensions/extension-hyperlink";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { LinkerAttributes } from "@edifice-tiptap-extensions/extension-linker";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
@@ -16,6 +17,7 @@ import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import {
+  IExternalLink,
   LoadingScreen,
   MediaLibrary,
   MediaLibraryRef,
@@ -31,7 +33,6 @@ import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
-//import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
@@ -107,7 +108,7 @@ const Tiptap = () => {
       AttachReact(TestAttachment),
       Image,
       LinkerNodeView,
-      //      Link,
+      Hyperlink,
       FontFamily,
       Mathematics,
     ],
@@ -317,10 +318,12 @@ const Tiptap = () => {
           const resourceTabResult = result as ResourceTabResult;
 
           editor?.commands.focus();
-          if (Array.isArray(resourceTabResult.resources)) {
-            // Case of internal link
+          if (
+            editor.state.selection.empty &&
+            Array.isArray(resourceTabResult.resources)
+          ) {
+            // One or more internal link(s) are rendered as a LinkerCard.
             resourceTabResult.resources.forEach((link) => {
-              // Add a link to it.
               editor?.commands.setLinker({
                 href: link.path,
                 "data-app-prefix": link.application,
@@ -328,12 +331,7 @@ const Tiptap = () => {
                 target: resourceTabResult.target ?? null,
                 title: link.name,
               });
-              // Cancel selection, so that next links are added afterward.
-              const newPosition = editor.state.selection.head;
-              editor.commands.setTextSelection({
-                from: newPosition,
-                to: newPosition,
-              });
+              // Add next links afterward.
               if (
                 resourceTabResult &&
                 resourceTabResult.resources &&
@@ -343,9 +341,62 @@ const Tiptap = () => {
               }
             });
           } else {
-            // TODO Case of external link
-            const richContent = "<p>TODO: external link</p>";
-            editor?.commands.insertContent(richContent);
+            // Links are rendered as Hyperlinks
+            // Utility function
+            const insertAndSelectText = (name?: string) => {
+              if (!name) return;
+              const from = editor.state.selection.head;
+              const to = from + name.length;
+              editor
+                ?.chain()
+                .insertContent(name)
+                .setTextSelection({ from, to })
+                .run();
+            };
+
+            // *** Case of internal links ***
+            if (Array.isArray(resourceTabResult.resources)) {
+              if (editor.state.selection.empty) {
+                // No text is currently selected.
+                // => Insert the name of the first link and select it.
+                insertAndSelectText(resourceTabResult.resources[0].name);
+              }
+
+              resourceTabResult.resources.forEach((link) => {
+                // Add a hyperlink to the selection.
+                editor?.commands.setLink({
+                  href: link.path,
+                  target: resourceTabResult.target ?? null,
+                  title: link.name,
+                });
+                // Cancel selection, so that next links are added afterward.
+                const newPosition = editor.state.selection.head;
+                editor.commands.setTextSelection({
+                  from: newPosition,
+                  to: newPosition,
+                });
+                // Newline needed, unless it is the last link.
+                if (
+                  resourceTabResult?.resources &&
+                  resourceTabResult?.resources?.length > 1
+                ) {
+                  editor.commands.enter();
+                }
+              });
+            } else {
+              // *** Case of external link ***
+              const { url, target, text } = result as IExternalLink;
+              if (editor.state.selection.empty) {
+                // No text is currently selected.
+                // => Insert the name of the link and select it.
+                insertAndSelectText(text);
+              }
+              editor?.commands.setLink({
+                href: url,
+                title: text,
+                target,
+              });
+            }
           }
           break;
         }
