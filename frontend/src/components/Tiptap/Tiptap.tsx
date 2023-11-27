@@ -251,8 +251,6 @@ const Tiptap = () => {
     editor?.setEditable(editable);
   }, [editor, editable]);
 
-  // console.log(editor?.extensionManager.extensions);
-
   const onMediaLibrarySuccess = useCallback(
     (result: MediaLibraryResult) => {
       if (mediaLibraryType) {
