@@ -1,10 +1,4 @@
-import {
-  useCallback,
-  useEffect,
-  useState,
-  Fragment,
-  RefAttributes,
-} from "react";
+import { useEffect, useState, Fragment, RefAttributes, RefObject } from "react";
 
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import {
@@ -32,22 +26,19 @@ import {
   ColorPicker,
   DefaultPalette,
   ToolbarItem,
-  MediaLibraryResult,
-  MediaLibraryType,
   DropdownMenuOptions,
   ColorPaletteItem,
   IconButton,
   IconButtonProps,
+  MediaLibraryRef,
 } from "@edifice-ui/react";
-import { ResourceTabResult } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
-import { WorkspaceElement } from "edifice-ts-client";
 import EmojiPicker, { Categories } from "emoji-picker-react";
 import { useTranslation } from "react-i18next";
 
 export const useToolbarItems = (
   editor: Editor | null,
-  showMediaLibraryForType: (type: MediaLibraryType | null) => void,
+  mediaLibraryRef: RefObject<MediaLibraryRef>,
   listOptions: DropdownMenuOptions[],
   alignmentOptions: DropdownMenuOptions[],
   options: DropdownMenuOptions[],
@@ -96,7 +87,7 @@ export const useToolbarItems = (
         icon: <Landscape />,
         className: "bg-green-200",
         "aria-label": t("Insérer une image"),
-        onClick: () => showMediaLibraryForType("image"),
+        onClick: () => mediaLibraryRef.current?.show("image"),
       },
       name: "image",
     },
@@ -107,7 +98,7 @@ export const useToolbarItems = (
         icon: <RecordVideo />,
         className: "bg-purple-200",
         "aria-label": t("Insérer une vidéo"),
-        onClick: () => showMediaLibraryForType("video"),
+        onClick: () => mediaLibraryRef.current?.show("video"),
       },
       name: "video",
     },
@@ -118,7 +109,7 @@ export const useToolbarItems = (
         icon: <Mic />,
         className: "bg-red-200",
         "aria-label": t("Insérer une piste audio"),
-        onClick: () => showMediaLibraryForType("audio"),
+        onClick: () => mediaLibraryRef.current?.show("audio"),
       },
       name: "audio",
     },
@@ -129,7 +120,7 @@ export const useToolbarItems = (
         icon: <Paperclip />,
         className: "bg-yellow-200",
         "aria-label": t("Insérer une pièce jointe"),
-        onClick: () => showMediaLibraryForType("attachment"),
+        onClick: () => mediaLibraryRef.current?.show("attachment"),
       },
       name: "attachment",
     },
@@ -268,45 +259,42 @@ export const useToolbarItems = (
             <Dropdown.Menu>
               {[
                 {
-                  value: 2,
+                  value: "2",
                   label: t("Titre 1"),
                   className: "fs-2 fw-bold",
                 },
                 {
-                  value: 3,
+                  value: "3",
                   label: t("Titre 2"),
                   className: "fs-3 fw-bold",
                 },
                 {
-                  value: 4,
+                  value: "4",
                   label: t("Texte grand"),
                   className: "fs-4",
                 },
                 {
-                  value: 5,
+                  value: "5",
                   label: t("Texte normal"),
                 },
                 {
-                  value: 6,
+                  value: "6",
                   label: t("Texte petit"),
                   className: "fs-6",
                 },
-              ].map((option) => {
+              ].map(({ value, label, className }) => {
                 return (
-                  <Fragment key={option.label}>
+                  <Fragment key={value}>
                     <Dropdown.RadioItem
-                      value={option.value}
-                      model={size}
-                      onChange={(value: TypoSizeLevel) => {
-                        editor
-                          ?.chain()
-                          .focus()
-                          .toggleTypoSize({ level: value as TypoSizeLevel })
-                          .run();
-                        setSize(value);
+                      value={value}
+                      model={`${size}`}
+                      onChange={(newValue) => {
+                        const level = parseInt(newValue) as TypoSizeLevel;
+                        editor?.chain().focus().toggleTypoSize({ level }).run();
+                        setSize(level);
                       }}
                     >
-                      <span className={option.className}>{option.label}</span>
+                      <span className={className}>{label}</span>
                     </Dropdown.RadioItem>
                   </Fragment>
                 );
@@ -581,7 +569,7 @@ export const useToolbarItems = (
         icon: <Link />,
         "aria-label": t("Ajout d'un lien"),
         className: editor?.isActive("linker") ? "is-selected" : "",
-        onClick: () => showMediaLibraryForType("hyperlink"),
+        onClick: () => mediaLibraryRef.current?.show("hyperlink"),
       },
       name: "linker",
     },
@@ -590,7 +578,7 @@ export const useToolbarItems = (
       type: "divider",
       name: "div-4",
     },
-    //--------------- UNOERDERED LIST ---------------//
+    //--------------- UNORDERED LIST ---------------//
     {
       type: "dropdown",
       props: {
@@ -615,7 +603,10 @@ export const useToolbarItems = (
                     {option.type === "divider" ? (
                       <Dropdown.Separator />
                     ) : (
-                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      <Dropdown.Item
+                        icon={option.icon}
+                        onClick={() => option.action(null)}
+                      >
                         {option.label}
                       </Dropdown.Item>
                     )}
@@ -658,7 +649,10 @@ export const useToolbarItems = (
                     {option.type === "divider" ? (
                       <Dropdown.Separator />
                     ) : (
-                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      <Dropdown.Item
+                        icon={option.icon}
+                        onClick={() => option.action(null)}
+                      >
                         {option.label}
                       </Dropdown.Item>
                     )}
@@ -700,7 +694,10 @@ export const useToolbarItems = (
                     {option.type === "divider" ? (
                       <Dropdown.Separator />
                     ) : (
-                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      <Dropdown.Item
+                        icon={option.icon}
+                        onClick={() => option.action(null)}
+                      >
                         {option.label}
                       </Dropdown.Item>
                     )}
@@ -720,155 +717,5 @@ export const useToolbarItems = (
     },
   ];
 
-  /**
-   * Convert the result of a successful action in MediaLibrary
-   * - to a call to the editor's dedicated command,
-   * or
-   * - to an HTML fragment of rich content + insert it.
-   *
-   * The inital result  depends on the MediaLibrary type.
-   */
-  const appendAsRichContent = useCallback(
-    (type: MediaLibraryType, result: MediaLibraryResult) => {
-      if (!type || !editor) return;
-
-      switch (type) {
-        // Image type => result is of type WorkspaceElement[]
-        case "image": {
-          const imgs = result as WorkspaceElement[];
-          imgs.forEach((img) => {
-            editor
-              ?.chain()
-              .focus()
-              .setImage({
-                src: `/workspace/document/${img._id}`,
-                alt: img.alt,
-                title: img.title,
-              })
-              .run();
-          });
-          break;
-        }
-
-        // Audio type => result is of type WorkspaceElement[]
-        case "audio": {
-          const sounds = result as WorkspaceElement[];
-          sounds.forEach((snd) => {
-            // TODO finaliser, voir WB-1992
-            const richContent = `<audio src="/workspace/document/${snd._id}" controls preload="none"/></audio>`;
-            editor?.commands.insertContentAt(
-              editor.view.state.selection,
-              richContent,
-            );
-            editor?.commands.enter();
-          });
-          break;
-        }
-
-        case "video": {
-          const video = result as WorkspaceElement;
-          editor
-            ?.chain()
-            .focus()
-            .setVideo(
-              video._id || "",
-              `/workspace/document/${video._id}`,
-              true,
-            );
-          break;
-        }
-
-        case "attachment": {
-          let innerHtml = "";
-          for (let i = 0; i < result.length; i++) {
-            innerHtml += `<a href="/workspace/document/${
-              (result as WorkspaceElement[])[i]._id
-            }">${(result as WorkspaceElement[])[i].name}
-            </a>`;
-          }
-          const richContent = `<div class="attachments">
-            ${innerHtml}
-          </div>`;
-          editor?.commands.insertContentAt(
-            editor.view.state.selection,
-            richContent,
-          );
-          editor?.commands.enter();
-          break;
-        }
-
-        case "hyperlink": {
-          const resourceTabResult = result as ResourceTabResult;
-
-          editor?.commands.focus();
-          if (Array.isArray(resourceTabResult.resources)) {
-            // Case of internal link
-            resourceTabResult.resources.forEach((link) => {
-              // If no text is pre-selected,
-              if (editor.state.selection.empty) {
-                const from = editor.state.selection.head;
-                const to = from + link.name.length;
-                // Insert the name of the link and select it.
-                editor
-                  ?.chain()
-                  .insertContent(link.name)
-                  .setTextSelection({ from, to })
-                  .run();
-                // Add a link to it.
-                editor?.commands.setLinker({
-                  href: link.path,
-                  "data-app-prefix": link.application,
-                  "data-id": link.assetId,
-                  target: resourceTabResult.target ?? null,
-                  title: link.name,
-                });
-                // Cancel selection, so that next links are added afterward.
-                const newPosition = editor.state.selection.head;
-                editor.commands.setTextSelection({
-                  from: newPosition,
-                  to: newPosition,
-                });
-                if (
-                  resourceTabResult &&
-                  resourceTabResult.resources &&
-                  resourceTabResult.resources.length > 1
-                ) {
-                  editor.commands.enter();
-                }
-              } else {
-                // Add a link to selected text.
-                editor.commands.setLinker({
-                  href: link.path,
-                  "data-app-prefix": link.application,
-                  "data-id": link.assetId,
-                  target: resourceTabResult.target ?? null,
-                  title: link.name,
-                });
-              }
-            });
-          } else {
-            // TODO Case of external link
-            const richContent = "<p>TODO: external link</p>";
-            editor?.commands.insertContent(richContent);
-          }
-          break;
-        }
-
-        case "embedder": {
-          const richContent = `[useToolbarItems/toRichContent] TODO support embedded content`;
-          editor?.commands.insertContentAt(
-            editor.view.state.selection,
-            richContent,
-          );
-          editor?.commands.enter();
-          break;
-        }
-
-        default:
-          return `<div>[useToolbarItems/toRichContent] Le contenu de type "${type}" n'est pas convertissable pour l'instant !</div>`;
-      }
-    },
-    [editor],
-  );
-  return { toolbarItems, isOpen, setIsOpen, appendAsRichContent };
+  return { toolbarItems, isOpen, setIsOpen };
 };

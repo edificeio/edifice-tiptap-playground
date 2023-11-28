@@ -1,7 +1,15 @@
-import { useEffect, Suspense, lazy, useState, useCallback } from "react";
+import {
+  useEffect,
+  Suspense,
+  lazy,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 
+import { Hyperlink } from "@edifice-tiptap-extensions/extension-hyperlink";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
-import { Linker } from "@edifice-tiptap-extensions/extension-linker";
+import { LinkerAttributes } from "@edifice-tiptap-extensions/extension-linker";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import SpeechSynthesis from "@edifice-tiptap-extensions/extension-speechsynthesis";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
@@ -9,10 +17,12 @@ import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import {
+  IExternalLink,
   LoadingScreen,
   MediaLibrary,
+  MediaLibraryRef,
   MediaLibraryResult,
-  MediaLibraryType,
+  ResourceTabResult,
   TiptapWrapper,
   Toolbar,
   ToolbarItem,
@@ -23,7 +33,6 @@ import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
-import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
@@ -35,11 +44,16 @@ import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+// eslint-disable-next-line import/order
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
 
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
+import { WorkspaceElement } from "edifice-ts-client";
+
 import { AttachReact, TestAttachment } from "./AttachmentReact";
+import { LinkerNodeView } from "./LinkerNodeView";
+import LinkerToolbar from "./LinkerToolbar";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
@@ -93,8 +107,8 @@ const Tiptap = () => {
       IFrame,
       AttachReact(TestAttachment),
       Image,
-      Link,
-      Linker,
+      LinkerNodeView,
+      Hyperlink,
       FontFamily,
       Mathematics,
     ],
@@ -132,7 +146,7 @@ const Tiptap = () => {
         — Mom
       </blockquote>
       <p>
-        And now, an internal link : <a href="/blog/" title="A link" target="_blank" data-id="123456" data-app-prefix="magic">See it</a>
+        And now, an internal link : <a href="/blog" title="A link" target="_blank" data-id="123456" data-app-prefix="blog">See it</a>
       </p>
       <table>
           <tbody>
@@ -171,8 +185,7 @@ const Tiptap = () => {
       `,
   });
 
-  const [mediaLibraryType, setMediaLibraryType] =
-    useState<MediaLibraryType | null>(null);
+  const mediaLibraryRef = useRef<MediaLibraryRef>(null);
 
   const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
 
@@ -183,9 +196,9 @@ const Tiptap = () => {
   );
 
   /* A bouger ailleurs, à externaliser ? */
-  const { toolbarItems, appendAsRichContent } = useToolbarItems(
+  const { toolbarItems } = useToolbarItems(
     editor,
-    (type: MediaLibraryType | null) => setMediaLibraryType(type),
+    mediaLibraryRef,
     listOptions,
     alignmentOptions,
     options,
@@ -223,6 +236,188 @@ const Tiptap = () => {
     },
   ];
 
+  /**
+   * Convert the result of a successful action in MediaLibrary
+   * - to a call to the editor's dedicated command,
+   * or
+   * - to an HTML fragment of rich content + insert it.
+   *
+   * The inital result  depends on the MediaLibrary type.
+   */
+  const appendAsRichContent = useCallback(
+    (result: MediaLibraryResult) => {
+      const type = mediaLibraryRef.current?.type;
+      if (!type || !editor) return;
+
+      switch (mediaLibraryRef.current.type) {
+        // Image type => result is of type WorkspaceElement[]
+        case "image": {
+          const imgs = result as WorkspaceElement[];
+          imgs.forEach((img) => {
+            editor
+              ?.chain()
+              .focus()
+              .setImage({
+                src: `/workspace/document/${img._id}`,
+                alt: img.alt,
+                title: img.title,
+              })
+              .run();
+          });
+          break;
+        }
+
+        // Audio type => result is of type WorkspaceElement[]
+        case "audio": {
+          const sounds = result as WorkspaceElement[];
+          sounds.forEach((snd) => {
+            // TODO finaliser, voir WB-1992
+            const richContent = `<audio src="/workspace/document/${snd._id}" controls preload="none"/></audio>`;
+            editor?.commands.insertContentAt(
+              editor.view.state.selection,
+              richContent,
+            );
+            editor?.commands.enter();
+          });
+          break;
+        }
+
+        case "video": {
+          const video = result as WorkspaceElement;
+          editor
+            ?.chain()
+            .focus()
+            .setVideo(
+              video._id || "",
+              `/workspace/document/${video._id}`,
+              true,
+            );
+          break;
+        }
+
+        case "attachment": {
+          let innerHtml = "";
+          for (let i = 0; i < result.length; i++) {
+            innerHtml += `<a href="/workspace/document/${
+              (result as WorkspaceElement[])[i]._id
+            }">${(result as WorkspaceElement[])[i].name}
+            </a>`;
+          }
+          const richContent = `<div class="attachments">
+            ${innerHtml}
+          </div>`;
+          editor?.commands.insertContentAt(
+            editor.view.state.selection,
+            richContent,
+          );
+          editor?.commands.enter();
+          break;
+        }
+
+        case "hyperlink": {
+          const resourceTabResult = result as ResourceTabResult;
+
+          editor?.commands.focus();
+          if (
+            editor.state.selection.empty &&
+            Array.isArray(resourceTabResult.resources)
+          ) {
+            // One or more internal link(s) are rendered as a LinkerCard.
+            resourceTabResult.resources.forEach((link) => {
+              editor?.commands.setLinker({
+                href: link.path,
+                "data-app-prefix": link.application,
+                "data-id": link.assetId,
+                target: resourceTabResult.target ?? null,
+                title: link.name,
+              });
+              // Add next links afterward.
+              if (
+                resourceTabResult &&
+                resourceTabResult.resources &&
+                resourceTabResult.resources.length > 1
+              ) {
+                editor.commands.enter();
+              }
+            });
+          } else {
+            // Links are rendered as Hyperlinks
+            // Utility function
+            const insertAndSelectText = (name?: string) => {
+              if (!name) return;
+              const from = editor.state.selection.head;
+              const to = from + name.length;
+              editor
+                ?.chain()
+                .insertContent(name)
+                .setTextSelection({ from, to })
+                .run();
+            };
+
+            // *** Case of internal links ***
+            if (Array.isArray(resourceTabResult.resources)) {
+              if (editor.state.selection.empty) {
+                // No text is currently selected.
+                // => Insert the name of the first link and select it.
+                insertAndSelectText(resourceTabResult.resources[0].name);
+              }
+
+              resourceTabResult.resources.forEach((link) => {
+                // Add a hyperlink to the selection.
+                editor?.commands.setLink({
+                  href: link.path,
+                  target: resourceTabResult.target ?? null,
+                  title: link.name,
+                });
+                // Cancel selection, so that next links are added afterward.
+                const newPosition = editor.state.selection.head;
+                editor.commands.setTextSelection({
+                  from: newPosition,
+                  to: newPosition,
+                });
+                // Newline needed, unless it is the last link.
+                if (
+                  resourceTabResult?.resources &&
+                  resourceTabResult?.resources?.length > 1
+                ) {
+                  editor.commands.enter();
+                }
+              });
+            } else {
+              // *** Case of external link ***
+              const { url, target, text } = result as IExternalLink;
+              if (editor.state.selection.empty) {
+                // No text is currently selected.
+                // => Insert the name of the link and select it.
+                insertAndSelectText(text);
+              }
+              editor?.commands.setLink({
+                href: url,
+                title: text,
+                target,
+              });
+            }
+          }
+          break;
+        }
+
+        case "embedder": {
+          const richContent = `[useToolbarItems/toRichContent] TODO support embedded content`;
+          editor?.commands.insertContentAt(
+            editor.view.state.selection,
+            richContent,
+          );
+          editor?.commands.enter();
+          break;
+        }
+
+        default:
+          return `<div>[useToolbarItems/toRichContent] Le contenu de type "${type}" n'est pas convertissable pour l'instant !</div>`;
+      }
+    },
+    [editor],
+  );
+
   useEffect(() => {
     if (editor) {
       if (fileId) {
@@ -251,30 +446,47 @@ const Tiptap = () => {
     editor?.setEditable(editable);
   }, [editor, editable]);
 
-  const onMediaLibrarySuccess = useCallback(
-    (result: MediaLibraryResult) => {
-      if (mediaLibraryType) {
-        // Inject the MediaLibrary result into the editor.
-        appendAsRichContent(mediaLibraryType, result);
-
-        // Close the MediaLibrary
-        setMediaLibraryType(null);
-      }
-    },
-    [appendAsRichContent, mediaLibraryType],
-  );
-
-  const onMathsModalCancel = () => {
+  const handleMathsModalCancel = () => {
     toggleMathsModal();
   };
 
-  const onMathsModalSuccess = (formulaEditor: string) => {
+  const handleMathsModalSuccess = (formulaEditor: string) => {
     editor?.commands.insertContentAt(
       editor.view.state.selection,
       formulaEditor,
     );
     editor?.commands.enter();
     toggleMathsModal();
+  };
+
+  const handleMediaLibraryCancel = () => {
+    mediaLibraryRef.current?.hide();
+  };
+
+  const handleMediaLibrarySuccess = (result: MediaLibraryResult) => {
+    if (mediaLibraryRef.current?.type) {
+      // Inject the MediaLibrary result into the editor.
+      appendAsRichContent(result);
+
+      // Close the MediaLibrary
+      mediaLibraryRef.current?.hide();
+    }
+  };
+
+  const handleLinkerEdit = (attrs: LinkerAttributes) => {
+    mediaLibraryRef.current?.editInternalLink({
+      target: attrs.target,
+      resourceId: attrs["data-id"],
+      appPrefix: attrs["data-app-prefix"],
+    });
+  };
+
+  const handleLinkerOpen = (attrs: LinkerAttributes) => {
+    window.open(attrs.href || "about:blank", "_blank");
+  };
+
+  const handleLinkerUnlink = (/*attrs: LinkerAttributes*/) => {
+    editor?.commands.unsetLinker?.();
   };
 
   return (
@@ -303,14 +515,20 @@ const Tiptap = () => {
         />
       </TiptapWrapper>
 
+      <LinkerToolbar
+        editor={editor}
+        onEdit={handleLinkerEdit}
+        onOpen={handleLinkerOpen}
+        onUnlink={handleLinkerUnlink}
+      />
       <TableToolbar editor={editor} />
 
       <Suspense fallback={<LoadingScreen />}>
         <MediaLibrary
+          ref={mediaLibraryRef}
           appCode={appCode}
-          type={mediaLibraryType}
-          onCancel={() => setMediaLibraryType(null)}
-          onSuccess={onMediaLibrarySuccess}
+          onCancel={handleMediaLibraryCancel}
+          onSuccess={handleMediaLibrarySuccess}
         />
       </Suspense>
 
@@ -318,8 +536,8 @@ const Tiptap = () => {
         {isMathsModalOpen && (
           <MathsModal
             isOpen={isMathsModalOpen}
-            onCancel={onMathsModalCancel}
-            onSuccess={onMathsModalSuccess}
+            onCancel={handleMathsModalCancel}
+            onSuccess={handleMathsModalSuccess}
           />
         )}
       </Suspense>
