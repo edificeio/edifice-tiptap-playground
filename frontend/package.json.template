@@ -45,6 +45,7 @@
   },
   "dependencies": {
     "@edifice-tiptap-extensions/extension-attachment": "develop-b2school",
+    "@edifice-tiptap-extensions/extension-hyperlink": "develop-b2school",
     "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
     "@edifice-tiptap-extensions/extension-linker": "develop-b2school",
     "@edifice-tiptap-extensions/extension-speechrecognition": "develop-b2school",
