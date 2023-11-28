@@ -259,45 +259,42 @@ export const useToolbarItems = (
             <Dropdown.Menu>
               {[
                 {
-                  value: 2,
+                  value: "2",
                   label: t("Titre 1"),
                   className: "fs-2 fw-bold",
                 },
                 {
-                  value: 3,
+                  value: "3",
                   label: t("Titre 2"),
                   className: "fs-3 fw-bold",
                 },
                 {
-                  value: 4,
+                  value: "4",
                   label: t("Texte grand"),
                   className: "fs-4",
                 },
                 {
-                  value: 5,
+                  value: "5",
                   label: t("Texte normal"),
                 },
                 {
-                  value: 6,
+                  value: "6",
                   label: t("Texte petit"),
                   className: "fs-6",
                 },
-              ].map((option) => {
+              ].map(({ value, label, className }) => {
                 return (
-                  <Fragment key={option.label}>
+                  <Fragment key={value}>
                     <Dropdown.RadioItem
-                      value={option.value}
-                      model={size}
-                      onChange={(value: TypoSizeLevel) => {
-                        editor
-                          ?.chain()
-                          .focus()
-                          .toggleTypoSize({ level: value as TypoSizeLevel })
-                          .run();
-                        setSize(value);
+                      value={value}
+                      model={`${size}`}
+                      onChange={(newValue) => {
+                        const level = parseInt(newValue) as TypoSizeLevel;
+                        editor?.chain().focus().toggleTypoSize({ level }).run();
+                        setSize(level);
                       }}
                     >
-                      <span className={option.className}>{option.label}</span>
+                      <span className={className}>{label}</span>
                     </Dropdown.RadioItem>
                   </Fragment>
                 );
@@ -606,7 +603,10 @@ export const useToolbarItems = (
                     {option.type === "divider" ? (
                       <Dropdown.Separator />
                     ) : (
-                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      <Dropdown.Item
+                        icon={option.icon}
+                        onClick={() => option.action(null)}
+                      >
                         {option.label}
                       </Dropdown.Item>
                     )}
@@ -649,7 +649,10 @@ export const useToolbarItems = (
                     {option.type === "divider" ? (
                       <Dropdown.Separator />
                     ) : (
-                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      <Dropdown.Item
+                        icon={option.icon}
+                        onClick={() => option.action(null)}
+                      >
                         {option.label}
                       </Dropdown.Item>
                     )}
@@ -691,7 +694,10 @@ export const useToolbarItems = (
                     {option.type === "divider" ? (
                       <Dropdown.Separator />
                     ) : (
-                      <Dropdown.Item icon={option.icon} onClick={option.action}>
+                      <Dropdown.Item
+                        icon={option.icon}
+                        onClick={() => option.action(null)}
+                      >
                         {option.label}
                       </Dropdown.Item>
                     )}
