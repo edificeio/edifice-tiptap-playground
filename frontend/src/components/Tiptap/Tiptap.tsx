@@ -33,6 +33,7 @@ import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
@@ -52,11 +53,16 @@ import "~/styles/table.scss";
 import { WorkspaceElement } from "edifice-ts-client";
 
 import { AttachReact, TestAttachment } from "./AttachmentReact";
+import ImageEditMenu from "./ImageEditMenu";
 import { LinkerNodeView } from "./LinkerNodeView";
 import LinkerToolbar from "./LinkerToolbar";
+import { ImageResize, ResizableMedia } from "./ResizableMedia";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
+
+import "katex/dist/katex.min.css";
+import "~/styles/table.scss";
 
 export interface TiptapProps {
   appCode?: string;
@@ -106,9 +112,12 @@ const Tiptap = () => {
       Video,
       IFrame,
       AttachReact(TestAttachment),
-      Image,
       LinkerNodeView,
       Hyperlink,
+      ImageResize(ResizableMedia),
+      Image,
+      Video,
+      Link,
       FontFamily,
       Mathematics,
     ],
@@ -137,6 +146,7 @@ const Tiptap = () => {
           }
         </code>
       </pre>
+      <img width="200" height="150" src="https://images.unsplash.com/photo-1682685796186-1bb4a5655653?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="mon image" />
       <p>
         I know, I know, this is impressive. It's only the tip of the iceberg though. Give it a try and click a little bit around. Don't forget to check the other examples too.
       </p>
@@ -521,6 +531,8 @@ const Tiptap = () => {
         onOpen={handleLinkerOpen}
         onUnlink={handleLinkerUnlink}
       />
+      {editor && <ImageEditMenu editor={editor} />}
+
       <TableToolbar editor={editor} />
 
       <Suspense fallback={<LoadingScreen />}>
