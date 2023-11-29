@@ -1,3 +1,5 @@
+import { RefObject } from "react";
+
 import {
   TextVanilla,
   Superscript,
@@ -12,12 +14,13 @@ import {
   AlignRight,
   AlignJustify,
 } from "@edifice-ui/icons";
-import { DropdownMenuOptions } from "@edifice-ui/react";
+import { DropdownMenuOptions, MediaLibraryRef } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 
 export const useActionOptions = (
   editor: Editor | null,
   toggleMathsModal: Function,
+  mediaLibraryRef: RefObject<MediaLibraryRef>,
 ) => {
   const options: DropdownMenuOptions[] = [
     {
@@ -64,7 +67,7 @@ export const useActionOptions = (
     {
       icon: <Code />,
       label: "Élément embed/iframe",
-      action: () => console.log("click"),
+      action: () => mediaLibraryRef.current?.show("embedder"),
     },
   ];
   const listOptions: DropdownMenuOptions[] = [

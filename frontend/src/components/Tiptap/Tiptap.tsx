@@ -193,6 +193,7 @@ const Tiptap = () => {
   const [options, listOptions, alignmentOptions] = useActionOptions(
     editor,
     toggleMathsModal,
+    mediaLibraryRef,
   );
 
   /* A bouger ailleurs, à externaliser ? */
