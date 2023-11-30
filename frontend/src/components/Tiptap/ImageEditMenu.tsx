@@ -14,7 +14,7 @@ const ImageEditMenu = ({ editor }: { editor: any }) => {
   const buttonSizeList = [
     {
       icon: <ImageSizeSmall />,
-      taille: "small",
+      sizeName: "small",
       size: {
         width: 250,
         height: "auto",
@@ -22,7 +22,7 @@ const ImageEditMenu = ({ editor }: { editor: any }) => {
     },
     {
       icon: <ImageSizeMedium />,
-      taille: "medium",
+      sizeName: "medium",
       size: {
         width: 350,
         height: "auto",
@@ -30,7 +30,7 @@ const ImageEditMenu = ({ editor }: { editor: any }) => {
     },
     {
       icon: <ImageSizeLarge />,
-      taille: "large",
+      sizeName: "large",
       size: {
         width: 500,
         height: "auto",
@@ -43,9 +43,9 @@ const ImageEditMenu = ({ editor }: { editor: any }) => {
       .chain()
       .focus()
       .setAttributes({
-        width: buttonSize.width,
-        height: buttonSize.height,
-        size: buttonSize.taille,
+        width: buttonSize.size.width,
+        height: buttonSize.size.height,
+        size: buttonSize.sizeName,
       })
       .run();
   };
@@ -71,11 +71,13 @@ const ImageEditMenu = ({ editor }: { editor: any }) => {
             key={index}
             icon={button.icon}
             variant={
-              editor.view.state.selection.node?.attrs?.size === button.taille
+              editor.view.state.selection.node?.attrs?.size === button.sizeName
                 ? "filled"
                 : "ghost"
             }
-            onClick={() => handleButtonClick(button.size)}
+            onClick={() => {
+              handleButtonClick(button);
+            }}
           />
         ))}
       </div>
