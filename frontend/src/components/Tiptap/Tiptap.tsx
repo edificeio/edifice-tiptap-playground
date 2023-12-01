@@ -319,7 +319,12 @@ const Tiptap = () => {
 
         case "hyperlink": {
           const resourceTabResult = result as InternalLinkTabResult;
+          // Cancel any pre-selected link, see handleLinkEdit()
+          if (editor?.isActive("linker")) editor.commands.unsetLinker();
+          if (editor?.isActive("hyperlink"))
+            editor.commands.toggleMark("hyperlink");
 
+          // Manage new links
           editor?.commands.focus();
           if (
             editor.state.selection.empty &&
@@ -367,7 +372,7 @@ const Tiptap = () => {
 
               resourceTabResult.resources.forEach((link) => {
                 // Add a hyperlink to the selection.
-                editor?.commands.toggleLink({
+                editor?.commands.setLink({
                   href: link.path,
                   target: resourceTabResult.target ?? null,
                 });
@@ -476,6 +481,11 @@ const Tiptap = () => {
   };
 
   const handleLinkEdit = (attrs: LinkerAttributes | HyperlinkAttributes) => {
+    // If a link is active, select it.
+    if (editor?.isActive("linker")) editor.commands.selectParentNode();
+    if (editor?.isActive("hyperlink"))
+      editor.commands.extendMarkRange("hyperlink");
+
     const attrsLinker = attrs as LinkerAttributes;
     if (attrsLinker["data-id"] || attrsLinker["data-app-prefix"]) {
       mediaLibraryRef.current?.editLink({
