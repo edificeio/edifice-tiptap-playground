@@ -509,6 +509,7 @@ const Tiptap = () => {
 
   const handleLinkUnlink = (/*attrs: LinkerAttributes*/) => {
     editor?.commands.unsetLinker?.();
+    editor?.commands.unsetLink?.();
   };
 
   return (
