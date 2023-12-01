@@ -5,7 +5,7 @@ import { Toolbar, ToolbarItem } from "@edifice-ui/react";
 import { FloatingMenu, FloatingMenuProps, Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
-interface LinkerToolbarProps {
+interface LinkToolbarProps {
   /**
    * editor instance
    */
@@ -18,63 +18,26 @@ interface LinkerToolbarProps {
   onUnlink: (attrs: any) => void;
 }
 
-const LinkerToolbar = ({
+const LinkToolbar = ({
   editor,
   onEdit,
   onOpen,
   onUnlink,
-}: LinkerToolbarProps) => {
+}: LinkToolbarProps) => {
   const { t } = useTranslation();
 
-  // Current Linker node attributes
-  const [linkerAttrs, setLinkerAttrs] = useState<
-    Record<string, any> | undefined
-  >();
+  // Current Linker node (or Hyperlink mark) attributes
+  const [linkAttrs, setLinkAttrs] = useState<Record<string, any> | undefined>();
 
-  const LinkerToolbarItems: ToolbarItem[] = useMemo(() => {
+  const LinkToolbarItems: ToolbarItem[] = useMemo(() => {
     return [
-      /* FIXME KISS or die
-      {
-        type: "dropdown",
-        name: "display",
-        props: {
-          children: (
-            <>
-              <Dropdown.Trigger
-                size="sm"
-                variant="ghost"
-                label={t("Affichage")}
-              />
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  key="simple"
-                  onClick={() => handleDisplayChange("simple")}
-                >
-                  {t("Simplifié")}
-                </Dropdown.Item>
-                <Dropdown.Item
-                  key="url"
-                  onClick={() => handleDisplayChange("url")}
-                >
-                  {t("URL")}
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </>
-          ),
-        },
-      },
-      {
-        type: "divider",
-        name: "d0",
-      },
-      */
       {
         type: "icon",
         name: "edit",
         props: {
           icon: <Edit />,
           "aria-label": t("Modifier"),
-          onClick: () => onEdit?.(linkerAttrs),
+          onClick: () => onEdit?.(linkAttrs),
         },
       },
       {
@@ -83,7 +46,7 @@ const LinkerToolbar = ({
         props: {
           icon: <ExternalLink />,
           "aria-label": t("Ouvrir dans un nouvel onglet"),
-          onClick: () => onOpen?.(linkerAttrs),
+          onClick: () => onOpen?.(linkAttrs),
         },
       },
       {
@@ -92,17 +55,19 @@ const LinkerToolbar = ({
         props: {
           icon: <Unlink className="text-danger" />,
           "aria-label": t("Ouvrir dans un nouvel onglet"),
-          onClick: () => onUnlink?.(linkerAttrs),
+          onClick: () => onUnlink?.(linkAttrs),
         },
       },
     ];
-  }, [onEdit, onOpen, onUnlink, t, linkerAttrs]);
+  }, [onEdit, onOpen, onUnlink, t, linkAttrs]);
 
   // Retrieve any selected linker node ONLY WHEN EDITOR STRATE CHANGES
   useEffect(() => {
-    setLinkerAttrs(
-      editor?.isActive("linker") ? editor.getAttributes("linker") : undefined,
-    );
+    if (editor?.isActive("linker"))
+      setLinkAttrs(editor.getAttributes("linker"));
+    else if (editor?.isActive("hyperlink"))
+      setLinkAttrs(editor.getAttributes("hyperlink"));
+    else setLinkAttrs(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor?.state]);
 
@@ -113,19 +78,22 @@ const LinkerToolbar = ({
     zIndex: 999,
   };
 
+  const handleShouldShow = () =>
+    editor?.isActive("linker") || editor?.isActive("hyperlink") || false;
+
   return (
     <>
       {editor && (
         <FloatingMenu
           editor={editor}
           tippyOptions={tippyOptions}
-          shouldShow={() => editor.isActive("linker")}
+          shouldShow={handleShouldShow}
         >
-          <Toolbar className="p-4" items={LinkerToolbarItems} />
+          <Toolbar className="p-4" items={LinkToolbarItems} />
         </FloatingMenu>
       )}
     </>
   );
 };
 
-export default LinkerToolbar;
+export default LinkToolbar;

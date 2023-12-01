@@ -7,7 +7,10 @@ import {
   useRef,
 } from "react";
 
-import { Hyperlink } from "@edifice-tiptap-extensions/extension-hyperlink";
+import {
+  Hyperlink,
+  HyperlinkAttributes,
+} from "@edifice-tiptap-extensions/extension-hyperlink";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
 import { LinkerAttributes } from "@edifice-tiptap-extensions/extension-linker";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
@@ -22,7 +25,7 @@ import {
   MediaLibrary,
   MediaLibraryRef,
   MediaLibraryResult,
-  ResourceTabResult,
+  InternalLinkTabResult,
   TiptapWrapper,
   Toolbar,
   ToolbarItem,
@@ -53,7 +56,7 @@ import { WorkspaceElement } from "edifice-ts-client";
 
 import { AttachReact, TestAttachment } from "./AttachmentReact";
 import { LinkerNodeView } from "./LinkerNodeView";
-import LinkerToolbar from "./LinkerToolbar";
+import LinkToolbar from "./LinkToolbar";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
@@ -316,8 +319,13 @@ const Tiptap = () => {
         }
 
         case "hyperlink": {
-          const resourceTabResult = result as ResourceTabResult;
+          const resourceTabResult = result as InternalLinkTabResult;
+          // Cancel any pre-selected link, see handleLinkEdit()
+          if (editor?.isActive("linker")) editor.commands.unsetLinker();
+          if (editor?.isActive("hyperlink"))
+            editor.commands.toggleMark("hyperlink");
 
+          // Manage new links
           editor?.commands.focus();
           if (
             editor.state.selection.empty &&
@@ -368,7 +376,6 @@ const Tiptap = () => {
                 editor?.commands.setLink({
                   href: link.path,
                   target: resourceTabResult.target ?? null,
-                  title: link.name,
                 });
                 // Cancel selection, so that next links are added afterward.
                 const newPosition = editor.state.selection.head;
@@ -474,20 +481,36 @@ const Tiptap = () => {
     }
   };
 
-  const handleLinkerEdit = (attrs: LinkerAttributes) => {
-    mediaLibraryRef.current?.editInternalLink({
-      target: attrs.target,
-      resourceId: attrs["data-id"],
-      appPrefix: attrs["data-app-prefix"],
-    });
+  const handleLinkEdit = (attrs: LinkerAttributes | HyperlinkAttributes) => {
+    // If a link is active, select it.
+    if (editor?.isActive("linker")) editor.commands.selectParentNode();
+    if (editor?.isActive("hyperlink"))
+      editor.commands.extendMarkRange("hyperlink");
+
+    const attrsLinker = attrs as LinkerAttributes;
+    if (attrsLinker["data-id"] || attrsLinker["data-app-prefix"]) {
+      mediaLibraryRef.current?.editLink({
+        target: attrs.target,
+        resourceId: attrsLinker["data-id"],
+        appPrefix: attrsLinker["data-app-prefix"],
+      });
+    } else {
+      const { href, target, title } = attrs as HyperlinkAttributes;
+      mediaLibraryRef.current?.editLink({
+        url: href || "",
+        target: target || undefined,
+        text: title || undefined,
+      });
+    }
   };
 
-  const handleLinkerOpen = (attrs: LinkerAttributes) => {
+  const handleLinkOpen = (attrs: LinkerAttributes) => {
     window.open(attrs.href || "about:blank", "_blank");
   };
 
-  const handleLinkerUnlink = (/*attrs: LinkerAttributes*/) => {
+  const handleLinkUnlink = (/*attrs: LinkerAttributes*/) => {
     editor?.commands.unsetLinker?.();
+    editor?.commands.unsetLink?.();
   };
 
   return (
@@ -516,12 +539,13 @@ const Tiptap = () => {
         />
       </TiptapWrapper>
 
-      <LinkerToolbar
+      <LinkToolbar
         editor={editor}
-        onEdit={handleLinkerEdit}
-        onOpen={handleLinkerOpen}
-        onUnlink={handleLinkerUnlink}
+        onEdit={handleLinkEdit}
+        onOpen={handleLinkOpen}
+        onUnlink={handleLinkUnlink}
       />
+
       <TableToolbar editor={editor} />
 
       <Suspense fallback={<LoadingScreen />}>
