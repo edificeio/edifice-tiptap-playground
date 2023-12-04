@@ -286,16 +286,19 @@ const Tiptap = () => {
           break;
         }
 
+        // Video type => result is of type WorkspaceElement[]
         case "video": {
-          const video = result as WorkspaceElement;
-          editor
-            ?.chain()
-            .focus()
-            .setVideo(
-              video._id || "",
-              `/workspace/document/${video._id}`,
-              true,
-            );
+          const videos = result as WorkspaceElement[];
+          videos.forEach((video) => {
+            editor
+              ?.chain()
+              .focus()
+              .setVideo(
+                video._id || "",
+                `/workspace/document/${video._id}`,
+                true,
+              );
+          });
           break;
         }
 
