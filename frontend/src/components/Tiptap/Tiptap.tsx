@@ -34,6 +34,9 @@ import {
   BubbleMenuEditImage,
   MediaWrapper,
   AttachmentRenderer,
+  AttachmentNodeView,
+  ImageNodeView,
+  VideoNodeView,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -57,12 +60,9 @@ import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
 import { WorkspaceElement } from "edifice-ts-client";
 
-import AttachmentView from "./AttachmentNodeView";
-import ImageResize from "./ImageNodeView";
 import LinkerNodeView from "./LinkerNodeView";
 import LinkToolbar from "./LinkToolbar";
 import TableToolbar from "./TableToolbar";
-import VideoResize from "./VideoNodeView";
 import { useActionOptions } from "~/hooks/useActionOptions";
 // eslint-disable-next-line import/order
 import { useToolbarItems } from "~/hooks/useToolbarItems";
@@ -117,11 +117,11 @@ const Tiptap = () => {
       }),
       Video,
       IFrame,
-      AttachmentView(AttachmentRenderer),
+      AttachmentNodeView(AttachmentRenderer),
       LinkerNodeView,
       Hyperlink,
-      ImageResize(MediaWrapper),
-      VideoResize(MediaWrapper),
+      ImageNodeView(MediaWrapper),
+      VideoNodeView(MediaWrapper),
       Link,
       FontFamily,
       Mathematics,
