@@ -63,36 +63,3 @@
   cursor: ew-resize;
   cursor: col-resize;
 }
-
-.media-node-view .horizontal-resize-handle {
-  bottom: 0px;
-  left: 0px;
-  height: 1rem;
-  width: 100%;
-  cursor: row-resize;
-  position: absolute;
-}
-
-.media-node-view .vertical-resize-handle {
-  top: 0px;
-  right: 0px;
-  height: 100%;
-  width: 1rem;
-  cursor: col-resize;
-  position: absolute;
-}
-
-.media-node-view .horizontal-resize-handle:hover,
-.media-node-view .vertical-resize-handle:hover {
-  --tw-bg-opacity: 1;
-  background-color: rgb(191 219 254 / var(--tw-bg-opacity));
-}
-
-.buble-menu {
-  background-color: #fff;
-  border-radius: 16px;
-  display: flex;
-  gap: 8px;
-  padding: 8px;
-  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.15);
-}
