@@ -31,6 +31,9 @@ import {
   ToolbarItem,
   useOdeClient,
   useToggle,
+  BubbleMenuEditImage,
+  MediaWrapper,
+  AttachmentRenderer,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -45,7 +48,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 // eslint-disable-next-line import/order
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
@@ -54,20 +57,18 @@ import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
 import { WorkspaceElement } from "edifice-ts-client";
 
-import { AttachReact, TestAttachment } from "./AttachmentReact";
-import ImageEditMenu from "./ImageEditMenu";
-import { LinkerNodeView } from "./LinkerNodeView";
+import AttachmentView from "./AttachmentNodeView";
+import ImageResize from "./ImageNodeView";
+import LinkerNodeView from "./LinkerNodeView";
 import LinkToolbar from "./LinkToolbar";
 import TableToolbar from "./TableToolbar";
-import { ImageResize, WrapperResizeImage } from "./WrapperResizeImage";
+import VideoResize from "./VideoNodeView";
 import { useActionOptions } from "~/hooks/useActionOptions";
 // eslint-disable-next-line import/order
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
-// eslint-disable-next-line import/order
-import { VideoResize, WrapperResizeVideo } from "./WrapperResizeVideo";
 
 export interface TiptapProps {
   appCode?: string;
@@ -116,11 +117,11 @@ const Tiptap = () => {
       }),
       Video,
       IFrame,
-      AttachReact(TestAttachment),
+      AttachmentView(AttachmentRenderer),
       LinkerNodeView,
       Hyperlink,
-      ImageResize(WrapperResizeImage),
-      VideoResize(WrapperResizeVideo),
+      ImageResize(MediaWrapper),
+      VideoResize(MediaWrapper),
       Link,
       FontFamily,
       Mathematics,
@@ -557,7 +558,15 @@ const Tiptap = () => {
         onOpen={handleLinkOpen}
         onUnlink={handleLinkUnlink}
       />
-      {editor && <ImageEditMenu editor={editor} />}
+      {editor && (
+        <BubbleMenu
+          shouldShow={({ editor }) => editor.isActive("custom-image")}
+          editor={editor}
+          tippyOptions={{ duration: 100 }}
+        >
+          <BubbleMenuEditImage editor={editor} />
+        </BubbleMenu>
+      )}
 
       <TableToolbar editor={editor} />
 
