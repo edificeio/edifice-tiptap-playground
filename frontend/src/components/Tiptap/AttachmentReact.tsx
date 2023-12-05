@@ -58,14 +58,15 @@ export const TestAttachment = (props: AttachmentProps) => {
                   name={attachment.name}
                   options={
                     <>
-                      <IconButton
-                        aria-label={t("download")}
-                        color="tertiary"
-                        type="button"
-                        icon={<Download />}
-                        variant="ghost"
-                        onClick={() => window.open(attachment.href)}
-                      />
+                      <a href={attachment.href} download>
+                        <IconButton
+                          aria-label={t("download")}
+                          color="tertiary"
+                          type="button"
+                          icon={<Download />}
+                          variant="ghost"
+                        />
+                      </a>
                       <IconButton
                         aria-label={t("explorer.delete")}
                         color="danger"
