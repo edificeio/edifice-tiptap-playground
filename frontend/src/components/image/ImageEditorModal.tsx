@@ -13,7 +13,11 @@ interface ImageEditorProps {
   legend?: string;
   altText?: string;
   onCancel(): void;
-  onSave(arg: { blob: Blob; legend: string; altText: string }): void;
+  onSave(arg: {
+    blob: Blob;
+    legend: string;
+    altText: string;
+  }): void | Promise<void>;
   onError?(err: string): void;
 }
 const ImageEditor: React.FC<ImageEditorProps> = ({
@@ -28,6 +32,7 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const [currentOperation, setCurrentOperation] = useState<
     ImageEditorAction | undefined
   >(undefined);
+  const [isLoading, setLoading] = useState(false);
   const [altText, setAltText] = useState(altTextParam ?? "");
   const [legend, setLegend] = useState(legendParam ?? "");
   const [dirty, setDirty] = useState<boolean>(false);
@@ -48,9 +53,12 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
   const handleSave = async () => {
     try {
       const blob = await toBlob();
-      onSave({ blob, altText, legend });
+      setLoading(true);
+      await onSave({ blob, altText, legend });
     } catch (e) {
       onError?.(`${e}`);
+    } finally {
+      setLoading(false);
     }
   };
   const handleCancel = () => {
@@ -143,7 +151,8 @@ const ImageEditor: React.FC<ImageEditorProps> = ({
           onClick={handleSave}
           type="button"
           variant="filled"
-          disabled={!dirty}
+          isLoading={isLoading}
+          disabled={isLoading || !dirty}
         >
           {"Enregistrer"}
         </Button>

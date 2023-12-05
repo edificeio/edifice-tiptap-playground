@@ -128,6 +128,10 @@ const usePixiEditor = ({ imageSrc }: { imageSrc: string }) => {
     setImage({ imageSrc });
   }, [imageSrc, setImage]);
   const toBlob = () => {
+    // remove control before generating blob
+    stopBlur();
+    stopCrop(true);
+    stopResize(true);
     return new Promise<Blob>((resolve, reject) => {
       application?.view?.toBlob?.((blob) => {
         blob ? resolve(blob) : reject("EXTRACT_FAILED");

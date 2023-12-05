@@ -43,9 +43,11 @@ import { AttachReact, TestAttachment } from "./AttachmentReact";
 import ImageExtension from "./ImageExtension";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
+import { useImageSelected } from "~/hooks/useImageSelected";
 import { useToolbarItems } from "~/hooks/useToolbarItems";
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
+import { useWorkspace } from "~/hooks/useWorkspace";
 
 export interface TiptapProps {
   appCode?: string;
@@ -62,6 +64,7 @@ const ImageEditorModal = lazy(
 const Tiptap = () => {
   const { appCode, currentLanguage } = useOdeClient();
   const [editable, toggleEditable] = useToggle(true);
+  const { createOrUpdate } = useWorkspace();
   const [speechSynthetisis, setSpeechSynthetisis] = useState<boolean>(false);
 
   const queryParameters = new URLSearchParams(window.location.search);
@@ -187,7 +190,9 @@ const Tiptap = () => {
 
   const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
   const [isImageModalOpen, toggleImageModal] = useToggle(false);
-  const [imageSrc, setImageSrc] = useState<string>("");
+  const [currentImage, setCurrentImage] = useState<
+    { src: string; alt?: string; title?: string } | undefined
+  >(undefined);
 
   /* A bouger ailleurs, à externaliser ? */
   const [options, listOptions, alignmentOptions] = useActionOptions(
@@ -289,10 +294,28 @@ const Tiptap = () => {
     editor?.commands.enter();
     toggleMathsModal();
   };
-
-  const onImageModalSuccess = ({ blob }: { blob: Blob }) => {
+  const { setAttributes } = useImageSelected(editor);
+  const onImageModalSuccess = async ({
+    blob,
+    legend,
+    altText: alt,
+  }: {
+    blob: Blob;
+    legend: string;
+    altText: string;
+  }) => {
+    const url = await createOrUpdate({
+      blob,
+      legend,
+      alt,
+      uri: currentImage?.src,
+    });
     toggleImageModal();
-    console.log("BLOB", blob);
+    setAttributes({
+      url,
+      alt,
+      title: legend,
+    });
   };
 
   const onImageModalCancel = () => {
@@ -349,16 +372,18 @@ const Tiptap = () => {
           <ImageBubbleMenu
             editor={editor}
             onEdit={(src) => {
-              setImageSrc(src);
+              setCurrentImage(src);
               toggleImageModal();
             }}
           />
         </Suspense>
       )}
       <Suspense fallback={<LoadingScreen />}>
-        {isImageModalOpen && (
+        {isImageModalOpen && currentImage && (
           <ImageEditorModal
-            image={imageSrc}
+            altText={currentImage.alt}
+            legend={currentImage.title}
+            image={currentImage.src}
             isOpen={isImageModalOpen}
             onCancel={onImageModalCancel}
             onSave={onImageModalSuccess}
