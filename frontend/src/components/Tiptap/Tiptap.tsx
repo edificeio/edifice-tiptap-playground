@@ -65,12 +65,10 @@ export interface TiptapProps {
   appCode?: string;
 }
 
-const MathsModal = lazy(
-  async () =>
-    await import("@edifice-ui/react").then((module) => {
-      return { default: module.MathsModal };
-    }),
-);
+const MathsModal = lazy(async () => {
+  const module = await import("@edifice-ui/react");
+  return { default: module.MathsModal };
+});
 
 const Tiptap = () => {
   const { appCode, currentLanguage } = useOdeClient();
