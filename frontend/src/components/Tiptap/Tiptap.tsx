@@ -115,8 +115,8 @@ const Tiptap = () => {
             ? `${currentLanguage}-${currentLanguage.toUpperCase()}`
             : "fr-FR",
       }),
-      Video,
       IFrame,
+      Video,
       AttachmentNodeView(AttachmentRenderer),
       LinkerNodeView,
       Hyperlink,
