@@ -10,4 +10,3 @@ const LinkerNodeView = Linker.extend({
 });
 
 export default LinkerNodeView;
-export { LinkerNodeView };

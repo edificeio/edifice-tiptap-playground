@@ -31,11 +31,17 @@ import {
   ToolbarItem,
   useOdeClient,
   useToggle,
+  BubbleMenuEditImage,
+  MediaWrapper,
+  AttachmentRenderer,
+  AttachmentNodeView,
+  ImageNodeView,
+  VideoNodeView,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
-import Image from "@tiptap/extension-image";
+import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
@@ -45,7 +51,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 // eslint-disable-next-line import/order
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
@@ -54,12 +60,15 @@ import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
 import { WorkspaceElement } from "edifice-ts-client";
 
-import { AttachReact, TestAttachment } from "./AttachmentReact";
-import { LinkerNodeView } from "./LinkerNodeView";
+import LinkerNodeView from "./LinkerNodeView";
 import LinkToolbar from "./LinkToolbar";
 import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
+// eslint-disable-next-line import/order
 import { useToolbarItems } from "~/hooks/useToolbarItems";
+
+import "katex/dist/katex.min.css";
+import "~/styles/table.scss";
 
 export interface TiptapProps {
   appCode?: string;
@@ -109,12 +118,14 @@ const Tiptap = () => {
             ? `${currentLanguage}-${currentLanguage.toUpperCase()}`
             : "fr-FR",
       }),
-      Video,
       IFrame,
-      AttachReact(TestAttachment),
-      Image,
+      Video,
+      AttachmentNodeView(AttachmentRenderer),
       LinkerNodeView,
       Hyperlink,
+      ImageNodeView(MediaWrapper),
+      VideoNodeView(MediaWrapper),
+      Link,
       FontFamily,
       Mathematics,
     ],
@@ -143,6 +154,7 @@ const Tiptap = () => {
           }
         </code>
       </pre>
+      <img width="400" height="150" src="https://images.unsplash.com/photo-1682685796186-1bb4a5655653?ixlib=rb-4.0.3&ixid=M3wxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80" alt="mon image" />
       <p>
         I know, I know, this is impressive. It's only the tip of the iceberg though. Give it a try and click a little bit around. Don't forget to check the other examples too.
       </p>
@@ -268,6 +280,7 @@ const Tiptap = () => {
                 src: `/workspace/document/${img._id}`,
                 alt: img.alt,
                 title: img.title,
+                ["media-type"]: "img",
               })
               .run();
           });
@@ -551,6 +564,15 @@ const Tiptap = () => {
         onOpen={handleLinkOpen}
         onUnlink={handleLinkUnlink}
       />
+      {editor && (
+        <BubbleMenu
+          shouldShow={({ editor }) => editor.isActive("custom-image")}
+          editor={editor}
+          tippyOptions={{ duration: 100 }}
+        >
+          <BubbleMenuEditImage editor={editor} />
+        </BubbleMenu>
+      )}
 
       <TableToolbar editor={editor} />
 
