@@ -138,7 +138,7 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
             triggerProps: JSX.IntrinsicAttributes &
               Omit<IconButtonProps, "ref"> &
               RefAttributes<HTMLButtonElement>,
-            itemRefs,
+            itemRefs: any,
           ) => (
             <>
               <Dropdown.Trigger
@@ -159,10 +159,10 @@ const TableToolbar = ({ editor }: TableToolbarProps) => {
               />
               <Dropdown.Menu>
                 <ColorPicker
-                  ref={(el) => (itemRefs.current["color-picker"] = el)}
+                  ref={(el: any) => (itemRefs.current["color-picker"] = el)}
                   model={backgroundColor}
                   palettes={[cellBackgroundPalette]}
-                  onSuccess={(item) => {
+                  onSuccess={(item: any) => {
                     editor
                       ?.chain()
                       .focus()

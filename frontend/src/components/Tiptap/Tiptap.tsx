@@ -18,6 +18,7 @@ import SpeechSynthesis from "@edifice-tiptap-extensions/extension-speechsynthesi
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
+import "@edifice-tiptap-extensions/extension-image";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import {
   IExternalLink,
@@ -37,6 +38,8 @@ import {
   AttachmentNodeView,
   ImageNodeView,
   VideoNodeView,
+  useImageSelection,
+  useWorkspaceFile,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -77,6 +80,11 @@ export interface TiptapProps {
 const MathsModal = lazy(async () => {
   const module = await import("@edifice-ui/react");
   return { default: module.MathsModal };
+});
+
+const ImageEditor = lazy(async () => {
+  const module = await import("@edifice-ui/react");
+  return { default: module.ImageEditor };
 });
 
 const Tiptap = () => {
@@ -538,7 +546,42 @@ const Tiptap = () => {
     editor?.commands.unsetLinker?.();
     editor?.commands.unsetLink?.();
   };
+  // Image modal state
+  const [isImageModalOpen, toggleImageModal] = useToggle(false);
+  const [currentImage, setCurrentImage] = useState<
+    { src: string; alt?: string; title?: string } | undefined
+  >(undefined);
+  // Use hook to createOrUpdate image
+  const { createOrUpdate } = useWorkspaceFile();
+  // Use hook to get selected images
+  const { setAttributes, getSelection } = useImageSelection(editor);
+  // Callback when image has been edited
+  const onImageModalSuccess = async ({
+    blob,
+    legend,
+    altText: alt,
+  }: {
+    blob: Blob;
+    legend: string;
+    altText: string;
+  }) => {
+    const url = await createOrUpdate({
+      blob,
+      legend,
+      alt,
+      uri: currentImage?.src,
+    });
+    toggleImageModal();
+    setAttributes({
+      url,
+      alt,
+      title: legend,
+    });
+  };
 
+  const onImageModalCancel = () => {
+    toggleImageModal();
+  };
   return (
     <>
       <Toolbar
@@ -573,11 +616,23 @@ const Tiptap = () => {
       />
       {editor && (
         <BubbleMenu
-          shouldShow={({ editor }) => editor.isActive("custom-image")}
+          className={isImageModalOpen ? "d-none" : ""}
+          shouldShow={({ editor }) => {
+            return editor.isActive("custom-image") && !isImageModalOpen;
+          }}
           editor={editor}
           tippyOptions={{ duration: 100 }}
         >
-          <BubbleMenuEditImage editor={editor} />
+          <BubbleMenuEditImage
+            editor={editor}
+            onEditImage={() => {
+              const selected = getSelection()[0];
+              if (selected) {
+                setCurrentImage(selected);
+                toggleImageModal();
+              }
+            }}
+          />
         </BubbleMenu>
       )}
 
@@ -598,6 +653,20 @@ const Tiptap = () => {
             isOpen={isMathsModalOpen}
             onCancel={handleMathsModalCancel}
             onSuccess={handleMathsModalSuccess}
+          />
+        )}
+      </Suspense>
+
+      <Suspense fallback={<LoadingScreen />}>
+        {isImageModalOpen && currentImage && (
+          <ImageEditor
+            altText={currentImage.alt}
+            legend={currentImage.title}
+            image={currentImage.src}
+            isOpen={isImageModalOpen}
+            onCancel={onImageModalCancel}
+            onSave={onImageModalSuccess}
+            onError={console.error}
           />
         )}
       </Suspense>
