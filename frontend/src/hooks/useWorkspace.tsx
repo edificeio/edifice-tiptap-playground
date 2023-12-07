@@ -18,6 +18,7 @@ export function useWorkspace() {
   }) => {
     const regex = /\/workspace\/document\/([0-9a-fA-F-]+)/;
     const matches = (uri ?? "").match(regex);
+    console.log("MATCH", matches, matches?.length);
     if (matches && matches.length === 2) {
       const uuid = matches[1];
       await odeServices.workspace().updateFile(uuid, blob, { alt, legend });

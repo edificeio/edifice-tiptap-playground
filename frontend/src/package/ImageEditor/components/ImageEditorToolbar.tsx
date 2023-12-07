@@ -5,11 +5,11 @@ import { Button } from "@edifice-ui/react";
 import { t } from "i18next";
 
 export type ImageEditorAction = "ROTATE" | "UNDO" | "CROP" | "BLUR" | "RESIZE";
-interface ImageEditorMenuProps {
+interface ImageEditorToolbarProps {
   handle(operation: ImageEditorAction): void;
 }
 
-const ImageEditorMenu: React.FC<ImageEditorMenuProps> = ({ handle }) => {
+const ImageEditorToolbar: React.FC<ImageEditorToolbarProps> = ({ handle }) => {
   const [action, setAction] = useState<ImageEditorAction | undefined>(
     undefined,
   );
@@ -71,4 +71,4 @@ const ImageEditorMenu: React.FC<ImageEditorMenuProps> = ({ handle }) => {
     </div>
   );
 };
-export default ImageEditorMenu;
+export default ImageEditorToolbar;

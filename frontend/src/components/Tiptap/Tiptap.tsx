@@ -57,8 +57,8 @@ const MathsModal = lazy(async () => await import("./MathsModal"));
 const ImageBubbleMenu = lazy(
   async () => await import("../image/ImageBubbleMenu"),
 );
-const ImageEditorModal = lazy(
-  async () => await import("../image/ImageEditorModal"),
+const ImageEditor = lazy(
+  async () => await import("~/package/ImageEditor/components/ImageEditor"),
 );
 
 const Tiptap = () => {
@@ -380,7 +380,7 @@ const Tiptap = () => {
       )}
       <Suspense fallback={<LoadingScreen />}>
         {isImageModalOpen && currentImage && (
-          <ImageEditorModal
+          <ImageEditor
             altText={currentImage.alt}
             legend={currentImage.title}
             image={currentImage.src}
