@@ -24,7 +24,7 @@ export const LinkerRenderer = ({ editor, selected, ...props }: LinkerProps) => {
   } = props.node.attrs;
 
   const classes = clsx(
-    "align-middle",
+    "align-middle badge-linker",
     className,
     selected && "bg-secondary-200",
   );
@@ -33,7 +33,7 @@ export const LinkerRenderer = ({ editor, selected, ...props }: LinkerProps) => {
     <NodeViewWrapper as={"span"}>
       <Badge variant={{ type: "link" }} className={classes} data-drag-handle>
         <AppIcon size="24" app={appCode} />
-        <NodeViewContent className="ms-8" contentEditable={false} as={"span"} />
+        <span className="ms-8 text-truncate">{title}</span>
       </Badge>
     </NodeViewWrapper>
   );
