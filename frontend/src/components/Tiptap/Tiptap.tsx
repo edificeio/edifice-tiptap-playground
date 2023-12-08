@@ -164,7 +164,7 @@ const Tiptap = () => {
         — Mom
       </blockquote>
       <p>
-        And now, an internal link : <a href="/blog" title="A link" target="_blank" data-id="123456" data-app-prefix="blog">See it</a>
+        And now, an internal link : <a href="/blog" title="A link" target="_blank" data-id="123456" data-app-prefix="blog">See it at this very long long long long long long long long long long long long long long long long long long long long long long long long longlong very longlonglonglonglong truc</a>
       </p>
       <table>
           <tbody>
