@@ -276,7 +276,7 @@ const Tiptap = () => {
             editor
               ?.chain()
               .focus()
-              .setImage({
+              .setNewImage({
                 src: `/workspace/document/${img._id}`,
                 alt: img.alt,
                 title: img.title,
