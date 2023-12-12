@@ -302,19 +302,26 @@ const Tiptap = () => {
           break;
         }
 
-        // Video type => result is of type WorkspaceElement[]
+        // Video type => result is of type WorkspaceElement[] or string
         case "video": {
-          const videos = result as WorkspaceElement[];
-          videos.forEach((video) => {
-            editor
-              ?.chain()
-              .focus()
-              .setVideo(
-                video._id || "",
-                `/workspace/document/${video._id}`,
-                true,
-              );
-          });
+          if (typeof result === "string") {
+            editor?.commands.insertContentAt(
+              editor.view.state.selection,
+              result,
+            );
+          } else {
+            const videos = result as WorkspaceElement[];
+            videos.forEach((video) => {
+              editor
+                ?.chain()
+                .focus()
+                .setVideo(
+                  video._id || "",
+                  `/workspace/document/${video._id}`,
+                  true,
+                );
+            });
+          }
           break;
         }
 
