@@ -621,7 +621,11 @@ const Tiptap = () => {
             return editor.isActive("custom-image") && !isImageModalOpen;
           }}
           editor={editor}
-          tippyOptions={{ duration: 100, placement: "bottom-start" }}
+          tippyOptions={{
+            duration: 100,
+            placement: "bottom-start",
+            zIndex: 999,
+          }}
         >
           <BubbleMenuEditImage
             editor={editor}
