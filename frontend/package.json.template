@@ -95,7 +95,9 @@
     "swiper": "10.1.0",
     "zustand": "4.4.1",
     "edifice-ts-client": "develop-b2school",
-    "edifice-bootstrap": "develop-b2school"
+    "edifice-bootstrap": "develop-b2school",
+    "pixi.js": "7.3.2",
+    "@pixi/react": "7.1.1"
   },
   "devDependencies": {
     "@axe-core/react": "4.7.3",

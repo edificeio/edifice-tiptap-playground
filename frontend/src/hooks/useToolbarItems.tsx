@@ -288,7 +288,7 @@ export const useToolbarItems = (
                     <Dropdown.RadioItem
                       value={value}
                       model={`${size}`}
-                      onChange={(newValue) => {
+                      onChange={(newValue: string) => {
                         const level = parseInt(newValue) as TypoSizeLevel;
                         editor?.chain().focus().toggleTypoSize({ level }).run();
                         setSize(level);
@@ -318,7 +318,7 @@ export const useToolbarItems = (
           triggerProps: JSX.IntrinsicAttributes &
             Omit<IconButtonProps, "ref"> &
             RefAttributes<HTMLButtonElement>,
-          itemRefs,
+          itemRefs: any,
         ) => (
           <>
             <IconButton
@@ -338,7 +338,7 @@ export const useToolbarItems = (
             />
             <Dropdown.Menu>
               <ColorPicker
-                ref={(el) => (itemRefs.current["color-picker"] = el)}
+                ref={(el: any) => (itemRefs.current["color-picker"] = el)}
                 model={textColor}
                 palettes={[
                   { ...DefaultPalette, label: t("Couleur de texte") },
@@ -377,7 +377,7 @@ export const useToolbarItems = (
           triggerProps: JSX.IntrinsicAttributes &
             Omit<IconButtonProps, "ref"> &
             RefAttributes<HTMLButtonElement>,
-          itemRefs,
+          itemRefs: any,
         ) => (
           <>
             <IconButton
@@ -397,7 +397,7 @@ export const useToolbarItems = (
             />
             <Dropdown.Menu>
               <ColorPicker
-                ref={(el) => (itemRefs.current["color-picker"] = el)}
+                ref={(el: any) => (itemRefs.current["color-picker"] = el)}
                 palettes={[
                   {
                     ...DefaultPalette,
@@ -489,7 +489,7 @@ export const useToolbarItems = (
           triggerProps: JSX.IntrinsicAttributes &
             Omit<IconButtonProps, "ref"> &
             RefAttributes<HTMLButtonElement>,
-          itemRefs,
+          itemRefs: any,
         ) => (
           <>
             <IconButton
