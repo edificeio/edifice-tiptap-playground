@@ -106,3 +106,15 @@ export const useActionOptions = (
   ];
   return [options, listOptions, alignmentOptions];
 };
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    //TODO missing type: node_modules/@tiptap/starter-kit/node_modules/@tiptap/extension-bullet-list/dist/packages/extension-bullet-list/src/bullet-list.d.ts
+    bulletList: {
+      toggleBulletList: () => ReturnType;
+    };
+    //TODO missing type: node_modules/@tiptap/starter-kit/node_modules/@tiptap/extension-ordered-list/src/ordered-list.ts
+    orderedList: {
+      toggleOrderedList: () => ReturnType;
+    };
+  }
+}

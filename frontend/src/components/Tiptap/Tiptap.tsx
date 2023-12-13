@@ -99,7 +99,7 @@ const Tiptap = () => {
   const editor = useEditor({
     editable,
     extensions: [
-      StarterKit,
+      StarterKit as any,
       Highlight.configure({
         multicolor: true,
       }),

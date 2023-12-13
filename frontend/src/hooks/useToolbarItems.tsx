@@ -719,3 +719,15 @@ export const useToolbarItems = (
 
   return { toolbarItems, isOpen, setIsOpen };
 };
+declare module "@tiptap/core" {
+  interface Commands<ReturnType> {
+    //TODO missing node_modules/@tiptap/starter-kit/node_modules/@tiptap/extension-bold/dist/packages/extension-bold/src/bold.d.ts
+    bold: {
+      toggleBold: () => ReturnType;
+    };
+    //TODO missing node_modules/@tiptap/starter-kit/node_modules/@tiptap/extension-italic/dist/packages/extension-italic/src/italic.d.ts
+    italic: {
+      toggleItalic: () => ReturnType;
+    };
+  }
+}
