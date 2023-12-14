@@ -7,6 +7,7 @@ import {
   useRef,
 } from "react";
 
+import { Audio } from "@edifice-tiptap-extensions/extension-audio";
 import {
   Hyperlink,
   HyperlinkAttributes,
@@ -40,6 +41,8 @@ import {
   VideoNodeView,
   useImageSelection,
   useWorkspaceFile,
+  AudioNodeView,
+  AudioRenderer,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -136,6 +139,8 @@ const Tiptap = () => {
       Link,
       FontFamily,
       Mathematics,
+      Audio,
+      AudioNodeView(AudioRenderer),
     ],
     content: `
       <h2>
@@ -299,13 +304,10 @@ const Tiptap = () => {
         case "audio": {
           const sounds = result as WorkspaceElement[];
           sounds.forEach((snd) => {
-            // TODO finaliser, voir WB-1992
-            const richContent = `<audio src="/workspace/document/${snd._id}" controls preload="none"/></audio>`;
-            editor?.commands.insertContentAt(
-              editor.view.state.selection,
-              richContent,
-            );
-            editor?.commands.enter();
+            editor
+              ?.chain()
+              .focus()
+              .setAudio(snd._id || "", `/workspace/document/${snd._id}`);
           });
           break;
         }
