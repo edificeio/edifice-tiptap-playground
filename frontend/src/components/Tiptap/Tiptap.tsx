@@ -28,7 +28,6 @@ import {
   MediaLibraryRef,
   MediaLibraryResult,
   InternalLinkTabResult,
-  TiptapWrapper,
   Toolbar,
   ToolbarItem,
   useOdeClient,
@@ -47,6 +46,7 @@ import {
   LinkerNodeView,
   LinkToolbar,
   LinkerRenderer,
+  TiptapWrapper,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -60,7 +60,7 @@ import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
 import Typography from "@tiptap/extension-typography";
 import Underline from "@tiptap/extension-underline";
-import { useEditor, EditorContent, BubbleMenu } from "@tiptap/react";
+import { useEditor, BubbleMenu, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 // eslint-disable-next-line import/order
 import { Mathematics } from "@tiptap-pro/extension-mathematics";
@@ -69,12 +69,9 @@ import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
 import { WorkspaceElement } from "edifice-ts-client";
 
-import { useActionOptions } from "~/hooks/useActionOptions";
-// eslint-disable-next-line import/order
-import { useToolbarItems } from "~/hooks/useToolbarItems";
-
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
+import { EditorToolbar } from "~/hooks/EditorToolbar";
 
 export interface TiptapProps {
   appCode?: string;
@@ -218,22 +215,6 @@ const Tiptap = () => {
   const mediaLibraryRef = useRef<MediaLibraryRef>(null);
 
   const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
-
-  /* A bouger ailleurs, à externaliser ? */
-  const [options, listOptions, alignmentOptions] = useActionOptions(
-    editor,
-    toggleMathsModal,
-    mediaLibraryRef,
-  );
-
-  /* A bouger ailleurs, à externaliser ? */
-  const { toolbarItems } = useToolbarItems(
-    editor,
-    mediaLibraryRef,
-    listOptions,
-    alignmentOptions,
-    options,
-  );
 
   const toolbarDemo: ToolbarItem[] = [
     {
@@ -445,7 +426,7 @@ const Tiptap = () => {
         }
 
         case "embedder": {
-          const richContent = `[useToolbarItems/toRichContent] TODO support embedded content`;
+          const richContent = `[TipTap/toRichContent] TODO support embedded content`;
           editor?.commands.insertContentAt(
             editor.view.state.selection,
             richContent,
@@ -455,7 +436,7 @@ const Tiptap = () => {
         }
 
         default:
-          return `<div>[useToolbarItems/toRichContent] Le contenu de type "${type}" n'est pas convertissable pour l'instant !</div>`;
+          return `<div>[TipTap/toRichContent] Le contenu de type "${type}" n'est pas convertissable pour l'instant !</div>`;
       }
     },
     [editor],
@@ -593,13 +574,12 @@ const Tiptap = () => {
       />
       <TiptapWrapper>
         {editable && (
-          <Toolbar
-            items={toolbarItems}
-            variant="no-shadow"
-            className="rounded-top"
-            isBlock
-            align="left"
-            ariaControls="editorContent"
+          <EditorToolbar
+            {...{
+              editor,
+              mediaLibraryRef,
+              toggleMathsModal,
+            }}
           />
         )}
         <EditorContent
