@@ -46,6 +46,7 @@ import {
   TableToolbar,
   LinkerNodeView,
   LinkToolbar,
+  LinkerRenderer,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -131,7 +132,7 @@ const Tiptap = () => {
       IFrame,
       Video,
       AttachmentNodeView(AttachmentRenderer),
-      LinkerNodeView,
+      LinkerNodeView(LinkerRenderer),
       Hyperlink,
       ImageNodeView(MediaRenderer),
       VideoNodeView(MediaRenderer),
