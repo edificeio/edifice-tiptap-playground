@@ -45,8 +45,6 @@ export const useToolbarItems = (
 ) => {
   const { t } = useTranslation();
 
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-
   // Manage text and background colors.
   const sharedAccessiblePalette: ColorPalette = {
     ...AccessiblePalette,
@@ -717,5 +715,5 @@ export const useToolbarItems = (
     },
   ];
 
-  return { toolbarItems, isOpen, setIsOpen };
+  return { toolbarItems };
 };

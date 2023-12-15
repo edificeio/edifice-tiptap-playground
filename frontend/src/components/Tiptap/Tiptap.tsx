@@ -34,7 +34,7 @@ import {
   useOdeClient,
   useToggle,
   BubbleMenuEditImage,
-  MediaWrapper,
+  MediaRenderer,
   AttachmentRenderer,
   AttachmentNodeView,
   ImageNodeView,
@@ -43,11 +43,13 @@ import {
   useWorkspaceFile,
   AudioNodeView,
   AudioRenderer,
+  TableToolbar,
+  LinkerNodeView,
+  LinkToolbar,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
 import Highlight from "@tiptap/extension-highlight";
-import Link from "@tiptap/extension-link";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Table from "@tiptap/extension-table";
@@ -66,9 +68,6 @@ import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
 import { WorkspaceElement } from "edifice-ts-client";
 
-import LinkerNodeView from "./LinkerNodeView";
-import LinkToolbar from "./LinkToolbar";
-import TableToolbar from "./TableToolbar";
 import { useActionOptions } from "~/hooks/useActionOptions";
 // eslint-disable-next-line import/order
 import { useToolbarItems } from "~/hooks/useToolbarItems";
@@ -134,9 +133,8 @@ const Tiptap = () => {
       AttachmentNodeView(AttachmentRenderer),
       LinkerNodeView,
       Hyperlink,
-      ImageNodeView(MediaWrapper),
-      VideoNodeView(MediaWrapper),
-      Link,
+      ImageNodeView(MediaRenderer),
+      VideoNodeView(MediaRenderer),
       FontFamily,
       Mathematics,
       Audio,
