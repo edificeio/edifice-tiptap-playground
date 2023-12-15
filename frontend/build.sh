@@ -169,9 +169,9 @@ deploy() {
   scp -r dist/* $DEPLOY_TARGET-web1.ipa.ode.tools:/tmp
 
   ssh -t -o LogLevel=error $DEPLOY_TARGET-web1.ipa.ode.tools <<'EOL'
-    sudo rm -rf /var/www/web-education/static/tiptap/*
-    sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
-    sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
+    sudo rm -rf /var/www/web-education/static/poc-editeur/public/tiptap/*
+    sudo cp /tmp/index.html /var/www/web-education/static/poc-editeur/public/tiptap/
+    sudo cp -r /tmp/public/ /var/www/web-education/static/poc-editeur/public/tiptap/
     rm /tmp/index.html
     rm -rf /tmp/public
 EOL
@@ -181,9 +181,9 @@ EOL
   scp -r dist/* $DEPLOY_TARGET-web2.ipa.ode.tools:/tmp
 
   ssh -t -o LogLevel=error $DEPLOY_TARGET-web2.ipa.ode.tools <<'EOL'
-    sudo rm -rf /var/www/web-education/static/tiptap/*
-    sudo cp /tmp/index.html /var/www/web-education/static/tiptap/
-    sudo cp -r /tmp/public/ /var/www/web-education/static/tiptap/
+    sudo rm -rf /var/www/web-education/static/poc-editeur/public/tiptap/*
+    sudo cp /tmp/index.html /var/www/web-education/static/poc-editeur/public/tiptap/
+    sudo cp -r /tmp/public/ /var/www/web-education/static/poc-editeur/public/tiptap/
     rm /tmp/index.html
     rm -rf /tmp/public
 EOL
