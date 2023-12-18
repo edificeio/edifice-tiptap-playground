@@ -13,13 +13,13 @@ import {
   HyperlinkAttributes,
 } from "@edifice-tiptap-extensions/extension-hyperlink";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
+import { ImageExtend } from "@edifice-tiptap-extensions/extension-image";
 import { LinkerAttributes } from "@edifice-tiptap-extensions/extension-linker";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import SpeechSynthesis from "@edifice-tiptap-extensions/extension-speechsynthesis";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
 import { Video } from "@edifice-tiptap-extensions/extension-video";
-import "@edifice-tiptap-extensions/extension-image";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import {
   IExternalLink,
@@ -140,6 +140,7 @@ const Tiptap = () => {
       Mathematics,
       Audio,
       AudioNodeView(AudioRenderer),
+      ImageExtend,
     ],
     content: `
       <h2>
@@ -301,7 +302,10 @@ const Tiptap = () => {
 
         // Audio type => result is of type WorkspaceElement[]
         case "audio": {
-          const sounds = result as WorkspaceElement[];
+          const sounds =
+            typeof result === "object"
+              ? [result]
+              : (result as WorkspaceElement[]);
           sounds.forEach((snd) => {
             editor
               ?.chain()
