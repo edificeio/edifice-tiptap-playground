@@ -59,8 +59,20 @@ export const EditorToolbar = ({
     toggle: toggleSpeechRecognition,
   } = useSpeechRecognition(editor);
 
-  const toolbarItems: ToolbarItem[] = useMemo(
-    () => [
+  const toolbarItems: ToolbarItem[] = useMemo(() => {
+    const hasMark = (extensionName: string) =>
+      !!editor?.extensionManager.splittableMarks.includes(extensionName);
+    const hasExtension = (extensionName: string) =>
+      !!editor?.extensionManager.extensions.find(
+        (item) => item.name === extensionName,
+      );
+    const hasTextStyle = (styleName: string) =>
+      editor?.extensionManager.extensions.find(
+        (item) => item.name === styleName && hasMark("textStyle"),
+      );
+    const showIf = (truthy: boolean) => (truthy ? "show" : "hide");
+
+    return [
       //--------------- IMAGE ---------------//
       {
         type: "icon",
@@ -144,11 +156,7 @@ export const EditorToolbar = ({
           ),
         },
         name: "text_typo",
-        visibility: editor?.extensionManager.extensions.find(
-          (item) => item.name === "fontFamily",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasExtension("fontFamily")),
       },
       //--------------- TEXT SIZE ---------------//
       {
@@ -166,11 +174,7 @@ export const EditorToolbar = ({
           ),
         },
         name: "text_size",
-        visibility: editor?.extensionManager.extensions.find(
-          (item) => item.name === "typoSize",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasExtension("typoSize")),
       },
       //--------------- TEXT COLOR ---------------//
       {
@@ -191,13 +195,7 @@ export const EditorToolbar = ({
         },
         overflow: false,
         name: "color",
-        visibility: editor?.extensionManager.extensions.find(
-          (item) =>
-            item.name === "color" &&
-            !!editor?.extensionManager.splittableMarks.includes("textStyle"),
-        )
-          ? "show"
-          : "hide",
+        visibility: hasTextStyle("color") ? "show" : "hide",
       },
       //--------------- TEXT HIGHLIGHTING COLOR ---------------//
       {
@@ -217,11 +215,7 @@ export const EditorToolbar = ({
           ),
         },
         name: "highlight",
-        visibility: editor?.extensionManager.splittableMarks.includes(
-          "highlight",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasMark("highlight")),
       },
       //-------------------------------------//
       {
@@ -238,9 +232,7 @@ export const EditorToolbar = ({
           onClick: () => editor?.chain().focus().toggleBold().run(),
         },
         name: "bold",
-        visibility: editor?.extensionManager.splittableMarks.includes("bold")
-          ? "show"
-          : "hide",
+        visibility: showIf(hasMark("bold")),
       },
       //--------------- ITALIC ---------------//
       {
@@ -252,9 +244,7 @@ export const EditorToolbar = ({
           onClick: () => editor?.chain().focus().toggleItalic().run(),
         },
         name: "italic",
-        visibility: editor?.extensionManager.splittableMarks.includes("italic")
-          ? "show"
-          : "hide",
+        visibility: showIf(hasMark("italic")),
       },
       //--------------- UNDERLINE ---------------//
       {
@@ -266,11 +256,7 @@ export const EditorToolbar = ({
           onClick: () => editor?.chain().focus().toggleUnderline().run(),
         },
         name: "underline",
-        visibility: editor?.extensionManager.splittableMarks.includes(
-          "underline",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasMark("underline")),
       },
       //-------------------------------------//
       {
@@ -331,11 +317,7 @@ export const EditorToolbar = ({
           ),
         },
         name: "list",
-        visibility: editor?.extensionManager.extensions.find(
-          (item) => item.name === "starterKit",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasExtension("starterKit")),
       },
       //--------------- TEXT ALIGNMENT ---------------//
       {
@@ -356,11 +338,7 @@ export const EditorToolbar = ({
           ),
         },
         name: "alignment",
-        visibility: editor?.extensionManager.extensions.find(
-          (item) => item.name === "textAlign",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasExtension("textAlign")),
       },
       //-------------------------------------//
       {
@@ -376,25 +354,20 @@ export const EditorToolbar = ({
           ),
         },
         name: "plus",
-        visibility: editor?.extensionManager.extensions.find(
-          (item) => item.name === "textAlign",
-        )
-          ? "show"
-          : "hide",
+        visibility: showIf(hasExtension("textAlign")),
       },
-    ],
-    [
-      alignmentOptions,
-      canRecognizeSpeech,
-      editor,
-      listOptions,
-      mediaLibraryRef,
-      plusOptions,
-      speechRecognition,
-      t,
-      toggleSpeechRecognition,
-    ],
-  );
+    ];
+  }, [
+    alignmentOptions,
+    canRecognizeSpeech,
+    editor,
+    listOptions,
+    mediaLibraryRef,
+    plusOptions,
+    speechRecognition,
+    t,
+    toggleSpeechRecognition,
+  ]);
 
   return (
     <Toolbar
