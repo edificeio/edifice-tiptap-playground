@@ -1,14 +1,9 @@
 import { Fragment } from "react";
 
 import { Dropdown, DropdownMenuOptions } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
 interface Props {
-  /**
-   * editor instance
-   */
-  editor: Editor | null;
   /**
    * Options to display
    */

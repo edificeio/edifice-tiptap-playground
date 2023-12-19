@@ -2,14 +2,11 @@ import { Fragment, RefAttributes, useEffect, useState } from "react";
 
 import { TextTypo } from "@edifice-ui/icons";
 import { Dropdown, IconButton, IconButtonProps } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
+import { useEditorContext } from "./EditorContext";
+
 interface Props {
-  /**
-   * editor instance
-   */
-  editor: Editor | null;
   /**
    * Props for the trigger
    */
@@ -18,8 +15,9 @@ interface Props {
     RefAttributes<HTMLButtonElement>;
 }
 
-export const EditorToolbarTypography = ({ editor, triggerProps }: Props) => {
+export const EditorToolbarTypography = ({ triggerProps }: Props) => {
   const { t } = useTranslation();
+  const { editor } = useEditorContext();
 
   const [value, setValue] = useState<string>("sans-serif");
 

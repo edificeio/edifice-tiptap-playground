@@ -2,15 +2,12 @@ import { RefAttributes } from "react";
 
 import { Smiley } from "@edifice-ui/icons";
 import { Dropdown, IconButton, IconButtonProps } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 import EmojiPicker, { Categories } from "emoji-picker-react";
 import { useTranslation } from "react-i18next";
 
+import { useEditorContext } from "./EditorContext";
+
 interface Props {
-  /**
-   * editor instance
-   */
-  editor: Editor | null;
   /**
    * Props for the trigger
    */
@@ -23,12 +20,9 @@ interface Props {
   itemRefs: any;
 }
 
-export const EditorToolbarEmoji = ({
-  editor,
-  triggerProps,
-  itemRefs,
-}: Props) => {
+export const EditorToolbarEmoji = ({ triggerProps, itemRefs }: Props) => {
   const { t } = useTranslation();
+  const { editor } = useEditorContext();
 
   return (
     <>

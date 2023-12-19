@@ -6,13 +6,8 @@ import {
   IconButton,
   IconButtonProps,
 } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 
 interface Props {
-  /**
-   * editor instance
-   */
-  editor: Editor | null;
   /**
    * Props for the trigger
    */

@@ -144,12 +144,7 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
             triggerProps: JSX.IntrinsicAttributes &
               Omit<IconButtonProps, "ref"> &
               RefAttributes<HTMLButtonElement>,
-          ) => (
-            <EditorToolbarTypography
-              editor={editor}
-              triggerProps={triggerProps}
-            />
-          ),
+          ) => <EditorToolbarTypography triggerProps={triggerProps} />,
         },
         name: "text_typo",
         visibility: showIf(hasExtension("fontFamily")),
@@ -162,12 +157,7 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
             triggerProps: JSX.IntrinsicAttributes &
               Omit<IconButtonProps, "ref"> &
               RefAttributes<HTMLButtonElement>,
-          ) => (
-            <EditorToolbarTextSize
-              editor={editor}
-              triggerProps={triggerProps}
-            />
-          ),
+          ) => <EditorToolbarTextSize triggerProps={triggerProps} />,
         },
         name: "text_size",
         visibility: showIf(hasExtension("typoSize")),
@@ -183,7 +173,6 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
             itemRefs: any,
           ) => (
             <EditorToolbarTextColor
-              editor={editor}
               triggerProps={triggerProps}
               itemRefs={itemRefs}
             />
@@ -204,7 +193,6 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
             itemRefs: any,
           ) => (
             <EditorToolbarHighlightColor
-              editor={editor}
               triggerProps={triggerProps}
               itemRefs={itemRefs}
             />
@@ -270,7 +258,6 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
             itemRefs: any,
           ) => (
             <EditorToolbarEmoji
-              editor={editor}
               triggerProps={triggerProps}
               itemRefs={itemRefs}
             />
@@ -304,7 +291,6 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
               RefAttributes<HTMLButtonElement>,
           ) => (
             <EditorToolbarDropdownMenu
-              editor={editor}
               triggerProps={triggerProps}
               icon={<BulletList />}
               ariaLabel={t("Options d'affichage en liste")}
@@ -325,7 +311,6 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
               RefAttributes<HTMLButtonElement>,
           ) => (
             <EditorToolbarDropdownMenu
-              editor={editor}
               triggerProps={triggerProps}
               icon={<AlignLeft />}
               ariaLabel={t("Options d'alignement")}
@@ -345,9 +330,7 @@ export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
       {
         type: "dropdown",
         props: {
-          children: () => (
-            <EditorToolbarPlusMenu editor={editor} options={plusOptions} />
-          ),
+          children: () => <EditorToolbarPlusMenu options={plusOptions} />,
         },
         name: "plus",
         visibility: showIf(hasExtension("textAlign")),

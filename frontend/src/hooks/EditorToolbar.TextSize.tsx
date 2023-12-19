@@ -3,14 +3,11 @@ import { Fragment, RefAttributes, useState } from "react";
 import { TypoSizeLevel } from "@edifice-tiptap-extensions/extension-typosize";
 import { TextSize } from "@edifice-ui/icons";
 import { Dropdown, IconButton, IconButtonProps } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
+import { useEditorContext } from "./EditorContext";
+
 interface Props {
-  /**
-   * editor instance
-   */
-  editor: Editor | null;
   /**
    * Props for the trigger
    */
@@ -19,8 +16,9 @@ interface Props {
     RefAttributes<HTMLButtonElement>;
 }
 
-export const EditorToolbarTextSize = ({ editor, triggerProps }: Props) => {
+export const EditorToolbarTextSize = ({ triggerProps }: Props) => {
   const { t } = useTranslation();
+  const { editor } = useEditorContext();
 
   const [size, setSize] = useState<TypoSizeLevel>();
 

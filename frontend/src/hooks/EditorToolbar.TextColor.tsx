@@ -16,14 +16,11 @@ import {
   IconButton,
   IconButtonProps,
 } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
+import { useEditorContext } from "./EditorContext";
+
 interface Props {
-  /**
-   * editor instance
-   */
-  editor: Editor | null;
   /**
    * Props for the trigger
    */
@@ -36,12 +33,9 @@ interface Props {
   itemRefs: any;
 }
 
-export const EditorToolbarTextColor = ({
-  editor,
-  triggerProps,
-  itemRefs,
-}: Props) => {
+export const EditorToolbarTextColor = ({ triggerProps, itemRefs }: Props) => {
   const { t } = useTranslation();
+  const { editor } = useEditorContext();
 
   // Manage text and background colors.
   const [color, setColor] = useState<string>("#4A4A4A");
