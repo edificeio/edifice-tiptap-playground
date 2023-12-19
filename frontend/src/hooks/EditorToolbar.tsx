@@ -19,9 +19,9 @@ import {
   MediaLibraryRef,
   Toolbar,
 } from "@edifice-ui/react";
-import { Editor } from "@tiptap/react";
 import { useTranslation } from "react-i18next";
 
+import { useEditorContext } from "./EditorContext";
 import { EditorToolbarDropdownMenu } from "./EditorToolbar.DropdownMenu";
 import { EditorToolbarEmoji } from "./EditorToolbar.Emoji";
 import { EditorToolbarHighlightColor } from "./EditorToolbar.HighlightColor";
@@ -33,19 +33,15 @@ import { useActionOptions } from "./useActionOptions";
 import { useSpeechRecognition } from "./useSpeechRecognition";
 
 interface Props {
-  /** editor instance */
-  editor: Editor | null;
   /** Ref to a MediaLibrary instance */
   mediaLibraryRef: RefObject<MediaLibraryRef>;
+  /** API to open/close a Math modal. */
   toggleMathsModal: Function;
 }
 
-export const EditorToolbar = ({
-  editor,
-  mediaLibraryRef,
-  toggleMathsModal,
-}: Props) => {
+export const EditorToolbar = ({ mediaLibraryRef, toggleMathsModal }: Props) => {
   const { t } = useTranslation();
+  const { editor } = useEditorContext();
 
   const [plusOptions, listOptions, alignmentOptions] = useActionOptions(
     editor,
