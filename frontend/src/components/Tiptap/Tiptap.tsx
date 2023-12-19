@@ -5,10 +5,6 @@ import { Toolbar, ToolbarItem } from "@edifice-ui/react";
 
 import Editor, { EditorRef } from "~/hooks/Editor";
 
-export interface TiptapProps {
-  appCode?: string;
-}
-
 const initialContent = `
 <h2>
   Hi there,
@@ -147,7 +143,7 @@ const Tiptap = () => {
         isBlock={true}
         align="right"
       />
-      <Editor ref={editorRef} content={content} mode={mode}></Editor>;
+      <Editor ref={editorRef} content={content} mode={mode}></Editor>
     </>
   );
 };

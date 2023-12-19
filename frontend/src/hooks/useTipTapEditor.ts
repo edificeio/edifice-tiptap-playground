@@ -23,7 +23,6 @@ import {
   LinkerNodeView,
   LinkerRenderer,
   MediaLibraryType,
-  useToggle,
 } from "@edifice-ui/react";
 import Color from "@tiptap/extension-color";
 import FontFamily from "@tiptap/extension-font-family";
@@ -51,10 +50,8 @@ import { WorkspaceElement } from "edifice-ts-client";
  * @param isEditable truthy if the editor content should be editable
  * @param content default rich content
  */
-export const useTipTapEditor = (isEditable: boolean, content: Content) => {
+export const useTipTapEditor = (editable: boolean, content: Content) => {
   const { currentLanguage } = useOdeClient();
-
-  const [editable, toggleEditable] = useToggle(isEditable);
 
   const editor = useEditor({
     editable,
@@ -298,5 +295,5 @@ export const useTipTapEditor = (isEditable: boolean, content: Content) => {
     [editor],
   );
 
-  return { editor, editable, toggleEditable, appendMediaLibraryResult };
+  return { editor, editable, appendMediaLibraryResult };
 };
