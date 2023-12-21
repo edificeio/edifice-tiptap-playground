@@ -48,6 +48,7 @@
     "@edifice-tiptap-extensions/extension-audio": "develop-b2school",
     "@edifice-tiptap-extensions/extension-hyperlink": "develop-b2school",
     "@edifice-tiptap-extensions/extension-iframe": "develop-b2school",
+    "@edifice-tiptap-extensions/extension-image": "develop-b2school",
     "@edifice-tiptap-extensions/extension-linker": "develop-b2school",
     "@edifice-tiptap-extensions/extension-speechrecognition": "develop-b2school",
     "@edifice-tiptap-extensions/extension-speechsynthesis": "develop-b2school",

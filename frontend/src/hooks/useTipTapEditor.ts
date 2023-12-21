@@ -3,6 +3,7 @@ import { useCallback, useEffect } from "react";
 import { Audio } from "@edifice-tiptap-extensions/extension-audio";
 import { Hyperlink } from "@edifice-tiptap-extensions/extension-hyperlink";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
+import { ImageExtend } from "@edifice-tiptap-extensions/extension-image";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import SpeechSynthesis from "@edifice-tiptap-extensions/extension-speechsynthesis";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
@@ -94,6 +95,7 @@ export const useTipTapEditor = (editable: boolean, content: Content) => {
       Mathematics,
       Audio,
       AudioNodeView(AudioRenderer),
+      ImageExtend,
     ],
     content,
   });
@@ -135,7 +137,10 @@ export const useTipTapEditor = (editable: boolean, content: Content) => {
 
         // Audio type => result is of type WorkspaceElement[]
         case "audio": {
-          const sounds = result as WorkspaceElement[];
+          const sounds =
+            typeof result === "object"
+              ? [result]
+              : (result as WorkspaceElement[]);
           sounds.forEach((snd) => {
             editor
               ?.chain()
