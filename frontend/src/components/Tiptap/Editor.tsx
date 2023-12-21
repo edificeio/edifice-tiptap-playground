@@ -2,7 +2,6 @@ import {
   Suspense,
   lazy,
   useState,
-  useRef,
   forwardRef,
   useImperativeHandle,
   Ref,
@@ -14,13 +13,8 @@ import "@edifice-tiptap-extensions/extension-image";
 import {
   LoadingScreen,
   MediaLibrary,
-  MediaLibraryRef,
-  MediaLibraryResult,
   useOdeClient,
-  useToggle,
   BubbleMenuEditImage,
-  useImageSelection,
-  useWorkspaceFile,
   TableToolbar,
   LinkToolbar,
   TiptapWrapper,
@@ -29,9 +23,12 @@ import { BubbleMenu, EditorContent, Content, JSONContent } from "@tiptap/react";
 
 import "katex/dist/katex.min.css";
 import "~/styles/table.scss";
-import { EditorContext } from "./EditorContext";
-import { useTipTapEditor } from "./useTipTapEditor";
-import { EditorToolbar } from "~/hooks/EditorToolbar";
+import { EditorToolbar } from "./EditorToolbar";
+import { EditorContext } from "../../hooks/useEditorContext";
+import { useImageModal } from "../../hooks/useImageModal";
+import { useMathsModal } from "../../hooks/useMathsModal";
+import { useMediaLibraryModal } from "../../hooks/useMediaLibraryModal";
+import { useTipTapEditor } from "../../hooks/useTipTapEditor";
 
 //-------- LAZY IMPORTS --------//
 const MathsModal = lazy(async () => {
@@ -105,53 +102,13 @@ const Editor = forwardRef(
     }));
 
     //----- Editor implementation
-    const { appCode } = useOdeClient();
     const [speechSynthetisis, setSpeechSynthetisis] = useState<boolean>(false);
 
-    const { editor, editable, appendMediaLibraryResult } = useTipTapEditor(
-      mode === "edit",
-      content,
-    );
-
-    // Media library reference
-    const mediaLibraryRef = useRef<MediaLibraryRef>(null);
-
-    // Maths modal state
-    const [isMathsModalOpen, toggleMathsModal] = useToggle(false);
-
-    // Image modal state
-    const [isImageModalOpen, toggleImageModal] = useToggle(false);
-    const [currentImage, setCurrentImage] = useState<
-      { src: string; alt?: string; title?: string } | undefined
-    >(undefined);
-    // Use hook to createOrUpdate image
-    const { createOrUpdate } = useWorkspaceFile();
-    // Use hook to get selected images
-    const { setAttributes, getSelection } = useImageSelection(editor);
-
-    //----- Handlers
-    const handleMathsModalCancel = () => {
-      toggleMathsModal();
-    };
-    const handleMathsModalSuccess = (formulaEditor: string) => {
-      editor?.commands.insertContentAt(
-        editor.view.state.selection,
-        formulaEditor,
-      );
-      editor?.commands.enter();
-      toggleMathsModal();
-    };
-
-    const handleMediaLibraryCancel = () => {
-      mediaLibraryRef.current?.hide();
-    };
-    const handleMediaLibrarySuccess = (result: MediaLibraryResult) => {
-      if (mediaLibraryRef.current?.type) {
-        // Inject the MediaLibrary result into the editor, and close the modal.
-        appendMediaLibraryResult(mediaLibraryRef.current.type, result);
-        mediaLibraryRef.current?.hide();
-      }
-    };
+    const { appCode } = useOdeClient();
+    const { editor, editable } = useTipTapEditor(mode === "edit", content);
+    const mathsModal = useMathsModal();
+    const imageModal = useImageModal();
+    const mediaLibrary = useMediaLibraryModal();
 
     const handleLinkEdit = (attrs: LinkerAttributes | HyperlinkAttributes) => {
       // If a link is active, select it.
@@ -161,14 +118,14 @@ const Editor = forwardRef(
 
       const attrsLinker = attrs as LinkerAttributes;
       if (attrsLinker["data-id"] || attrsLinker["data-app-prefix"]) {
-        mediaLibraryRef.current?.editLink({
+        mediaLibrary.ref.current?.editLink({
           target: attrs.target,
           resourceId: attrsLinker["data-id"],
           appPrefix: attrsLinker["data-app-prefix"],
         });
       } else {
         const { href, target, title } = attrs as HyperlinkAttributes;
-        mediaLibraryRef.current?.editLink({
+        mediaLibrary.ref.current?.editLink({
           url: href || "",
           target: target || undefined,
           text: title || undefined,
@@ -184,34 +141,6 @@ const Editor = forwardRef(
       editor?.commands.unsetLinker?.();
       editor?.commands.unsetLink?.();
     };
-    // Callback when image has been edited
-    const onImageModalSuccess = async ({
-      blob,
-      legend,
-      altText: alt,
-    }: {
-      blob: Blob;
-      legend: string;
-      altText: string;
-    }) => {
-      const url = await createOrUpdate({
-        blob,
-        legend,
-        alt,
-        uri: currentImage?.src,
-      });
-      toggleImageModal();
-      setAttributes({
-        url,
-        alt,
-        title: legend,
-      });
-    };
-
-    const onImageModalCancel = () => {
-      toggleImageModal();
-    };
-
     return (
       <EditorContext.Provider
         value={{
@@ -224,8 +153,8 @@ const Editor = forwardRef(
             <EditorToolbar
               {...{
                 editor,
-                mediaLibraryRef,
-                toggleMathsModal,
+                mediaLibraryRef: mediaLibrary.ref,
+                toggleMathsModal: mathsModal.toggle,
               }}
             />
           )}
@@ -247,9 +176,9 @@ const Editor = forwardRef(
 
         {editor && (
           <BubbleMenu
-            className={isImageModalOpen ? "d-none" : ""}
+            className={imageModal.isOpen ? "d-none" : ""}
             shouldShow={({ editor }) => {
-              return editor.isActive("custom-image") && !isImageModalOpen;
+              return editor.isActive("custom-image") && !imageModal.isOpen;
             }}
             editor={editor}
             tippyOptions={{
@@ -260,13 +189,7 @@ const Editor = forwardRef(
           >
             <BubbleMenuEditImage
               editor={editor}
-              onEditImage={() => {
-                const selected = getSelection()[0];
-                if (selected) {
-                  setCurrentImage(selected);
-                  toggleImageModal();
-                }
-              }}
+              onEditImage={imageModal.handleEdit}
             />
           </BubbleMenu>
         )}
@@ -274,33 +197,33 @@ const Editor = forwardRef(
         <Suspense fallback={<LoadingScreen />}>
           {editable && (
             <MediaLibrary
-              ref={mediaLibraryRef}
+              ref={mediaLibrary.ref}
               appCode={appCode}
-              onCancel={handleMediaLibraryCancel}
-              onSuccess={handleMediaLibrarySuccess}
+              onCancel={mediaLibrary.handleCancel}
+              onSuccess={mediaLibrary.handleSuccess}
             />
           )}
         </Suspense>
 
         <Suspense fallback={<LoadingScreen />}>
-          {editable && isMathsModalOpen && (
+          {editable && mathsModal.isOpen && (
             <MathsModal
-              isOpen={isMathsModalOpen}
-              onCancel={handleMathsModalCancel}
-              onSuccess={handleMathsModalSuccess}
+              isOpen={mathsModal.isOpen}
+              onCancel={mathsModal.handleCancel}
+              onSuccess={mathsModal.handleSuccess}
             />
           )}
         </Suspense>
 
         <Suspense fallback={<LoadingScreen />}>
-          {editable && isImageModalOpen && currentImage && (
+          {editable && imageModal?.isOpen && imageModal?.currentImage && (
             <ImageEditor
-              altText={currentImage.alt}
-              legend={currentImage.title}
-              image={currentImage.src}
-              isOpen={isImageModalOpen}
-              onCancel={onImageModalCancel}
-              onSave={onImageModalSuccess}
+              altText={imageModal?.currentImage.alt}
+              legend={imageModal?.currentImage.title}
+              image={imageModal?.currentImage.src}
+              isOpen={imageModal.isOpen}
+              onCancel={imageModal.handleCancel}
+              onSave={imageModal.handleSave}
               onError={console.error}
             />
           )}

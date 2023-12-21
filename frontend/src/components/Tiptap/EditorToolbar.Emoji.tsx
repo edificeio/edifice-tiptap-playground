@@ -5,7 +5,7 @@ import { Dropdown, IconButton, IconButtonProps } from "@edifice-ui/react";
 import EmojiPicker, { Categories } from "emoji-picker-react";
 import { useTranslation } from "react-i18next";
 
-import { useEditorContext } from "./EditorContext";
+import { useEditorContext } from "../../hooks/useEditorContext";
 
 interface Props {
   /**

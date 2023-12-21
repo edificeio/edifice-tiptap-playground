@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import Root from "~/app/root";
 import OldFormat, { loader } from "~/components/Tiptap/OldFormat";
-import Tiptap from "~/components/Tiptap/Tiptap";
+import Playground from "~/components/Tiptap/Playground";
 
 const routes = [
   {
@@ -11,7 +11,7 @@ const routes = [
     children: [
       {
         index: true,
-        element: <Tiptap />,
+        element: <Playground />,
       },
     ],
   },

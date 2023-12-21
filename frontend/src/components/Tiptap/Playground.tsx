@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import { Toolbar, ToolbarItem } from "@edifice-ui/react";
 
-import Editor, { EditorRef } from "~/hooks/Editor";
+import Editor, { EditorRef } from "./Editor";
 
 const initialContent = `
 <h2>
@@ -78,7 +78,7 @@ const initialContent = `
 </div>
 `;
 
-const Tiptap = () => {
+const Playground = () => {
   const editorRef = useRef<EditorRef>(null);
   const [content, setContent] = useState(initialContent);
   const [mode, setMode] = useState<"read" | "edit">("edit");
@@ -148,4 +148,4 @@ const Tiptap = () => {
   );
 };
 
-export default Tiptap;
+export default Playground;

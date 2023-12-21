@@ -4,7 +4,7 @@ import { TextTypo } from "@edifice-ui/icons";
 import { Dropdown, IconButton, IconButtonProps } from "@edifice-ui/react";
 import { useTranslation } from "react-i18next";
 
-import { useEditorContext } from "./EditorContext";
+import { useEditorContext } from "../../hooks/useEditorContext";
 
 interface Props {
   /**

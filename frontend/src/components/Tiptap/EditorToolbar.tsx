@@ -21,7 +21,6 @@ import {
 } from "@edifice-ui/react";
 import { useTranslation } from "react-i18next";
 
-import { useEditorContext } from "./EditorContext";
 import { EditorToolbarDropdownMenu } from "./EditorToolbar.DropdownMenu";
 import { EditorToolbarEmoji } from "./EditorToolbar.Emoji";
 import { EditorToolbarHighlightColor } from "./EditorToolbar.HighlightColor";
@@ -29,8 +28,9 @@ import { EditorToolbarPlusMenu } from "./EditorToolbar.PlusMenu";
 import { EditorToolbarTextColor } from "./EditorToolbar.TextColor";
 import { EditorToolbarTextSize } from "./EditorToolbar.TextSize";
 import { EditorToolbarTypography } from "./EditorToolbar.Typography";
-import { useActionOptions } from "./useActionOptions";
-import { useSpeechRecognition } from "./useSpeechRecognition";
+import { useActionOptions } from "../../hooks/useActionOptions";
+import { useEditorContext } from "../../hooks/useEditorContext";
+import { useSpeechRecognition } from "../../hooks/useSpeechRecognition";
 
 interface Props {
   /** Ref to a MediaLibrary instance */

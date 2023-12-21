@@ -17,7 +17,7 @@ import {
 } from "@edifice-ui/react";
 import { useTranslation } from "react-i18next";
 
-import { useEditorContext } from "./EditorContext";
+import { useEditorContext } from "../../hooks/useEditorContext";
 
 interface Props {
   /**
