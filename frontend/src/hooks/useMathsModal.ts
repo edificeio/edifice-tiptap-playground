@@ -1,6 +1,5 @@
 import { useToggle } from "@edifice-ui/react";
-
-import { useEditorContext } from "./useEditorContext";
+import { Editor } from "@tiptap/react";
 
 /**
  * Custom hook to manage MathsModal success and cancelation in the current editor context.
@@ -11,8 +10,7 @@ import { useEditorContext } from "./useEditorContext";
  * `handleSuccess`: Success event handler (adds a formula to the editor content),
  * }
  */
-export const useMathsModal = () => {
-  const { editor } = useEditorContext();
+export const useMathsModal = (editor: Editor | null) => {
   const [isOpen, toggle] = useToggle(false);
 
   const handleCancel = () => {

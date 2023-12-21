@@ -7,9 +7,8 @@ import {
   MediaLibraryResult,
   MediaLibraryType,
 } from "@edifice-ui/react";
+import { Editor } from "@tiptap/react";
 import { WorkspaceElement } from "edifice-ts-client";
-
-import { useEditorContext } from "./useEditorContext";
 
 /**
  * Custom hook to manage MathsModal success and cancelation in the current editor context.
@@ -20,9 +19,7 @@ import { useEditorContext } from "./useEditorContext";
  * `handleSuccess`: Success event handler (adds a formula to the editor content),
  * }
  */
-export const useMediaLibraryModal = () => {
-  const { editor } = useEditorContext();
-
+export const useMediaLibraryModal = (editor: Editor | null) => {
   /**
    * Convert the result of a successful action in MediaLibrary
    * - to a call to the editor's dedicated command,

@@ -5,8 +5,7 @@ import {
   useToggle,
   useWorkspaceFile,
 } from "@edifice-ui/react";
-
-import { useEditorContext } from "./useEditorContext";
+import { Editor } from "@tiptap/react";
 
 type EditedImage = { src: string; alt?: string; title?: string } | undefined;
 
@@ -21,12 +20,11 @@ type EditedImage = { src: string; alt?: string; title?: string } | undefined;
  * `handleSave`: Success event handler,
  * }
  */
-export const useImageModal = () => {
+export const useImageModal = (editor: Editor | null) => {
   const [currentImage, setCurrentImage] = useState<EditedImage | undefined>(
     undefined,
   );
 
-  const { editor } = useEditorContext();
   const [isOpen, toggle] = useToggle(false);
 
   // Use hook to createOrUpdate image

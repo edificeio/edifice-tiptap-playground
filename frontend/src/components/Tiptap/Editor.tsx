@@ -106,9 +106,9 @@ const Editor = forwardRef(
 
     const { appCode } = useOdeClient();
     const { editor, editable } = useTipTapEditor(mode === "edit", content);
-    const mathsModal = useMathsModal();
-    const imageModal = useImageModal();
-    const mediaLibrary = useMediaLibraryModal();
+    const mathsModal = useMathsModal(editor);
+    const imageModal = useImageModal(editor);
+    const mediaLibrary = useMediaLibraryModal(editor);
 
     const handleLinkEdit = (attrs: LinkerAttributes | HyperlinkAttributes) => {
       // If a link is active, select it.
