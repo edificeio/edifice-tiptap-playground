@@ -1,14 +1,16 @@
 import { useEffect } from "react";
 
-import { Audio } from "@edifice-tiptap-extensions/extension-audio";
+// Import TipTap module overloaded typings (custom commands)
+import "@edifice-tiptap-extensions/extension-audio";
+import "@edifice-tiptap-extensions/extension-image";
+import "@edifice-tiptap-extensions/extension-video";
+
 import { Hyperlink } from "@edifice-tiptap-extensions/extension-hyperlink";
 import { IFrame } from "@edifice-tiptap-extensions/extension-iframe";
-import { ImageExtend } from "@edifice-tiptap-extensions/extension-image";
 import { SpeechRecognition } from "@edifice-tiptap-extensions/extension-speechrecognition";
 import SpeechSynthesis from "@edifice-tiptap-extensions/extension-speechsynthesis";
 import { TableCell } from "@edifice-tiptap-extensions/extension-table-cell";
 import { TypoSize } from "@edifice-tiptap-extensions/extension-typosize";
-import { Video } from "@edifice-tiptap-extensions/extension-video";
 import {
   useOdeClient,
   MediaRenderer,
@@ -79,17 +81,14 @@ export const useTipTapEditor = (editable: boolean, content: Content) => {
             : "fr-FR",
       }),
       IFrame,
-      Video,
-      AttachmentNodeView(AttachmentRenderer),
-      LinkerNodeView(LinkerRenderer),
       Hyperlink,
-      ImageNodeView(MediaRenderer),
-      VideoNodeView(MediaRenderer),
       FontFamily,
       Mathematics,
-      Audio,
+      VideoNodeView(MediaRenderer),
       AudioNodeView(AudioRenderer),
-      ImageExtend,
+      ImageNodeView(MediaRenderer),
+      LinkerNodeView(LinkerRenderer),
+      AttachmentNodeView(AttachmentRenderer),
     ],
     content,
   });
