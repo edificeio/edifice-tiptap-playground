@@ -11,12 +11,12 @@ import { Editor } from "@tiptap/react";
 import { WorkspaceElement } from "edifice-ts-client";
 
 /**
- * Custom hook to manage MathsModal success and cancelation in the current editor context.
+ * Custom hook to manage MediaLibrary events in an editor.
+ * @param editor an instance
  * @returns {
- * `isOpen`: truthy boolean when MathsModal sholud be visible,
- * `toggle`: an imperative function to toggle the `isOpen` value,
- * `handleCancel`: Cancel event handler,
- * `handleSuccess`: Success event handler (adds a formula to the editor content),
+ * `ref`: a reference to a MediaLibrary instance,
+ * `onCancel`: Cancel event handler,
+ * `onSuccess`: Success event handler (adds a formula to the editor content),
  * }
  */
 export const useMediaLibraryModal = (editor: Editor | null) => {
@@ -219,10 +219,10 @@ export const useMediaLibraryModal = (editor: Editor | null) => {
   const mediaLibraryRef = useRef<MediaLibraryRef>(null);
 
   //----- Handlers
-  const handleCancel = () => {
+  const onCancel = () => {
     mediaLibraryRef.current?.hide();
   };
-  const handleSuccess = (result: MediaLibraryResult) => {
+  const onSuccess = (result: MediaLibraryResult) => {
     if (mediaLibraryRef.current?.type) {
       // Inject the MediaLibrary result into the editor, and close the modal.
       appendResult(mediaLibraryRef.current.type, result);
@@ -232,7 +232,7 @@ export const useMediaLibraryModal = (editor: Editor | null) => {
 
   return {
     ref: mediaLibraryRef,
-    handleCancel,
-    handleSuccess,
+    onCancel,
+    onSuccess,
   };
 };

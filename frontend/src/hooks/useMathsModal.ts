@@ -2,22 +2,23 @@ import { useToggle } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
 
 /**
- * Custom hook to manage MathsModal success and cancelation in the current editor context.
+ * Custom hook to manage MathsModal events in an editor.
+ * @param editor an instance
  * @returns {
  * `isOpen`: truthy boolean when MathsModal sholud be visible,
  * `toggle`: an imperative function to toggle the `isOpen` value,
- * `handleCancel`: Cancel event handler,
- * `handleSuccess`: Success event handler (adds a formula to the editor content),
+ * `onCancel`: Cancel event handler,
+ * `onSuccess`: Success event handler (adds a formula to the editor content),
  * }
  */
 export const useMathsModal = (editor: Editor | null) => {
   const [isOpen, toggle] = useToggle(false);
 
-  const handleCancel = () => {
+  const onCancel = () => {
     toggle();
   };
 
-  const handleSuccess = (formulaEditor: string) => {
+  const onSuccess = (formulaEditor: string) => {
     editor?.commands.insertContentAt(
       editor.view.state.selection,
       formulaEditor,
@@ -29,7 +30,7 @@ export const useMathsModal = (editor: Editor | null) => {
   return {
     isOpen,
     toggle,
-    handleCancel,
-    handleSuccess,
+    onCancel,
+    onSuccess,
   };
 };

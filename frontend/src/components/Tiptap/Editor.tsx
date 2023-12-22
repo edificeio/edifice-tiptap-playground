@@ -1,14 +1,5 @@
-import {
-  Suspense,
-  lazy,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-  Ref,
-} from "react";
+import { Suspense, lazy, forwardRef, useImperativeHandle, Ref } from "react";
 
-import { HyperlinkAttributes } from "@edifice-tiptap-extensions/extension-hyperlink";
-import { LinkerAttributes } from "@edifice-tiptap-extensions/extension-linker";
 import "@edifice-tiptap-extensions/extension-image";
 import {
   LoadingScreen,
@@ -29,6 +20,8 @@ import { useImageModal } from "../../hooks/useImageModal";
 import { useMathsModal } from "../../hooks/useMathsModal";
 import { useMediaLibraryModal } from "../../hooks/useMediaLibraryModal";
 import { useTipTapEditor } from "../../hooks/useTipTapEditor";
+import { useLinkToolbar } from "~/hooks/useLinkToolbar";
+import { useSpeechSynthetisis } from "~/hooks/useSpeechSynthetisis";
 
 //-------- LAZY IMPORTS --------//
 const MathsModal = lazy(async () => {
@@ -73,6 +66,16 @@ const Editor = forwardRef(
     { content, mode = "read", toolbar = "full" }: EditorProps,
     ref: Ref<EditorRef>,
   ) => {
+    const { appCode } = useOdeClient();
+    const { editor, editable } = useTipTapEditor(mode === "edit", content);
+    const { ref: mediaLibraryModalRef, ...mediaLibraryModalHandlers } =
+      useMediaLibraryModal(editor);
+    const { toggle: toggleMathsModal, ...mathsModalHandlers } =
+      useMathsModal(editor);
+    const imageModal = useImageModal(editor);
+    const linkToolbarHandlers = useLinkToolbar(editor, mediaLibraryModalRef);
+    const speechSynthetisis = useSpeechSynthetisis(editor);
+
     //----- Editor API
     useImperativeHandle(ref, () => ({
       getContent: (as: "html" | "json" | "plain") => {
@@ -87,60 +90,10 @@ const Editor = forwardRef(
             throw `[Editor] Unknown content format ${as}`;
         }
       },
-      toogleSpeechSynthetisis: () => {
-        if (speechSynthetisis) {
-          editor?.commands.stopSpeechSynthesis();
-          setSpeechSynthetisis(false);
-          return false;
-        } else {
-          const speech = editor?.commands.startSpeechSynthesis() || false;
-          setSpeechSynthetisis(speech);
-          return speech;
-        }
-      },
-      isSpeeching: () => speechSynthetisis,
+      toogleSpeechSynthetisis: speechSynthetisis.toggle,
+      isSpeeching: () => speechSynthetisis.isActivated,
     }));
 
-    //----- Editor implementation
-    const [speechSynthetisis, setSpeechSynthetisis] = useState<boolean>(false);
-
-    const { appCode } = useOdeClient();
-    const { editor, editable } = useTipTapEditor(mode === "edit", content);
-    const mathsModal = useMathsModal(editor);
-    const imageModal = useImageModal(editor);
-    const mediaLibrary = useMediaLibraryModal(editor);
-
-    const handleLinkEdit = (attrs: LinkerAttributes | HyperlinkAttributes) => {
-      // If a link is active, select it.
-      if (editor?.isActive("linker")) editor.commands.selectParentNode();
-      if (editor?.isActive("hyperlink"))
-        editor.commands.extendMarkRange("hyperlink");
-
-      const attrsLinker = attrs as LinkerAttributes;
-      if (attrsLinker["data-id"] || attrsLinker["data-app-prefix"]) {
-        mediaLibrary.ref.current?.editLink({
-          target: attrs.target,
-          resourceId: attrsLinker["data-id"],
-          appPrefix: attrsLinker["data-app-prefix"],
-        });
-      } else {
-        const { href, target, title } = attrs as HyperlinkAttributes;
-        mediaLibrary.ref.current?.editLink({
-          url: href || "",
-          target: target || undefined,
-          text: title || undefined,
-        });
-      }
-    };
-
-    const handleLinkOpen = (attrs: LinkerAttributes) => {
-      window.open(attrs.href || "about:blank", "_blank");
-    };
-
-    const handleLinkUnlink = (/*attrs: LinkerAttributes*/) => {
-      editor?.commands.unsetLinker?.();
-      editor?.commands.unsetLink?.();
-    };
     return (
       <EditorContext.Provider
         value={{
@@ -153,8 +106,8 @@ const Editor = forwardRef(
             <EditorToolbar
               {...{
                 editor,
-                mediaLibraryRef: mediaLibrary.ref,
-                toggleMathsModal: mathsModal.toggle,
+                mediaLibraryRef: mediaLibraryModalRef,
+                toggleMathsModal: toggleMathsModal,
               }}
             />
           )}
@@ -165,12 +118,7 @@ const Editor = forwardRef(
           />
         </TiptapWrapper>
 
-        <LinkToolbar
-          editor={editor}
-          onEdit={handleLinkEdit}
-          onOpen={handleLinkOpen}
-          onUnlink={handleLinkUnlink}
-        />
+        <LinkToolbar editor={editor} {...linkToolbarHandlers} />
 
         <TableToolbar editor={editor} />
 
@@ -197,21 +145,16 @@ const Editor = forwardRef(
         <Suspense fallback={<LoadingScreen />}>
           {editable && (
             <MediaLibrary
-              ref={mediaLibrary.ref}
               appCode={appCode}
-              onCancel={mediaLibrary.handleCancel}
-              onSuccess={mediaLibrary.handleSuccess}
+              ref={mediaLibraryModalRef}
+              {...mediaLibraryModalHandlers}
             />
           )}
         </Suspense>
 
         <Suspense fallback={<LoadingScreen />}>
-          {editable && mathsModal.isOpen && (
-            <MathsModal
-              isOpen={mathsModal.isOpen}
-              onCancel={mathsModal.handleCancel}
-              onSuccess={mathsModal.handleSuccess}
-            />
+          {editable && mathsModalHandlers.isOpen && (
+            <MathsModal {...mathsModalHandlers} />
           )}
         </Suspense>
 
