@@ -150,15 +150,11 @@ const Editor = forwardRef(
               {...mediaLibraryModalHandlers}
             />
           )}
-        </Suspense>
 
-        <Suspense fallback={<LoadingScreen />}>
           {editable && mathsModalHandlers.isOpen && (
             <MathsModal {...mathsModalHandlers} />
           )}
-        </Suspense>
 
-        <Suspense fallback={<LoadingScreen />}>
           {editable && imageModal?.isOpen && imageModal?.currentImage && (
             <ImageEditor
               altText={imageModal?.currentImage.alt}
