@@ -16,16 +16,18 @@ import {
 } from "@edifice-ui/icons";
 import { DropdownMenuOptions, MediaLibraryRef } from "@edifice-ui/react";
 import { Editor } from "@tiptap/react";
+import { useTranslation } from "react-i18next";
 
 export const useActionOptions = (
   editor: Editor | null,
   toggleMathsModal: Function,
   mediaLibraryRef: RefObject<MediaLibraryRef>,
 ) => {
+  const { t } = useTranslation();
   const options: DropdownMenuOptions[] = [
     {
       icon: <TextVanilla />,
-      label: "Supprimer la mise en forme",
+      label: t("Supprimer la mise en forme"),
       action: () => editor?.chain().clearNodes().unsetAllMarks().run(),
     },
     {
@@ -33,7 +35,7 @@ export const useActionOptions = (
     },
     {
       icon: <Table />,
-      label: "Tableau",
+      label: t("Tableau"),
       action: () =>
         editor
           ?.chain()
@@ -46,17 +48,17 @@ export const useActionOptions = (
     },
     {
       icon: <Superscript />,
-      label: "Exposant",
+      label: t("Exposant"),
       action: () => editor?.chain().focus().toggleSuperscript().run(),
     },
     {
       icon: <Subscript />,
-      label: "Indice",
+      label: t("Indice"),
       action: () => editor?.chain().focus().toggleSubscript().run(),
     },
     {
       icon: <SquareRoot />,
-      label: "Formule mathématique",
+      label: t("Formule mathématique"),
       action: () => {
         toggleMathsModal();
       },
@@ -66,41 +68,41 @@ export const useActionOptions = (
     },
     {
       icon: <Code />,
-      label: "Élément embed/iframe",
+      label: t("Élément embed/iframe"),
       action: () => mediaLibraryRef.current?.show("embedder"),
     },
   ];
   const listOptions: DropdownMenuOptions[] = [
     {
       icon: <BulletList />,
-      label: "Liste à puce",
+      label: t("Liste à puce"),
       action: () => editor?.chain().focus().toggleBulletList().run(),
     },
     {
       icon: <OrderedList />,
-      label: "Liste numérotée",
+      label: t("Liste numérotée"),
       action: () => editor?.chain().focus().toggleOrderedList().run(),
     },
   ];
   const alignmentOptions: DropdownMenuOptions[] = [
     {
       icon: <AlignLeft />,
-      label: "Aligner à gauche",
+      label: t("Aligner à gauche"),
       action: () => editor?.chain().focus().setTextAlign("left").run(),
     },
     {
       icon: <AlignCenter />,
-      label: "Aligner au centre",
+      label: t("Aligner au centre"),
       action: () => editor?.chain().focus().setTextAlign("center").run(),
     },
     {
       icon: <AlignRight />,
-      label: "Aligner à droite",
+      label: t("Aligner à droite"),
       action: () => editor?.chain().focus().setTextAlign("right").run(),
     },
     {
       icon: <AlignJustify />,
-      label: "Justifier",
+      label: t("Justifier"),
       action: () => editor?.chain().focus().setTextAlign("justify").run(),
     },
   ];
