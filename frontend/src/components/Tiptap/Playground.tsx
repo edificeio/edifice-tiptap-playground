@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
+import { Editor, EditorRef } from "@edifice-ui/editor";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import { Toolbar, ToolbarItem } from "@edifice-ui/react";
-
-import Editor, { EditorRef } from "./Editor";
 
 const initialContent = `
 <h2>
