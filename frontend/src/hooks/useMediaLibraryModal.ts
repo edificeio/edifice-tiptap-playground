@@ -69,6 +69,7 @@ export const useMediaLibraryModal = (editor: Editor | null) => {
         // Video type => result is of type WorkspaceElement[] or string
         case "video": {
           if (typeof result === "string") {
+            // This is a video Embedded code (iframe from trusted media provider)
             editor?.commands.insertContentAt(
               editor.view.state.selection,
               result,
@@ -200,11 +201,7 @@ export const useMediaLibraryModal = (editor: Editor | null) => {
         }
 
         case "embedder": {
-          const richContent = `[TipTap/toRichContent] TODO support embedded content`;
-          editor?.commands.insertContentAt(
-            editor.view.state.selection,
-            richContent,
-          );
+          editor?.commands.insertContentAt(editor.view.state.selection, result);
           editor?.commands.enter();
           break;
         }
