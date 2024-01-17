@@ -8,6 +8,7 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ERROR_CODE } from "edifice-ts-client";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
@@ -33,7 +34,10 @@ if (process.env.NODE_ENV !== "production") {
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error) => {
-      if (error === "0090") window.location.replace("/auth/login");
+      if (typeof error === "string") {
+        if (error === ERROR_CODE.NOT_LOGGED_IN)
+          window.location.replace("/auth/login");
+      }
     },
   }),
   defaultOptions: {
