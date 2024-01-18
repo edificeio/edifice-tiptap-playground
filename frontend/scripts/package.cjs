@@ -46,9 +46,11 @@ function generateDeps(content) {
 
   return {
     ...deps,
+    "@edifice-ui/editor": BRANCH,
     "@edifice-ui/icons": BRANCH,
     "@edifice-ui/react": BRANCH,
     "edifice-ts-client": BRANCH,
+    "edifice-bootstrap": BRANCH,
   };
 }
 
