@@ -1,8 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, RefAttributes, useEffect, useRef, useState } from "react";
 
 import { Editor, EditorRef } from "@edifice-ui/editor";
-import { Edit, TextToSpeech } from "@edifice-ui/icons";
-import { Toolbar, ToolbarItem } from "@edifice-ui/react";
+import { Edit, Settings, TextToSpeech } from "@edifice-ui/icons";
+import {
+  Dropdown,
+  IconButton,
+  IconButtonProps,
+  Toolbar,
+  ToolbarItem,
+} from "@edifice-ui/react";
 
 const initialContent = `
 <h2>
@@ -80,8 +86,21 @@ const initialContent = `
 
 const Playground = () => {
   const editorRef = useRef<EditorRef>(null);
+  const [contentSrc, setContentSrc] = useState<string>("content");
+  const [contentFetched, setContentFetched] = useState<any>({});
   const [content, setContent] = useState(initialContent);
   const [mode, setMode] = useState<"read" | "edit">("edit");
+
+  const contentSrcOptions = [
+    {
+      value: "content",
+      label: "Doc original",
+    },
+    {
+      value: "contentJson",
+      label: "Doc pré-transformé",
+    },
+  ];
 
   const toolbarDemo: ToolbarItem[] = [
     {
@@ -105,6 +124,44 @@ const Playground = () => {
       },
       name: "mode",
     },
+    {
+      type: "dropdown",
+      props: {
+        children: (
+          triggerProps: JSX.IntrinsicAttributes &
+            Omit<IconButtonProps, "ref"> &
+            RefAttributes<HTMLButtonElement>,
+        ) => (
+          <>
+            <IconButton
+              {...triggerProps}
+              type="button"
+              variant="ghost"
+              color="tertiary"
+              icon={<Settings />}
+            />
+            <Dropdown.Menu>
+              <Dropdown.Item>
+                <i>Choix de la source</i>
+              </Dropdown.Item>
+              <Dropdown.Separator />
+              {contentSrcOptions.map((option) => (
+                <Fragment key={option.label}>
+                  <Dropdown.RadioItem
+                    value={option.value}
+                    model={contentSrc}
+                    onChange={(value: string) => setContentSrc(value)}
+                  >
+                    <span>{option.label}</span>
+                  </Dropdown.RadioItem>
+                </Fragment>
+              ))}
+            </Dropdown.Menu>
+          </>
+        ),
+      },
+      name: "content",
+    },
   ];
 
   // Playground data
@@ -127,13 +184,17 @@ const Playground = () => {
         (response) => {
           if (response.ok) {
             response.json().then((data) => {
-              setContent(data.content);
+              setContentFetched(data);
             });
           }
         },
       );
     }
   }, [fileId, docId, source]);
+
+  useEffect(() => {
+    setContent(contentFetched[contentSrc]);
+  }, [contentSrc, contentFetched]);
 
   return (
     <>
