@@ -9,8 +9,10 @@ const initialContent = `
   Hi there,
 </h2>
 <p class="info">Ceci est une information</p><p class="warning">Ceci est un avertissement</p>
+<mark data-color="rgb(38, 197, 27)" style="background-color: rgb(38, 197, 27); color: inherit"><u><span style="color: rgb(145, 120, 120); font-size: 28px">​​blablabla</span></u></mark>
 <p>
-  this is a <em>basic</em> example of <strong>tiptap</strong>. Sure, there are all kind of basic text styles you'd probably expect from a text editor. But wait until you see the lists:
+  this is a <em>basic</em> example of <strong>tiptap</strong>. Sure, there are all kind of basic text styles you'd probably expect from a text editor. But wait until you see the lists: <mark data-color="#A348C0" style="background-color: #A348C0; color: inherit"><span style="color: #D7B5E2">. Sure, there are all kind o</span></mark>
+
 </p>
 <ul>
   <li>
@@ -20,8 +22,7 @@ const initialContent = `
     … or two list items.
   </li>
 </ul>
-<p>
-  Isn't that great? And all of that is editable. But wait, there's more. Let's try a code block:
+<div class="ng-scope"><div class="ng-scope"><span style="color: rgb(138, 61, 61); background-color: rgb(235, 15, 15);">mon texte</span></div><div class="ng-scope"><span style="background-color: rgb(38, 197, 27); color: rgb(145, 120, 120);">​blablabla</span></div><div class="ng-scope"><span style="background-color: rgb(38, 197, 27); color: rgb(145, 120, 120); font-style: italic; text-decoration: underline; font-size: 28px; line-height: 28px;">​</span><span style="background-color: rgb(38, 197, 27); color: rgb(145, 120, 120); font-style: italic; text-decoration: underline; font-size: 28px; line-height: 28px;">​blablabla</span></div><div class="ng-scope"><span style="color: rgb(214, 5, 5); background-color: rgb(0, 0, 0);">​mon nouveau texte</span></div><div class="ng-scope"><span style="background-color: rgb(0, 0, 0); color: rgb(214, 5, 5); font-size: 42px; line-height: 42px;">mon nouveau texte</span></div></div>  Isn't that great? And all of that is editable. But wait, there's more. Let's try a code block:
 </p>
 <pre>
   <code class="language-css">
