@@ -4,6 +4,9 @@ import { Editor, EditorRef } from "@edifice-ui/editor";
 import { Edit, TextToSpeech } from "@edifice-ui/icons";
 import { Toolbar, ToolbarItem } from "@edifice-ui/react";
 
+import defaultImage1 from "../../assets/editeur-default-1.png";
+import defaultImage2 from "../../assets/editeur-default-2.png";
+
 const initialContent = `
   <p>
     📣
@@ -19,7 +22,7 @@ const initialContent = `
     attentes.
   </p>
   <img
-    src="/workspace/document/196e60bf-5fbb-42e0-aaae-263ea1eb63ab"
+    src="${defaultImage1}"
     class="custom-image"
     textalign="left"
     width="645"
@@ -30,10 +33,10 @@ const initialContent = `
     l’icône en haut à droite de ce texte pour passer en mode édition
   </p>
   <img
-    src="/workspace/document/53da6cdb-6be9-4b73-afbb-da1d388fa01c"
+    src="${defaultImage2}"
     class="custom-image"
     textalign="justify"
-    width="125"
+    width="80"
     height="83.33333333333333"
   />
   <p style="text-align: start">
