@@ -123,6 +123,16 @@ const Playground = () => {
     }
   }, [fileId, docId, source]);
 
+  useEffect(() => {
+    if (mode === "read") {
+      // Copy content into clipboard
+      editorRef.current &&
+        navigator.clipboard.writeText(
+          editorRef.current.getContent("html") as string,
+        );
+    }
+  }, [mode]);
+
   return (
     <>
       <Toolbar
