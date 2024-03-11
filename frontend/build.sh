@@ -83,7 +83,7 @@ doInit () {
   if [ "$NO_DOCKER" = "true" ] ; then
     pnpm install
   else
-    docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install"
+    docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install"
   fi
 
 }
@@ -106,7 +106,7 @@ localDep () {
     if [ "$NO_DOCKER" = "true" ] ; then
       pnpm install --no-save edifice-ts-client.tar.gz
     else
-      docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install --no-save edifice-ts-client.tar.gz"
+      docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm install --no-save edifice-ts-client.tar.gz"
     fi
     rm -rf edifice-ts-client.tar edifice-ts-client.tar.gz
   fi
@@ -116,7 +116,7 @@ build () {
   if [ "$NO_DOCKER" = "true" ] ; then
     pnpm build
   else
-    docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm build"
+    docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm build"
   fi
   status=$?
   if [ $status != 0 ];
@@ -130,7 +130,7 @@ publishNPM () {
   if [ "$NO_DOCKER" = "true" ] ; then
     pnpm publish --tag $LOCAL_BRANCH
   else
-    docker-compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm publish --tag $LOCAL_BRANCH"
+    docker compose run --rm -u "$USER_UID:$GROUP_GID" node sh -c "pnpm publish --tag $LOCAL_BRANCH"
   fi
 }
 
