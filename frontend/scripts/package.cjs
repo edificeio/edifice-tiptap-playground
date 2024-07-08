@@ -42,15 +42,22 @@ function generatePackage(content) {
 }
 
 function generateDeps(content) {
-  const deps = content.dependencies;
-
   return {
-    ...deps,
-    "@edifice-ui/editor": BRANCH,
-    "@edifice-ui/icons": BRANCH,
-    "@edifice-ui/react": BRANCH,
-    "edifice-ts-client": BRANCH,
-    "edifice-bootstrap": BRANCH,
+    ...content.dependencies,
+    "@edifice-ui/icons":
+      BRANCH === "main" || BRANCH === "master" ? "latest" : BRANCH,
+    "@edifice-ui/react":
+      BRANCH === "main" || BRANCH === "master" ? "latest" : BRANCH,
+  };
+}
+
+function generateDevDeps(content) {
+  return {
+    ...content.devDependencies,
+    "edifice-ts-client":
+      BRANCH === "main" || BRANCH === "master" ? "latest" : BRANCH,
+    "edifice-bootstrap":
+      BRANCH === "main" || BRANCH === "master" ? "latest" : BRANCH,
   };
 }
 
@@ -71,6 +78,7 @@ function createPackage() {
 
       content.version = version;
       content.dependencies = generateDeps(content);
+      content.devDependencies = generateDevDeps(content);
 
       generatePackage(content);
     },
