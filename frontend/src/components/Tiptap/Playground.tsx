@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
-import { Editor, EditorRef } from "@edifice-ui/editor";
-import { Edit, TextToSpeech } from "@edifice-ui/icons";
-import { Toolbar, ToolbarItem } from "@edifice-ui/react";
+import { Editor, EditorRef } from '@edifice-ui/editor';
+import { Edit, TextToSpeech } from '@edifice-ui/icons';
+import { Toolbar, ToolbarItem } from '@edifice-ui/react';
 
-import defaultImage1 from "../../assets/editeur-default-1.png";
-import defaultImage2 from "../../assets/editeur-default-2.png";
+import defaultImage1 from '../../assets/editeur-default-1.png';
+import defaultImage2 from '../../assets/editeur-default-2.png';
 
 const initialContent = `
   <p>
@@ -69,37 +69,37 @@ const initialContent = `
 const Playground = () => {
   const editorRef = useRef<EditorRef>(null);
   const [content, setContent] = useState(initialContent);
-  const [mode, setMode] = useState<"read" | "edit">("read");
+  const [mode, setMode] = useState<'read' | 'edit'>('read');
 
   const toolbarDemo: ToolbarItem[] = [
     {
-      type: "icon",
+      type: 'icon',
       props: {
         icon: <TextToSpeech />,
-        className: editorRef.current?.isSpeeching() ? "bg-primary" : "",
-        "aria-label": "Synthèse vocale",
-        onClick: () => {},
+        className: editorRef.current?.isSpeeching() ? 'bg-primary' : '',
+        'aria-label': 'Synthèse vocale',
+        onClick: () => console.log(''),
       },
-      name: "video",
-      visibility: mode === "edit" ? "hide" : "show",
+      name: 'video',
+      visibility: mode === 'edit' ? 'hide' : 'show',
     },
     {
-      type: "icon",
+      type: 'icon',
       props: {
         icon: <Edit />,
-        className: mode === "edit" ? "bg-primary" : "",
-        "aria-label": "Changer de mode",
-        onClick: () => setMode(mode === "edit" ? "read" : "edit"),
+        className: mode === 'edit' ? 'bg-primary' : '',
+        'aria-label': 'Changer de mode',
+        onClick: () => setMode(mode === 'edit' ? 'read' : 'edit'),
       },
-      name: "mode",
+      name: 'mode',
     },
   ];
 
   // Playground data
   const queryParameters = new URLSearchParams(window.location.search);
-  const fileId = queryParameters.get("file");
-  const docId = queryParameters.get("doc");
-  const source = queryParameters.get("source");
+  const fileId = queryParameters.get('file');
+  const docId = queryParameters.get('doc');
+  const source = queryParameters.get('source');
 
   useEffect(() => {
     if (fileId) {
@@ -118,7 +118,7 @@ const Playground = () => {
               setContent(data.content);
             });
           }
-        },
+        }
       );
     }
   }, [fileId, docId, source]);
