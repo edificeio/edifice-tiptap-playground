@@ -20,15 +20,10 @@ const rootElement = document.getElementById('root');
 const root = createRoot(rootElement!);
 
 if (process.env.NODE_ENV !== 'production') {
-  // eslint-disable-next-line global-require
   import('@axe-core/react').then((axe) => {
     axe.default(React, root, 1000);
   });
 }
-
-/* if (process.env.NODE_ENV !== "production") {
-  import("edifice-bootstrap/dist/index.css");
-} */
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({

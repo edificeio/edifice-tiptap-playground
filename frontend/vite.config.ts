@@ -1,7 +1,11 @@
-/// <reference types='vitest' />
-import { nxViteTsPaths } from '@nx/vite/plugins/nx-tsconfig-paths.plugin';
+/// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import {
+  hashEdificeBootstrap,
+  queryHashVersion,
+} from './plugins/vite-plugin-edifice';
 
 export default ({ mode }: { mode: string }) => {
   // Checking environement files
@@ -35,40 +39,23 @@ export default ({ mode }: { mode: string }) => {
 
   /* Replace "/" the name of your application (e.g : blog | mindmap | collaborativewall) */
   return defineConfig({
-    base: mode === 'production' ? '/tiptap' : '',
+    base: mode === 'production' ? '/wiki' : '',
     root: __dirname,
-    cacheDir: './node_modules/.vite/playground',
+    cacheDir: './node_modules/.vite/wiki',
 
     server: {
       proxy: {
         '/applications-list': proxyObj,
-        '/resources-applications': proxyObj,
         '/conf/public': proxyObj,
         '^/(?=help-1d|help-2d)': proxyObj,
         '^/(?=assets)': proxyObj,
         '^/(?=theme|locale|i18n|skin)': proxyObj,
-        '^/(?=auth|appregistry|cas|userbook|directory|communication|conversation|portal|session|timeline|workspace|infra)':
+        '^/(?=auth|appregistry|archive|cas|userbook|directory|communication|conversation|portal|session|timeline|workspace|infra)':
           proxyObj,
-        '/blog': proxyObj,
+        '/xiti': proxyObj,
+        '/analyticsConf': proxyObj,
         '/explorer': proxyObj,
-        '/mindmap': proxyObj,
-        '/pocediteur': proxyObj,
-        '/video': proxyObj,
-        // needed for linker (behaviours)
-        '/actualites/linker/infos': proxyObj,
-        '/collaborativewall/list/all': proxyObj,
-        '/community/listallpages': proxyObj,
-        '/exercizer/subjects-scheduled': proxyObj,
-        '/formulaire/forms/linker': proxyObj,
-        '/forum/categories': proxyObj,
-        '/homeworks/list': proxyObj,
-        '/magneto/boards/editable': proxyObj,
-        '/mindmap/list/all': proxyObj,
-        '/pages/list/all': proxyObj,
-        '/poll/list/all': proxyObj,
-        '/scrapbook/list/all': proxyObj,
-        '/timelinegenerator/timelines': proxyObj,
-        '/wiki/listallpages': proxyObj,
+        '/wiki': proxyObj,
       },
       port: 4200,
       headers,
@@ -81,28 +68,29 @@ export default ({ mode }: { mode: string }) => {
       host: 'localhost',
     },
 
-    plugins: [react(), nxViteTsPaths()],
-
-    // Uncomment this if you are using workers.
-    // worker: {
-    //  plugins: [ nxViteTsPaths() ],
-    // },
+    plugins: [
+      react(),
+      tsconfigPaths(),
+      hashEdificeBootstrap({
+        hash: queryHashVersion,
+      }),
+    ],
 
     build: {
       outDir: './dist',
       emptyOutDir: true,
-      reportCompressedSize: false,
+      reportCompressedSize: true,
       commonjsOptions: {
         transformMixedEsModules: true,
       },
       assetsDir: 'public',
-      chunkSizeWarningLimit: 2500,
+      chunkSizeWarningLimit: 5000,
       rollupOptions: {
         external: ['edifice-ts-client'],
         output: {
           inlineDynamicImports: true,
           paths: {
-            'edifice-ts-client': '/assets/js/edifice-ts-client/index.js',
+            'edifice-ts-client': `/assets/js/edifice-ts-client/index.js?${queryHashVersion}`,
           },
         },
       },
@@ -111,15 +99,12 @@ export default ({ mode }: { mode: string }) => {
     test: {
       watch: false,
       globals: true,
-      cache: {
-        dir: './node_modules/.vitest/playground',
-      },
       environment: 'jsdom',
       include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-      setupFiles: ['./src/mocks/setup.vitest.tsx'],
+      setupFiles: ['./src/mocks/setup.ts'],
       reporters: ['default'],
       coverage: {
-        reportsDirectory: './coverage/playground',
+        reportsDirectory: './coverage/wiki',
         provider: 'v8',
       },
     },

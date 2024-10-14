@@ -131,7 +131,7 @@ const Playground = () => {
         isBlock={true}
         align="right"
       />
-      <Editor ref={editorRef} content={content} mode={mode}></Editor>
+      <Editor ref={editorRef} content={content} mode={mode} />
     </>
   );
 };
